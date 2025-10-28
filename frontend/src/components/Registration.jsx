@@ -188,10 +188,12 @@ const Registration = () => {
       });
 
       if (response.ok) {
-        setSuccessMessage('User registered successfully! Login Information have been sent to their email.')
+        setSuccessMessage(
+          'User registered successfully! Login Information have been sent to their email.'
+        );
         setErrorMessage('');
         setTimeout(() => {
-        setSuccessMessage('');
+          setSuccessMessage('');
         }, 3000);
         setFormData({
           firstName: '',
@@ -271,7 +273,6 @@ const Registration = () => {
       maxWidth="md"
       sx={{
         display: 'absolute',
-        backgroundColor: '#fff8e1',
         alignItems: 'center',
         justifyContent: 'center',
         py: 4,
@@ -1004,10 +1005,11 @@ const Registration = () => {
                     }}
                     sx={{
                       mt: 2.5,
-                      '& input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button': {
-                        WebkitAppearance: 'none',
-                        margin: 0,
-                      },
+                      '& input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button':
+                        {
+                          WebkitAppearance: 'none',
+                          margin: 0,
+                        },
                       '& input[type=number]': {
                         MozAppearance: 'textfield',
                       },
@@ -1099,88 +1101,88 @@ const Registration = () => {
             </Grid>
 
             <Box sx={{ display: 'flex', gap: 2, mt: 4 }}>
-                  <Button
-                    type="submit"
-                    variant="contained"
-                    fullWidth
-                    startIcon={<PersonAddAlt1 />}
-                    sx={{
-                      bgcolor: '#6d2323',
-                      py: 1.8,
-                      fontSize: '1.1rem',
-                      fontWeight: 700,
-                      borderRadius: 2,
-                      textTransform: 'none',
-                      boxShadow: '0 4px 12px rgba(109, 35, 35, 0.3)',
-                      position: 'relative',
-                      overflow: 'hidden',
-                      '&::before': {
-                        content: '""',
-                        position: 'absolute',
-                        top: 0,
-                        left: '-100%',
-                        width: '100%',
-                        height: '100%',
-                        background:
-                          'linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent)',
-                        transition: 'left 0.5s ease',
-                      },
-                      '&:hover::before': {
-                        left: '100%',
-                      },
-                      '&:hover': {
-                        bgcolor: '#5a1e1e',
-                        transform: 'translateY(-3px)',
-                        boxShadow: '0 8px 24px rgba(109, 35, 35, 0.4)',
-                      },
-                      transition: 'all 0.3s ease',
-                    }}
-                  >
-                    Register User
-                  </Button>
+              <Button
+                type="submit"
+                variant="contained"
+                fullWidth
+                startIcon={<PersonAddAlt1 />}
+                sx={{
+                  bgcolor: '#6d2323',
+                  py: 1.8,
+                  fontSize: '1.1rem',
+                  fontWeight: 700,
+                  borderRadius: 2,
+                  textTransform: 'none',
+                  boxShadow: '0 4px 12px rgba(109, 35, 35, 0.3)',
+                  position: 'relative',
+                  overflow: 'hidden',
+                  '&::before': {
+                    content: '""',
+                    position: 'absolute',
+                    top: 0,
+                    left: '-100%',
+                    width: '100%',
+                    height: '100%',
+                    background:
+                      'linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent)',
+                    transition: 'left 0.5s ease',
+                  },
+                  '&:hover::before': {
+                    left: '100%',
+                  },
+                  '&:hover': {
+                    bgcolor: '#5a1e1e',
+                    transform: 'translateY(-3px)',
+                    boxShadow: '0 8px 24px rgba(109, 35, 35, 0.4)',
+                  },
+                  transition: 'all 0.3s ease',
+                }}
+              >
+                Register User
+              </Button>
 
-                  <Button
-                    type="button"
-                    variant="contained"
-                    fullWidth
-                    startIcon={<GroupAdd />}
-                    sx={{
-                      bgcolor: '#000',
-                      py: 1.8,
-                      fontSize: '1rem',
-                      fontWeight: 700,
-                      borderRadius: 2,
-                      textTransform: 'none',
-                      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
-                      position: 'relative',
-                      overflow: 'hidden',
-                      '&::before': {
-                        content: '""',
-                        position: 'absolute',
-                        top: 0,
-                        left: '-100%',
-                        width: '100%',
-                        height: '100%',
-                        background:
-                          'linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent)',
-                        transition: 'left 0.5s ease',
-                      },
-                      '&:hover::before': {
-                        left: '100%',
-                      },
-                      '&:hover': {
-                        bgcolor: '#2a2a2a',
-                        transform: 'translateY(-3px)',
-                        boxShadow: '0 8px 24px rgba(0, 0, 0, 0.4)',
-                      },
-                      transition: 'all 0.3s ease',
-                    }}
-                    onClick={() => navigate('/bulk-register')}
-                  >
-                    Bulk Registration
-                  </Button>
-                </Box>
-            </form>
+              <Button
+                type="button"
+                variant="contained"
+                fullWidth
+                startIcon={<GroupAdd />}
+                sx={{
+                  bgcolor: '#000',
+                  py: 1.8,
+                  fontSize: '1rem',
+                  fontWeight: 700,
+                  borderRadius: 2,
+                  textTransform: 'none',
+                  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
+                  position: 'relative',
+                  overflow: 'hidden',
+                  '&::before': {
+                    content: '""',
+                    position: 'absolute',
+                    top: 0,
+                    left: '-100%',
+                    width: '100%',
+                    height: '100%',
+                    background:
+                      'linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent)',
+                    transition: 'left 0.5s ease',
+                  },
+                  '&:hover::before': {
+                    left: '100%',
+                  },
+                  '&:hover': {
+                    bgcolor: '#2a2a2a',
+                    transform: 'translateY(-3px)',
+                    boxShadow: '0 8px 24px rgba(0, 0, 0, 0.4)',
+                  },
+                  transition: 'all 0.3s ease',
+                }}
+                onClick={() => navigate('/bulk-register')}
+              >
+                Bulk Registration
+              </Button>
+            </Box>
+          </form>
         </Paper>
       </Grow>
     </Container>

@@ -1,5 +1,5 @@
 import API_BASE_URL from '../../apiConfig';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import {
   Container,
@@ -13,8 +13,17 @@ import {
   IconButton,
   CircularProgress,
   Snackbar,
-  Alert
-} from "@mui/material";
+  Alert,
+  Paper,
+  ToggleButton,
+  ToggleButtonGroup,
+  List,
+  ListItem,
+  ListItemText,
+  ListItemIcon,
+  Card,
+  CardContent,
+} from '@mui/material';
 import {
   Add as AddIcon,
   Edit as EditIcon,
@@ -22,18 +31,298 @@ import {
   Save as SaveIcon,
   Cancel as CancelIcon,
   Close,
-} from "@mui/icons-material";
+  Search as SearchIcon,
+  ViewList as ViewListIcon,
+  ViewModule as ViewModuleIcon,
+  Construction as ConstructionIcon,
+  Person as PersonIcon,
+  ExpandMore as ExpandMoreIcon,
+  ExpandLess as ExpandLessIcon,
+} from '@mui/icons-material';
 
-import ConstructionIcon from '@mui/icons-material/Construction';
-import SearchIcon from '@mui/icons-material/Search';
 import ReorderIcon from '@mui/icons-material/Reorder';
 import LoadingOverlay from '../LoadingOverlay';
 import SuccessfullOverlay from '../SuccessfulOverlay';
 import AccessDenied from '../AccessDenied';
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from 'react-router-dom';
+
+// Auth header helper
+const getAuthHeaders = () => {
+  const token = localStorage.getItem('token');
+  return {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+  };
+};
+
+// Employee Autocomplete Component
+const EmployeeAutocomplete = ({
+  value,
+  onChange,
+  placeholder = 'Search employee...',
+  required = false,
+  disabled = false,
+  error = false,
+  helperText = '',
+  selectedEmployee,
+  onEmployeeSelect,
+  dropdownDisabled = false,
+}) => {
+  const [query, setQuery] = useState('');
+  const [employees, setEmployees] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const debounceRef = useRef(null);
+  const dropdownRef = useRef(null);
+  const inputRef = useRef(null);
+
+  useEffect(() => {
+    if (value && !selectedEmployee) {
+      fetchEmployeeById(value);
+    }
+  }, [value]);
+
+  useEffect(() => {
+    if (selectedEmployee) {
+      setQuery(selectedEmployee.name || '');
+    } else if (!value) {
+      setQuery('');
+    }
+  }, [selectedEmployee, value]);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setShowDropdown(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const fetchEmployees = async (searchQuery) => {
+    setIsLoading(true);
+    try {
+      const response = await axios.get(
+        `${API_BASE_URL}/Remittance/employees/search?q=${encodeURIComponent(
+          searchQuery
+        )}`,
+        getAuthHeaders()
+      );
+      setEmployees(response.data);
+    } catch (error) {
+      console.error('Error fetching employees:', error);
+      setEmployees([]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const fetchAllEmployees = async () => {
+    setIsLoading(true);
+    try {
+      const response = await axios.get(
+        `${API_BASE_URL}/Remittance/employees/search`,
+        getAuthHeaders()
+      );
+      setEmployees(response.data);
+    } catch (error) {
+      console.error('Error fetching employees:', error);
+      setEmployees([]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const fetchEmployeeById = async (employeeNumber) => {
+    try {
+      const response = await axios.get(
+        `${API_BASE_URL}/Remittance/employees/${employeeNumber}`,
+        getAuthHeaders()
+      );
+      const employee = response.data;
+      onEmployeeSelect(employee);
+      setQuery(employee.name || '');
+    } catch (error) {
+      console.error('Error fetching employee by ID:', error);
+    }
+  };
+
+  const handleInputChange = (e) => {
+    const inputValue = e.target.value;
+    setQuery(inputValue);
+    setShowDropdown(true);
+
+    if (selectedEmployee && inputValue !== selectedEmployee.name) {
+      onEmployeeSelect(null);
+      onChange('');
+    }
+
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current);
+    }
+
+    debounceRef.current = setTimeout(() => {
+      if (inputValue.trim().length >= 2) {
+        fetchEmployees(inputValue);
+      } else if (inputValue.trim().length === 0) {
+        fetchAllEmployees();
+      } else {
+        setEmployees([]);
+      }
+    }, 300);
+  };
+
+  const handleEmployeeSelect = (employee) => {
+    onEmployeeSelect(employee);
+    setQuery(employee.name);
+    setShowDropdown(false);
+    onChange(employee.employeeNumber);
+  };
+
+  const handleInputFocus = () => {
+    setShowDropdown(true);
+    if (employees.length === 0 && !isLoading) {
+      if (query.length >= 2) {
+        fetchEmployees(query);
+      } else {
+        fetchAllEmployees();
+      }
+    }
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Escape') {
+      setShowDropdown(false);
+    }
+  };
+
+  const handleDropdownClick = () => {
+    if (!showDropdown) {
+      setShowDropdown(true);
+      if (employees.length === 0 && !isLoading) {
+        fetchAllEmployees();
+      }
+    } else {
+      setShowDropdown(false);
+    }
+  };
+
+  return (
+    <Box sx={{ position: 'relative', width: '100%' }} ref={dropdownRef}>
+      <TextField
+        ref={inputRef}
+        value={query}
+        onChange={handleInputChange}
+        onFocus={handleInputFocus}
+        onKeyDown={handleKeyDown}
+        placeholder={placeholder}
+        disabled={disabled}
+        required={required}
+        error={error}
+        helperText={helperText}
+        fullWidth
+        autoComplete="off"
+        size="small"
+        InputProps={{
+          startAdornment: <PersonIcon sx={{ color: '#6D2323', mr: 1 }} />,
+          endAdornment: (
+            <IconButton
+              onClick={dropdownDisabled ? undefined : handleDropdownClick}
+              size="small"
+              disabled={dropdownDisabled}
+              sx={{ color: '#6D2323' }}
+            >
+              {showDropdown ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+            </IconButton>
+          ),
+        }}
+        sx={{
+          '& .MuiOutlinedInput-root': {
+            height: '40px',
+            '& fieldset': {
+              borderColor: error ? 'red' : '#6D2323',
+              borderWidth: '1.5px',
+            },
+            '&:hover fieldset': {
+              borderColor: error ? 'red' : '#6D2323',
+            },
+            '&.Mui-focused fieldset': {
+              borderColor: error ? 'red' : '#6D2323',
+            },
+          },
+        }}
+      />
+
+      {showDropdown && (
+        <Paper
+          elevation={3}
+          sx={{
+            position: 'absolute',
+            top: '100%',
+            left: 0,
+            right: 0,
+            zIndex: 1000,
+            maxHeight: 300,
+            overflow: 'auto',
+            mt: 1,
+          }}
+        >
+          {isLoading ? (
+            <Box sx={{ display: 'flex', justifyContent: 'center', p: 2 }}>
+              <CircularProgress size={20} />
+              <Typography variant="body2" sx={{ ml: 1 }}>
+                Loading...
+              </Typography>
+            </Box>
+          ) : employees.length > 0 ? (
+            <List dense>
+              {employees.map((employee) => (
+                <ListItem
+                  key={employee.employeeNumber}
+                  button
+                  onClick={() => handleEmployeeSelect(employee)}
+                  sx={{
+                    '&:hover': {
+                      backgroundColor: '#f5f5f5',
+                    },
+                  }}
+                >
+                  <ListItemText
+                    primary={employee.name}
+                    secondary={`#${employee.employeeNumber}`}
+                    primaryTypographyProps={{ fontWeight: 'bold' }}
+                    secondaryTypographyProps={{ color: '#666' }}
+                  />
+                </ListItem>
+              ))}
+            </List>
+          ) : query.length >= 2 ? (
+            <Box sx={{ p: 2, textAlign: 'center' }}>
+              <Typography variant="body2" color="textSecondary">
+                No employees found matching "{query}"
+              </Typography>
+            </Box>
+          ) : (
+            <Box sx={{ p: 2, textAlign: 'center' }}>
+              <Typography variant="body2" color="textSecondary">
+                {employees.length === 0
+                  ? 'No employees available'
+                  : 'Type to search or scroll to browse'}
+              </Typography>
+            </Box>
+          )}
+        </Paper>
+      )}
+    </Box>
+  );
+};
 
 const Vocational = () => {
   const [data, setData] = useState([]);
+  const [employeeNames, setEmployeeNames] = useState({});
   const [newVocational, setNewVocational] = useState({
     vocationalNameOfSchool: '',
     vocationalDegree: '',
@@ -45,14 +334,18 @@ const Vocational = () => {
     person_id: '',
   });
   const [editVocational, setEditVocational] = useState(null);
-  const [originalVocational, setOriginalVocational] = useState(null); // Store original data for cancel
-  const [isEditing, setIsEditing] = useState(false); // Track edit mode
+  const [originalVocational, setOriginalVocational] = useState(null);
+  const [isEditing, setIsEditing] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(false);
   const [successOpen, setSuccessOpen] = useState(false);
-  const [successAction, setSuccessAction] = useState("");
+  const [successAction, setSuccessAction] = useState('');
   const [errors, setErrors] = useState({});
-  
+  const [viewMode, setViewMode] = useState('grid');
+
+  const [selectedEmployee, setSelectedEmployee] = useState(null);
+  const [selectedEditEmployee, setSelectedEditEmployee] = useState(null);
+
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: '',
@@ -63,15 +356,12 @@ const Vocational = () => {
     setSnackbar({ open: true, message, severity });
   };
 
-  //ACCESSING
-  // Page access control states
   const [hasAccess, setHasAccess] = useState(null);
   const navigate = useNavigate();
-  // Page access control - Add this useEffect
+
   useEffect(() => {
     const userId = localStorage.getItem('employeeNumber');
-    // Change this pageId to match the ID you assign to this page in your page management
-    const pageId = 6; // You'll need to set this to the appropriate page ID for ViewAttendanceRecord
+    const pageId = 6;
     if (!userId) {
       setHasAccess(false);
       return;
@@ -79,13 +369,14 @@ const Vocational = () => {
     const checkAccess = async () => {
       try {
         const response = await fetch(`${API_BASE_URL}/page_access/${userId}`, {
-          method: "GET",
-          headers: { "Content-Type": "application/json" },
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' },
         });
         if (response.ok) {
           const accessData = await response.json();
-          const hasPageAccess = accessData.some(access => 
-            access.page_id === pageId && String(access.page_privilege) === '1'
+          const hasPageAccess = accessData.some(
+            (access) =>
+              access.page_id === pageId && String(access.page_privilege) === '1'
           );
           setHasAccess(hasPageAccess);
         } else {
@@ -98,8 +389,6 @@ const Vocational = () => {
     };
     checkAccess();
   }, []);
-  // ACCESSING END
-  
 
   useEffect(() => {
     fetchVocationalData();
@@ -107,24 +396,67 @@ const Vocational = () => {
 
   const fetchVocationalData = async () => {
     try {
-      const res = await axios.get(`${API_BASE_URL}/vocational/vocational-table`);
+      const res = await axios.get(
+        `${API_BASE_URL}/vocational/vocational-table`
+      );
       setData(res.data);
+
+      // Fetch employee names for all records
+      const uniqueEmployeeIds = [
+        ...new Set(res.data.map((c) => c.person_id).filter(Boolean)),
+      ];
+      const namesMap = {};
+
+      await Promise.all(
+        uniqueEmployeeIds.map(async (id) => {
+          try {
+            const response = await axios.get(
+              `${API_BASE_URL}/Remittance/employees/${id}`,
+              getAuthHeaders()
+            );
+            namesMap[id] = response.data.name || 'Unknown';
+          } catch (error) {
+            namesMap[id] = 'Unknown';
+          }
+        })
+      );
+
+      setEmployeeNames(namesMap);
     } catch (err) {
       console.error('Error fetching data:', err);
-      showSnackbar('Failed to fetch vocational records. Please try again.', 'error');
+      showSnackbar(
+        'Failed to fetch vocational records. Please try again.',
+        'error'
+      );
     }
   };
 
   const validateForm = () => {
     const newErrors = {};
-    const requiredFields = ['vocationalNameOfSchool', 'vocationalDegree', 'person_id'];
-    
-    requiredFields.forEach(field => {
+    const requiredFields = [
+      'vocationalNameOfSchool',
+      'vocationalDegree',
+      'person_id',
+    ];
+
+    requiredFields.forEach((field) => {
       if (!newVocational[field] || newVocational[field].trim() === '') {
         newErrors[field] = 'This field is required';
       }
     });
-    
+
+    if (
+      newVocational.vocationalPeriodFrom &&
+      newVocational.vocationalPeriodTo
+    ) {
+      if (
+        new Date(newVocational.vocationalPeriodFrom) >
+        new Date(newVocational.vocationalPeriodTo)
+      ) {
+        newErrors.vocationalPeriodTo = 'End date must be after start date';
+      }
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -134,10 +466,13 @@ const Vocational = () => {
       showSnackbar('Please fill in all required fields', 'error');
       return;
     }
-    
+
     setLoading(true);
     try {
-      await axios.post(`${API_BASE_URL}/vocational/vocational-table`, newVocational);
+      await axios.post(
+        `${API_BASE_URL}/vocational/vocational-table`,
+        newVocational
+      );
       setNewVocational({
         vocationalNameOfSchool: '',
         vocationalDegree: '',
@@ -148,34 +483,45 @@ const Vocational = () => {
         vocationalScholarshipAcademicHonorsReceived: '',
         person_id: '',
       });
-      setErrors({}); // Clear errors
-      setTimeout(() => {     
-        setLoading(false);  
-        setSuccessAction("adding");
+      setSelectedEmployee(null);
+      setErrors({});
+      setTimeout(() => {
+        setLoading(false);
+        setSuccessAction('adding');
         setSuccessOpen(true);
         setTimeout(() => setSuccessOpen(false), 2000);
-      }, 300);  
+      }, 300);
       fetchVocationalData();
     } catch (err) {
       console.error('Error adding data:', err);
       setLoading(false);
-      showSnackbar('Failed to add vocational record. Please try again.', 'error');
+      showSnackbar(
+        'Failed to add vocational record. Please try again.',
+        'error'
+      );
     }
   };
 
   const handleUpdate = async () => {
     try {
-      await axios.put(`${API_BASE_URL}/vocational/vocational-table/${editVocational.id}`, editVocational);
+      await axios.put(
+        `${API_BASE_URL}/vocational/vocational-table/${editVocational.id}`,
+        editVocational
+      );
       setEditVocational(null);
       setOriginalVocational(null);
+      setSelectedEditEmployee(null);
       setIsEditing(false);
       fetchVocationalData();
-      setSuccessAction("edit");
+      setSuccessAction('edit');
       setSuccessOpen(true);
       setTimeout(() => setSuccessOpen(false), 2000);
     } catch (err) {
       console.error('Error updating data:', err);
-      showSnackbar('Failed to update vocational record. Please try again.', 'error');
+      showSnackbar(
+        'Failed to update vocational record. Please try again.',
+        'error'
+      );
     }
   };
 
@@ -184,14 +530,18 @@ const Vocational = () => {
       await axios.delete(`${API_BASE_URL}/vocational/vocational-table/${id}`);
       setEditVocational(null);
       setOriginalVocational(null);
+      setSelectedEditEmployee(null);
       setIsEditing(false);
       fetchVocationalData();
-      setSuccessAction("delete");
+      setSuccessAction('delete');
       setSuccessOpen(true);
       setTimeout(() => setSuccessOpen(false), 2000);
     } catch (err) {
       console.error('Error deleting data:', err);
-      showSnackbar('Failed to delete vocational record. Please try again.', 'error');
+      showSnackbar(
+        'Failed to delete vocational record. Please try again.',
+        'error'
+      );
     }
   };
 
@@ -200,9 +550,8 @@ const Vocational = () => {
       setEditVocational({ ...editVocational, [field]: value });
     } else {
       setNewVocational({ ...newVocational, [field]: value });
-      // Clear error for this field when user starts typing
       if (errors[field]) {
-        setErrors(prev => {
+        setErrors((prev) => {
           const newErrors = { ...prev };
           delete newErrors[field];
           return newErrors;
@@ -211,51 +560,108 @@ const Vocational = () => {
     }
   };
 
-  // Handle opening the modal (view mode initially)
-  const handleOpenModal = (vocational) => {
+  const handleEmployeeChange = (employeeNumber) => {
+    setNewVocational({ ...newVocational, person_id: employeeNumber });
+    setErrors((prev) => {
+      const newErrors = { ...prev };
+      delete newErrors.person_id;
+      return newErrors;
+    });
+  };
+
+  const handleEmployeeSelect = (employee) => {
+    setSelectedEmployee(employee);
+  };
+
+  const handleEditEmployeeChange = (employeeNumber) => {
+    setEditVocational({ ...editVocational, person_id: employeeNumber });
+  };
+
+  const handleEditEmployeeSelect = (employee) => {
+    setSelectedEditEmployee(employee);
+  };
+
+  const handleOpenModal = async (vocational) => {
+    const employeeName = employeeNames[vocational.person_id] || 'Unknown';
+
     setEditVocational({ ...vocational });
     setOriginalVocational({ ...vocational });
+    setSelectedEditEmployee({
+      name: employeeName,
+      employeeNumber: vocational.person_id,
+    });
     setIsEditing(false);
   };
 
-  // Handle entering edit mode
   const handleStartEdit = () => {
     setIsEditing(true);
   };
 
-  // Handle canceling edit mode
   const handleCancelEdit = () => {
     setEditVocational({ ...originalVocational });
+    setSelectedEditEmployee({
+      name: employeeNames[originalVocational.person_id] || 'Unknown',
+      employeeNumber: originalVocational.person_id,
+    });
     setIsEditing(false);
   };
 
-  // Handle closing modal
   const handleCloseModal = () => {
     setEditVocational(null);
     setOriginalVocational(null);
+    setSelectedEditEmployee(null);
     setIsEditing(false);
   };
 
-  const inputStyle = { marginRight: 10, marginBottom: 10, width: 300.25 };
+  const handleViewModeChange = (event, newMode) => {
+    if (newMode !== null) {
+      setViewMode(newMode);
+    }
+  };
 
-  // ACCESSING 2
-  // Loading state
+  const hasChanges = () => {
+    if (!editVocational || !originalVocational) return false;
+
+    return (
+      editVocational.vocationalNameOfSchool !==
+        originalVocational.vocationalNameOfSchool ||
+      editVocational.vocationalDegree !== originalVocational.vocationalDegree ||
+      editVocational.vocationalPeriodFrom !==
+        originalVocational.vocationalPeriodFrom ||
+      editVocational.vocationalPeriodTo !==
+        originalVocational.vocationalPeriodTo ||
+      editVocational.vocationalHighestAttained !==
+        originalVocational.vocationalHighestAttained ||
+      editVocational.vocationalYearGraduated !==
+        originalVocational.vocationalYearGraduated ||
+      editVocational.vocationalScholarshipAcademicHonorsReceived !==
+        originalVocational.vocationalScholarshipAcademicHonorsReceived ||
+      editVocational.person_id !== originalVocational.person_id
+    );
+  };
+
   if (hasAccess === null) {
     return (
       <Container maxWidth="md" sx={{ py: 8 }}>
-        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-          <CircularProgress sx={{ color: "#6d2323", mb: 2 }} />
-          <Typography variant="h6" sx={{ color: "#6d2323" }}>
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+          }}
+        >
+          <CircularProgress sx={{ color: '#6d2323', mb: 2 }} />
+          <Typography variant="h6" sx={{ color: '#6d2323' }}>
             Loading access information...
           </Typography>
         </Box>
       </Container>
     );
   }
-  // Access denied state - Now using the reusable component
+
   if (!hasAccess) {
     return (
-      <AccessDenied 
+      <AccessDenied
         title="Access Denied"
         message="You do not have permission to access Vocational Information. Contact your administrator to request access."
         returnPath="/admin-home"
@@ -263,824 +669,1514 @@ const Vocational = () => {
       />
     );
   }
-  //ACCESSING END2
+
+  const filteredData = data.filter((vocational) => {
+    const schoolName = vocational.vocationalNameOfSchool?.toLowerCase() || '';
+    const personId = vocational.person_id?.toString() || '';
+    const employeeName =
+      employeeNames[vocational.person_id]?.toLowerCase() || '';
+    const search = searchTerm.toLowerCase();
+    return (
+      personId.includes(search) ||
+      schoolName.includes(search) ||
+      employeeName.includes(search)
+    );
+  });
 
   return (
-    <Container sx={{ mt: 0, }}>
-
-      {/* Loading Overlay */}
-      <LoadingOverlay open={loading} message="Adding vocational record..."  />
-      
-      {/* Success Overlay */}
+    <Box
+      sx={{
+        minHeight: '100vh',
+        display: 'flex',
+        flexDirection: 'column',
+        pt: 2,
+        mt: -5,
+      }}
+    >
+      <LoadingOverlay open={loading} message="Adding vocational record..." />
       <SuccessfullOverlay open={successOpen} action={successAction} />
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          mb: 4,
-        }}
-      >
-        {/* Outer wrapper for header + content */}
-        <Box sx={{ width: "75%", maxWidth: "100%" }}>
-          {/* Header */}
-          <Box
-            sx={{
-              backgroundColor: "#6D2323",
-              color: "#ffffff",
-              p: 2,
-              borderRadius: "8px 8px 0 0",
-              display: "flex",
-              alignItems: "center",
-              pb: '15px'
-            }}
-          >
-            <ConstructionIcon
-              sx={{ fontSize: "3rem", mr: 2, mt: "5px", ml: "5px" }}
-            />
-            <Box>
-              <Typography variant="h5" sx={{ mb: 0.5 }}>
-                Vocational Information
-              </Typography>
-              <Typography variant="body2">
-                Insert Your Vocational Information
-              </Typography>
-            </Box>
-          </Box>
 
-          {/* Content/Form */}
-          <Container
-            sx={{
-              backgroundColor: "#fff",
-              p: 3,
-              borderBottomLeftRadius: 2,
-              borderBottomRightRadius: 2,
-              boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.1)",
-              border: "1px solid #6d2323",
-              width: "100%",
-            }}
-          >
-            <Grid container spacing={3}>
-              {/* Vocational School Name */}
-              <Grid item xs={12} sm={6}>
-                <Typography variant="subtitle2" sx={{ fontWeight: "bold", mb: 1 }}>
-                  Vocational School Name <span style={{ color: 'red' }}>*</span>
-                </Typography>
-                <TextField
-                  value={newVocational.vocationalNameOfSchool}
-                  onChange={(e) => handleChange("vocationalNameOfSchool", e.target.value)}
-                  fullWidth
-                  style={inputStyle}
-                  error={!!errors.vocationalNameOfSchool}
-                  helperText={errors.vocationalNameOfSchool || ''}
-                  sx={{
-                    '& .MuiOutlinedInput-root': {
-                      '& fieldset': {
-                        borderColor: errors.vocationalNameOfSchool ? 'red' : '#6D2323',
-                      },
-                      '&:hover fieldset': {
-                        borderColor: errors.vocationalNameOfSchool ? 'red' : '#6D2323',
-                      },
-                      '&.Mui-focused fieldset': {
-                        borderColor: errors.vocationalNameOfSchool ? 'red' : '#6D2323',
-                      },
-                    },
-                  }}
-                />
-              </Grid>
-
-              {/* Degree */}
-              <Grid item xs={12} sm={6}>
-                <Typography variant="subtitle2" sx={{ fontWeight: "bold", mb: 1 }}>
-                  Degree <span style={{ color: 'red' }}>*</span>
-                </Typography>
-                <TextField
-                  value={newVocational.vocationalDegree}
-                  onChange={(e) => handleChange("vocationalDegree", e.target.value)}
-                  fullWidth
-                  style={inputStyle}
-                  error={!!errors.vocationalDegree}
-                  helperText={errors.vocationalDegree || ''}
-                  sx={{
-                    '& .MuiOutlinedInput-root': {
-                      '& fieldset': {
-                        borderColor: errors.vocationalDegree ? 'red' : '#6D2323',
-                      },
-                      '&:hover fieldset': {
-                        borderColor: errors.vocationalDegree ? 'red' : '#6D2323',
-                      },
-                      '&.Mui-focused fieldset': {
-                        borderColor: errors.vocationalDegree ? 'red' : '#6D2323',
-                      },
-                    },
-                  }}
-                />
-              </Grid>
-
-              {/* Period From */}
-              <Grid item xs={12} sm={6}>
-                <Typography variant="subtitle2" sx={{ fontWeight: "bold", mb: 1 }}>
-                  Period From
-                </Typography>
-                <TextField
-                  value={newVocational.vocationalPeriodFrom}
-                  onChange={(e) => handleChange("vocationalPeriodFrom", e.target.value)}
-                  fullWidth
-                  style={inputStyle}
-                  sx={{
-                    '& .MuiOutlinedInput-root': {
-                      '& fieldset': {
-                        borderColor: '#6D2323',
-                      },
-                      '&:hover fieldset': {
-                        borderColor: '#6D2323',
-                      },
-                      '&.Mui-focused fieldset': {
-                        borderColor: '#6D2323',
-                      },
-                    },
-                  }}
-                />
-              </Grid>
-
-              {/* Period To */}
-              <Grid item xs={12} sm={6}>
-                <Typography variant="subtitle2" sx={{ fontWeight: "bold", mb: 1 }}>
-                  Period To
-                </Typography>
-                <TextField
-                  value={newVocational.vocationalPeriodTo}
-                  onChange={(e) => handleChange("vocationalPeriodTo", e.target.value)}
-                  fullWidth
-                  style={inputStyle}
-                  sx={{
-                    '& .MuiOutlinedInput-root': {
-                      '& fieldset': {
-                        borderColor: '#6D2323',
-                      },
-                      '&:hover fieldset': {
-                        borderColor: '#6D2323',
-                      },
-                      '&.Mui-focused fieldset': {
-                        borderColor: '#6D2323',
-                      },
-                    },
-                  }}
-                />
-              </Grid>
-
-              {/* Highest Attained */}
-              <Grid item xs={12} sm={6}>
-                <Typography variant="subtitle2" sx={{ fontWeight: "bold", mb: 1 }}>
-                  Highest Attained
-                </Typography>
-                <TextField
-                  value={newVocational.vocationalHighestAttained}
-                  onChange={(e) => handleChange("vocationalHighestAttained", e.target.value)}
-                  fullWidth
-                  style={inputStyle}
-                  sx={{
-                    '& .MuiOutlinedInput-root': {
-                      '& fieldset': {
-                        borderColor: '#6D2323',
-                      },
-                      '&:hover fieldset': {
-                        borderColor: '#6D2323',
-                      },
-                      '&.Mui-focused fieldset': {
-                        borderColor: '#6D2323',
-                      },
-                    },
-                  }}
-                />
-              </Grid>
-
-              {/* Year Graduated */}
-              <Grid item xs={12} sm={6}>
-                <Typography variant="subtitle2" sx={{ fontWeight: "bold", mb: 1 }}>
-                  Year Graduated
-                </Typography>
-                <TextField
-                  value={newVocational.vocationalYearGraduated}
-                  onChange={(e) => handleChange("vocationalYearGraduated", e.target.value)}
-                  fullWidth
-                  style={inputStyle}
-                  sx={{
-                    '& .MuiOutlinedInput-root': {
-                      '& fieldset': {
-                        borderColor: '#6D2323',
-                      },
-                      '&:hover fieldset': {
-                        borderColor: '#6D2323',
-                      },
-                      '&.Mui-focused fieldset': {
-                        borderColor: '#6D2323',
-                      },
-                    },
-                  }}
-                />
-              </Grid>
-
-              {/* Honors Received */}
-              <Grid item xs={12} sm={6}>
-                <Typography variant="subtitle2" sx={{ fontWeight: "bold", mb: 1 }}>
-                  Honors Received
-                </Typography>
-                <TextField
-                  value={newVocational.vocationalScholarshipAcademicHonorsReceived}
-                  onChange={(e) =>
-                    handleChange("vocationalScholarshipAcademicHonorsReceived", e.target.value)
-                  }
-                  fullWidth
-                  style={inputStyle}
-                  sx={{
-                    '& .MuiOutlinedInput-root': {
-                      '& fieldset': {
-                        borderColor: '#6D2323',
-                      },
-                      '&:hover fieldset': {
-                        borderColor: '#6D2323',
-                      },
-                      '&.Mui-focused fieldset': {
-                        borderColor: '#6D2323',
-                      },
-                    },
-                  }}
-                />
-              </Grid>
-
-              {/* Employee Number */}
-              <Grid item xs={12} sm={6}>
-                <Typography variant="subtitle2" sx={{ fontWeight: "bold", mb: 1 }}>
-                  Employee Number <span style={{ color: 'red' }}>*</span>
-                </Typography>
-                <TextField
-                  value={newVocational.person_id}
-                  onChange={(e) => handleChange("person_id", e.target.value)}
-                  fullWidth
-                  style={inputStyle}
-                  error={!!errors.person_id}
-                  helperText={errors.person_id || ''}
-                  sx={{
-                    '& .MuiOutlinedInput-root': {
-                      '& fieldset': {
-                        borderColor: errors.person_id ? 'red' : '#6D2323',
-                      },
-                      '&:hover fieldset': {
-                        borderColor: errors.person_id ? 'red' : '#6D2323',
-                      },
-                      '&.Mui-focused fieldset': {
-                        borderColor: errors.person_id ? 'red' : '#6D2323',
-                      },
-                    },
-                  }}
-                />
-              </Grid>
-            </Grid>
-
-            {/* Add Button */}
-            <Button
-              onClick={handleAdd}
-              variant="contained"
-              startIcon={<AddIcon />}
-              sx={{
-                mt: 3,
-                width: "100%",
-                backgroundColor: "#6D2323",
-                color: "#FEF9E1",
-                "&:hover": { backgroundColor: "#5a1d1d" },
-              }}
-            >
-              Add
-            </Button>
-          </Container>
-        </Box>
+      <Box sx={{ textAlign: 'center', mb: 3, px: 2 }}>
+        <Typography
+          variant="h4"
+          sx={{ color: '#6D2323', fontWeight: 'bold', mb: 0.5 }}
+        >
+          Vocational Information Management
+        </Typography>
+        <Typography variant="body2" sx={{ color: '#666' }}>
+          Add and manage vocational records for employees
+        </Typography>
       </Box>
 
-      {/* Outer wrapper for header + content */}
-      <Box sx={{ width: "75%", maxWidth: "100%", margin: "20px auto" }}>
-        {/* Header */}
-        <Box
-          sx={{
-            backgroundColor: "#ffffff",
-            color: "#6d2323",
-            p: 2,
-            borderRadius: "8px 8px 0 0",
-            display: "flex",
-            alignItems: "center",
-            pb: "15px",
-            border: '1px solid #6d2323',
-            borderBottom: 'none'
-          }}
-        >
-          <ReorderIcon sx={{ fontSize: "3rem", mr: 2, mt: "5px", ml: "5px" }} />
-          <Box>
-            <Typography variant="h5" sx={{ mb: 0.5 }}>
-              Vocational Records
-            </Typography>
-            <Typography variant="body2">
-              View and manage vocational information
-            </Typography>
-          </Box>
-        </Box>
-
-        {/* Content */}
-        <Container
-          sx={{
-            backgroundColor: "#fff",
-            p: 3,
-            borderBottomLeftRadius: 2,
-            borderBottomRightRadius: 2,
-            boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.1)",
-            border: "1px solid #6d2323",
-            width: "100%",
-          }}
-        >
-          {/* Search Section */}
-          <Box sx={{ mb: 3, width: "100%" }}>
-            {/* Subtitle */}
-            <Typography
-              variant="subtitle2"
-              sx={{ color: "#6D2323", mb: 1 }}
-            >
-              Search Records using Employee Number
-            </Typography>
-
-            {/* Search Box */}
-            <Box display="flex" justifyContent="flex-start" alignItems="center" width="100%">
-              <TextField
-                size="small"
-                variant="outlined"
-                placeholder="Search by Person ID or School Name"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                sx={{
-                  backgroundColor: "white",
-                  borderRadius: 1,
-                  width: "100%",
-                  maxWidth: "800px",
-                  "& .MuiOutlinedInput-root": {
-                    "& fieldset": {
-                      borderColor: "#6D2323",
-                    },
-                    "&:hover fieldset": {
-                      borderColor: "#6D2323",
-                    },
-                    "&.Mui-focused fieldset": {
-                      borderColor: "#6D2323",
-                    },
-                  },
-                }}
-                InputProps={{
-                  startAdornment: (
-                    <SearchIcon sx={{ color: "#6D2323", marginRight: 1 }} />
-                  ),
-                }}
-              />
-            </Box>
-          </Box>
-
-          {/* Records as Boxes */}
-          <Grid container spacing={2}>
-            {data
-              .filter((vocational) => {
-                const schoolName = vocational.vocationalNameOfSchool?.toLowerCase() || "";
-                const personId = vocational.person_id?.toString() || "";
-                const search = searchTerm.toLowerCase();
-                return personId.includes(search) || schoolName.includes(search);
-              })
-              .map((vocational) => (
-                <Grid item xs={12} sm={6} md={4} key={vocational.id}>
-                  <Box
-                    onClick={() => handleOpenModal(vocational)}
-                    sx={{
-                      border: "1px solid #6d2323",
-                      borderRadius: 2,
-                      p: 2,
-                      cursor: "pointer",
-                      transition: "0.2s",
-                      "&:hover": { boxShadow: "0px 4px 10px rgba(0,0,0,0.2)" },
-                      height: "80%",
-                    }}
-                  >
-                    {/* Employee Number */}
-                    <Typography
-                      variant="body2"
-                      sx={{ fontWeight: "bold", color: "black", mb: 1 }}
-                    >
-                      Employee Number:
-                    </Typography>
-                    <Typography
-                      variant="body2"
-                      sx={{ fontWeight: "bold", color: "#6d2323", mb: 1 }}
-                    >
-                      {vocational.person_id}
-                    </Typography>
-
-                    {/* School Name Pill */}
-                    <Chip
-                      label={vocational.vocationalNameOfSchool}
-                      sx={{
-                        backgroundColor: "#6d2323",
-                        color: "#fff",
-                        borderRadius: "50px",
-                        px: 2,
-                        fontWeight: "bold",
-                        maxWidth: "100%",
-                      }}
-                    />
-                  </Box>
-                </Grid>
-              ))}
-            {data.filter((vocational) => {
-              const schoolName = vocational.vocationalNameOfSchool?.toLowerCase() || "";
-              const personId = vocational.person_id?.toString() || "";
-              const search = searchTerm.toLowerCase();
-              return personId.includes(search) || schoolName.includes(search);
-            }).length === 0 && (
-              <Grid item xs={12}>
-                <Typography
-                  variant="body1"
-                  sx={{ textAlign: "center", color: "#6D2323", fontWeight: "bold", mt: 2 }}
-                >
-                  No Records Found
-                </Typography>
-              </Grid>
-            )}
-          </Grid>
-        </Container>
-
-        <Modal
-          open={!!editVocational}
-          onClose={handleCloseModal}
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          <Box
-            sx={{
-              backgroundColor: "#fff",
-              border: "1px solid #6d2323",
-              borderRadius: 2,
-              width: "75%",
-              maxWidth: "900px",
-              maxHeight: "85vh",
-              overflowY: "auto",
-              position: "relative",
-            }}
+      <Container
+        maxWidth="xl"
+        sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}
+      >
+        <Grid container spacing={3} sx={{ flexGrow: 1 }}>
+          <Grid
+            item
+            xs={12}
+            lg={6}
+            sx={{ display: 'flex', flexDirection: 'column' }}
           >
-            {editVocational && (
-              <>
-                {/* Modal Header */}
-                <Box
-                  sx={{
-                    backgroundColor: "#6D2323",
-                    color: "#ffffff",
-                    p: 2,
-                    borderRadius: "8px 8px 0 0",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                  }}
-                >
-                  <Typography variant="h6">
-                    {isEditing ? "Edit Vocational Information" : "Vocational Information"}
+            <Paper
+              elevation={4}
+              sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                borderRadius: 2,
+                overflow: 'hidden',
+                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+                border: '1px solid rgba(109, 35, 35, 0.1)',
+                height: { xs: 'auto', lg: 'calc(100vh - 200px)' },
+                maxHeight: { xs: 'none', lg: 'calc(100vh - 200px)' },
+              }}
+            >
+              <Box
+                sx={{
+                  backgroundColor: '#6D2323',
+                  color: '#ffffff',
+                  p: 2,
+                  display: 'flex',
+                  alignItems: 'center',
+                  boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                }}
+              >
+                <ConstructionIcon sx={{ fontSize: '1.8rem', mr: 2 }} />
+                <Box>
+                  <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
+                    Add New Vocational Record
                   </Typography>
-                  <IconButton onClick={handleCloseModal} sx={{ color: "#fff" }}>
-                    <Close />
-                  </IconButton>
+                  <Typography variant="caption" sx={{ opacity: 0.9 }}>
+                    Fill in the vocational information
+                  </Typography>
                 </Box>
+              </Box>
 
-                {/* Modal Content (Form Style) */}
-                <Box sx={{ p: 3 }}>
-                  <Grid container spacing={3}>
-                    {/* Vocational School Name */}
-                    <Grid item xs={12} sm={6}>
-                      <Typography variant="subtitle2" sx={{ fontWeight: "bold", mb: 1 }}>
-                        Vocational School Name
-                      </Typography>
-                      <TextField
-                        value={editVocational.vocationalNameOfSchool}
-                        onChange={(e) =>
-                          setEditVocational({ ...editVocational, vocationalNameOfSchool: e.target.value })
-                        }
-                        fullWidth
-                        disabled={!isEditing}
-                        sx={{
-                          '& .MuiOutlinedInput-root': {
-                            '& fieldset': {
-                              borderColor: "#6D2323",
-                            },
-                            '&:hover fieldset': {
-                              borderColor: "#6D2323",
-                            },
-                            '&.Mui-focused fieldset': {
-                              borderColor: "#6D2323",
-                            },
-                          },
-                          "& .MuiInputBase-input.Mui-disabled": {
-                            WebkitTextFillColor: "#000000",
-                            color: "#000000"
-                          }
-                        }}
-                      />
-                    </Grid>
+              <Box
+                sx={{
+                  p: 3,
+                  flexGrow: 1,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  overflowY: 'auto',
+                }}
+              >
+                <Grid container spacing={2}>
+                  <Grid item xs={12}>
+                    <Typography
+                      variant="subtitle2"
+                      sx={{ fontWeight: 'bold', mb: 1.5, color: '#6D2323' }}
+                    >
+                      Employee Information{' '}
+                      <span style={{ color: 'red' }}>*</span>
+                    </Typography>
+                    <Grid container spacing={2}>
+                      <Grid item xs={12} sm={6}>
+                        <Typography
+                          variant="caption"
+                          sx={{
+                            fontWeight: 'bold',
+                            mb: 0.5,
+                            color: '#333',
+                            display: 'block',
+                          }}
+                        >
+                          Search Employee
+                        </Typography>
+                        <EmployeeAutocomplete
+                          value={newVocational.person_id}
+                          onChange={handleEmployeeChange}
+                          selectedEmployee={selectedEmployee}
+                          onEmployeeSelect={handleEmployeeSelect}
+                          placeholder="Search and select employee..."
+                          required
+                          error={!!errors.person_id}
+                          helperText={errors.person_id || ''}
+                        />
+                      </Grid>
 
-                    {/* Degree */}
-                    <Grid item xs={12} sm={6}>
-                      <Typography variant="subtitle2" sx={{ fontWeight: "bold", mb: 1 }}>
-                        Degree
-                      </Typography>
-                      <TextField
-                        value={editVocational.vocationalDegree}
-                        onChange={(e) =>
-                          setEditVocational({ ...editVocational, vocationalDegree: e.target.value })
-                        }
-                        fullWidth
-                        disabled={!isEditing}
-                        sx={{
-                          '& .MuiOutlinedInput-root': {
-                            '& fieldset': {
-                              borderColor: "#6D2323",
-                            },
-                            '&:hover fieldset': {
-                              borderColor: "#6D2323",
-                            },
-                            '&.Mui-focused fieldset': {
-                              borderColor: "#6D2323",
-                            },
-                          },
-                          "& .MuiInputBase-input.Mui-disabled": {
-                            WebkitTextFillColor: "#000000",
-                            color: "#000000"
-                          }
-                        }}
-                      />
-                    </Grid>
-
-                    {/* Period From */}
-                    <Grid item xs={12} sm={6}>
-                      <Typography variant="subtitle2" sx={{ fontWeight: "bold", mb: 1 }}>
-                        Period From
-                      </Typography>
-                      <TextField
-                        value={editVocational.vocationalPeriodFrom}
-                        onChange={(e) =>
-                          setEditVocational({ ...editVocational, vocationalPeriodFrom: e.target.value })
-                        }
-                        fullWidth
-                        disabled={!isEditing}
-                        sx={{
-                          '& .MuiOutlinedInput-root': {
-                            '& fieldset': {
-                              borderColor: "#6D2323",
-                            },
-                            '&:hover fieldset': {
-                              borderColor: "#6D2323",
-                            },
-                            '&.Mui-focused fieldset': {
-                              borderColor: "#6D2323",
-                            },
-                          },
-                          "& .MuiInputBase-input.Mui-disabled": {
-                            WebkitTextFillColor: "#000000",
-                            color: "#000000"
-                          }
-                        }}
-                      />
-                    </Grid>
-
-                    {/* Period To */}
-                    <Grid item xs={12} sm={6}>
-                      <Typography variant="subtitle2" sx={{ fontWeight: "bold", mb: 1 }}>
-                        Period To
-                      </Typography>
-                      <TextField
-                        value={editVocational.vocationalPeriodTo}
-                        onChange={(e) =>
-                          setEditVocational({ ...editVocational, vocationalPeriodTo: e.target.value })
-                        }
-                        fullWidth
-                        disabled={!isEditing}
-                        sx={{
-                          '& .MuiOutlinedInput-root': {
-                            '& fieldset': {
-                              borderColor: "#6D2323",
-                            },
-                            '&:hover fieldset': {
-                              borderColor: "#6D2323",
-                            },
-                            '&.Mui-focused fieldset': {
-                              borderColor: "#6D2323",
-                            },
-                          },
-                          "& .MuiInputBase-input.Mui-disabled": {
-                            WebkitTextFillColor: "#000000",
-                            color: "#000000"
-                          }
-                        }}
-                      />
-                    </Grid>
-
-                    {/* Highest Attained */}
-                    <Grid item xs={12} sm={6}>
-                      <Typography variant="subtitle2" sx={{ fontWeight: "bold", mb: 1 }}>
-                        Highest Attained
-                      </Typography>
-                      <TextField
-                        value={editVocational.vocationalHighestAttained}
-                        onChange={(e) =>
-                          setEditVocational({ ...editVocational, vocationalHighestAttained: e.target.value })
-                        }
-                        fullWidth
-                        disabled={!isEditing}
-                        sx={{
-                          '& .MuiOutlinedInput-root': {
-                            '& fieldset': {
-                              borderColor: "#6D2323",
-                            },
-                            '&:hover fieldset': {
-                              borderColor: "#6D2323",
-                            },
-                            '&.Mui-focused fieldset': {
-                              borderColor: "#6D2323",
-                            },
-                          },
-                          "& .MuiInputBase-input.Mui-disabled": {
-                            WebkitTextFillColor: "#000000",
-                            color: "#000000"
-                          }
-                        }}
-                      />
-                    </Grid>
-
-                    {/* Year Graduated */}
-                    <Grid item xs={12} sm={6}>
-                      <Typography variant="subtitle2" sx={{ fontWeight: "bold", mb: 1 }}>
-                        Year Graduated
-                      </Typography>
-                      <TextField
-                        value={editVocational.vocationalYearGraduated}
-                        onChange={(e) =>
-                          setEditVocational({ ...editVocational, vocationalYearGraduated: e.target.value })
-                        }
-                        fullWidth
-                        disabled={!isEditing}
-                        sx={{
-                          '& .MuiOutlinedInput-root': {
-                            '& fieldset': {
-                              borderColor: "#6D2323",
-                            },
-                            '&:hover fieldset': {
-                              borderColor: "#6D2323",
-                            },
-                            '&.Mui-focused fieldset': {
-                              borderColor: "#6D2323",
-                            },
-                          },
-                          "& .MuiInputBase-input.Mui-disabled": {
-                            WebkitTextFillColor: "#000000",
-                            color: "#000000"
-                          }
-                        }}
-                      />
-                    </Grid>
-
-                    {/* Honors Received */}
-                    <Grid item xs={12} sm={6}>
-                      <Typography variant="subtitle2" sx={{ fontWeight: "bold", mb: 1 }}>
-                        Honors Received
-                      </Typography>
-                      <TextField
-                        value={editVocational.vocationalScholarshipAcademicHonorsReceived}
-                        onChange={(e) =>
-                          setEditVocational({
-                            ...editVocational,
-                            vocationalScholarshipAcademicHonorsReceived: e.target.value,
-                          })
-                        }
-                        fullWidth
-                        disabled={!isEditing}
-                        sx={{
-                          '& .MuiOutlinedInput-root': {
-                            '& fieldset': {
-                              borderColor: "#6D2323",
-                            },
-                            '&:hover fieldset': {
-                              borderColor: "#6D2323",
-                            },
-                            '&.Mui-focused fieldset': {
-                              borderColor: "#6D2323",
-                            },
-                          },
-                          "& .MuiInputBase-input.Mui-disabled": {
-                            WebkitTextFillColor: "#000000",
-                            color: "#000000"
-                          }
-                        }}
-                      />
-                    </Grid>
-
-                    {/* Employee Number */}
-                    <Grid item xs={12} sm={6}>
-                      <Typography variant="subtitle2" sx={{ fontWeight: "bold", mb: 1 }}>
-                        Employee Number
-                      </Typography>
-                      <TextField
-                        value={editVocational.person_id}
-                        onChange={(e) =>
-                          setEditVocational({ ...editVocational, person_id: e.target.value })
-                        }
-                        fullWidth
-                        disabled={!isEditing}
-                        sx={{
-                          '& .MuiOutlinedInput-root': {
-                            '& fieldset': {
-                              borderColor: "#6D2323",
-                            },
-                            '&:hover fieldset': {
-                              borderColor: "#6D2323",
-                            },
-                            '&.Mui-focused fieldset': {
-                              borderColor: "#6D2323",
-                            },
-                          },
-                          "& .MuiInputBase-input.Mui-disabled": {
-                            WebkitTextFillColor: "#000000",
-                            color: "#000000"
-                          }
-                        }}
-                      />
+                      <Grid item xs={12} sm={6}>
+                        <Typography
+                          variant="caption"
+                          sx={{
+                            fontWeight: 'bold',
+                            mb: 0.5,
+                            color: '#333',
+                            display: 'block',
+                          }}
+                        >
+                          Selected Employee
+                        </Typography>
+                        {selectedEmployee ? (
+                          <Box
+                            sx={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              backgroundColor: '#f8f9fa',
+                              border: '1px solid #6D2323',
+                              borderRadius: '4px',
+                              padding: '8px 12px',
+                              gap: 1.5,
+                              height: '21px',
+                            }}
+                          >
+                            <PersonIcon
+                              sx={{ color: '#6D2323', fontSize: '20px' }}
+                            />
+                            <Box
+                              sx={{
+                                display: 'flex',
+                                flexDirection: 'column',
+                                flex: 1,
+                              }}
+                            >
+                              <Typography
+                                variant="body2"
+                                sx={{
+                                  fontWeight: 'bold',
+                                  color: '#6D2323',
+                                  fontSize: '13px',
+                                  lineHeight: 1.2,
+                                }}
+                              >
+                                {selectedEmployee.name}
+                              </Typography>
+                              <Typography
+                                variant="caption"
+                                sx={{
+                                  color: '#666',
+                                  fontSize: '11px',
+                                  lineHeight: 1.2,
+                                }}
+                              >
+                                ID: {selectedEmployee.employeeNumber}
+                              </Typography>
+                            </Box>
+                          </Box>
+                        ) : (
+                          <Box
+                            sx={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              backgroundColor: '#f5f5f5',
+                              border: '2px dashed #ccc',
+                              borderRadius: '8px',
+                              padding: '8px 12px',
+                              height: '21px',
+                            }}
+                          >
+                            <Typography
+                              variant="body2"
+                              sx={{
+                                color: '#999',
+                                fontStyle: 'italic',
+                                fontSize: '13px',
+                              }}
+                            >
+                              No employee selected
+                            </Typography>
+                          </Box>
+                        )}
+                      </Grid>
                     </Grid>
                   </Grid>
 
-                  {/* Action Buttons */}
-                  <Box
+                  <Grid item xs={12}>
+                    <Box
+                      sx={{
+                        borderBottom: '2px solid #e0e0e0',
+                        my: 2,
+                        '&::before': {
+                          content: '"Vocational Details"',
+                          position: 'absolute',
+                          left: 20,
+                          top: -10,
+                          backgroundColor: '#fff',
+                          px: 1,
+                          color: '#6D2323',
+                          fontWeight: 'bold',
+                          fontSize: '0.875rem',
+                        },
+                        position: 'relative',
+                      }}
+                    />
+                  </Grid>
+
+                  <Grid item xs={12}>
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        fontWeight: 'bold',
+                        mb: 0.5,
+                        color: '#333',
+                        display: 'block',
+                      }}
+                    >
+                      School Name <span style={{ color: 'red' }}>*</span>
+                    </Typography>
+                    <TextField
+                      value={newVocational.vocationalNameOfSchool}
+                      onChange={(e) =>
+                        handleChange('vocationalNameOfSchool', e.target.value)
+                      }
+                      fullWidth
+                      size="small"
+                      error={!!errors.vocationalNameOfSchool}
+                      helperText={errors.vocationalNameOfSchool || ''}
+                      sx={{
+                        '& .MuiOutlinedInput-root': {
+                          '& fieldset': {
+                            borderColor: errors.vocationalNameOfSchool
+                              ? 'red'
+                              : '#6D2323',
+                            borderWidth: '1.5px',
+                          },
+                          '&:hover fieldset': {
+                            borderColor: errors.vocationalNameOfSchool
+                              ? 'red'
+                              : '#6D2323',
+                          },
+                          '&.Mui-focused fieldset': {
+                            borderColor: errors.vocationalNameOfSchool
+                              ? 'red'
+                              : '#6D2323',
+                          },
+                        },
+                      }}
+                    />
+                  </Grid>
+
+                  <Grid item xs={12}>
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        fontWeight: 'bold',
+                        mb: 0.5,
+                        color: '#333',
+                        display: 'block',
+                      }}
+                    >
+                      Degree <span style={{ color: 'red' }}>*</span>
+                    </Typography>
+                    <TextField
+                      value={newVocational.vocationalDegree}
+                      onChange={(e) =>
+                        handleChange('vocationalDegree', e.target.value)
+                      }
+                      fullWidth
+                      size="small"
+                      error={!!errors.vocationalDegree}
+                      helperText={errors.vocationalDegree || ''}
+                      sx={{
+                        '& .MuiOutlinedInput-root': {
+                          '& fieldset': {
+                            borderColor: errors.vocationalDegree
+                              ? 'red'
+                              : '#6D2323',
+                            borderWidth: '1.5px',
+                          },
+                          '&:hover fieldset': {
+                            borderColor: errors.vocationalDegree
+                              ? 'red'
+                              : '#6D2323',
+                          },
+                          '&.Mui-focused fieldset': {
+                            borderColor: errors.vocationalDegree
+                              ? 'red'
+                              : '#6D2323',
+                          },
+                        },
+                      }}
+                    />
+                  </Grid>
+
+                  <Grid item xs={12} sm={6}>
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        fontWeight: 'bold',
+                        mb: 0.5,
+                        color: '#333',
+                        display: 'block',
+                      }}
+                    >
+                      Period From
+                    </Typography>
+                    <TextField
+                      type="date"
+                      value={newVocational.vocationalPeriodFrom}
+                      onChange={(e) =>
+                        handleChange('vocationalPeriodFrom', e.target.value)
+                      }
+                      fullWidth
+                      size="small"
+                      InputLabelProps={{ shrink: true }}
+                      error={!!errors.vocationalPeriodFrom}
+                      helperText={errors.vocationalPeriodFrom || ''}
+                      sx={{
+                        '& .MuiOutlinedInput-root': {
+                          '& fieldset': {
+                            borderColor: errors.vocationalPeriodFrom
+                              ? 'red'
+                              : '#6D2323',
+                            borderWidth: '1.5px',
+                          },
+                          '&:hover fieldset': {
+                            borderColor: errors.vocationalPeriodFrom
+                              ? 'red'
+                              : '#6D2323',
+                          },
+                          '&.Mui-focused fieldset': {
+                            borderColor: errors.vocationalPeriodFrom
+                              ? 'red'
+                              : '#6D2323',
+                          },
+                        },
+                      }}
+                    />
+                  </Grid>
+
+                  <Grid item xs={12} sm={6}>
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        fontWeight: 'bold',
+                        mb: 0.5,
+                        color: '#333',
+                        display: 'block',
+                      }}
+                    >
+                      Period To
+                    </Typography>
+                    <TextField
+                      type="date"
+                      value={newVocational.vocationalPeriodTo}
+                      onChange={(e) =>
+                        handleChange('vocationalPeriodTo', e.target.value)
+                      }
+                      fullWidth
+                      size="small"
+                      InputLabelProps={{ shrink: true }}
+                      error={!!errors.vocationalPeriodTo}
+                      helperText={errors.vocationalPeriodTo || ''}
+                      sx={{
+                        '& .MuiOutlinedInput-root': {
+                          '& fieldset': {
+                            borderColor: errors.vocationalPeriodTo
+                              ? 'red'
+                              : '#6D2323',
+                            borderWidth: '1.5px',
+                          },
+                          '&:hover fieldset': {
+                            borderColor: errors.vocationalPeriodTo
+                              ? 'red'
+                              : '#6D2323',
+                          },
+                          '&.Mui-focused fieldset': {
+                            borderColor: errors.vocationalPeriodTo
+                              ? 'red'
+                              : '#6D2323',
+                          },
+                        },
+                      }}
+                    />
+                  </Grid>
+
+                  <Grid item xs={12} sm={6}>
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        fontWeight: 'bold',
+                        mb: 0.5,
+                        color: '#333',
+                        display: 'block',
+                      }}
+                    >
+                      Highest Attained
+                    </Typography>
+                    <TextField
+                      value={newVocational.vocationalHighestAttained}
+                      onChange={(e) =>
+                        handleChange(
+                          'vocationalHighestAttained',
+                          e.target.value
+                        )
+                      }
+                      fullWidth
+                      size="small"
+                      sx={{
+                        '& .MuiOutlinedInput-root': {
+                          '& fieldset': {
+                            borderColor: '#6D2323',
+                            borderWidth: '1.5px',
+                          },
+                          '&:hover fieldset': {
+                            borderColor: '#6D2323',
+                          },
+                          '&.Mui-focused fieldset': {
+                            borderColor: '#6D2323',
+                          },
+                        },
+                      }}
+                    />
+                  </Grid>
+
+                  <Grid item xs={12} sm={6}>
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        fontWeight: 'bold',
+                        mb: 0.5,
+                        color: '#333',
+                        display: 'block',
+                      }}
+                    >
+                      Year Graduated
+                    </Typography>
+                    <TextField
+                      value={newVocational.vocationalYearGraduated}
+                      onChange={(e) =>
+                        handleChange('vocationalYearGraduated', e.target.value)
+                      }
+                      fullWidth
+                      size="small"
+                      sx={{
+                        '& .MuiOutlinedInput-root': {
+                          '& fieldset': {
+                            borderColor: '#6D2323',
+                            borderWidth: '1.5px',
+                          },
+                          '&:hover fieldset': {
+                            borderColor: '#6D2323',
+                          },
+                          '&.Mui-focused fieldset': {
+                            borderColor: '#6D2323',
+                          },
+                        },
+                      }}
+                    />
+                  </Grid>
+
+                  <Grid item xs={12}>
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        fontWeight: 'bold',
+                        mb: 0.5,
+                        color: '#333',
+                        display: 'block',
+                      }}
+                    >
+                      Honors Received
+                    </Typography>
+                    <TextField
+                      value={
+                        newVocational.vocationalScholarshipAcademicHonorsReceived
+                      }
+                      onChange={(e) =>
+                        handleChange(
+                          'vocationalScholarshipAcademicHonorsReceived',
+                          e.target.value
+                        )
+                      }
+                      fullWidth
+                      size="small"
+                      sx={{
+                        '& .MuiOutlinedInput-root': {
+                          '& fieldset': {
+                            borderColor: '#6D2323',
+                            borderWidth: '1.5px',
+                          },
+                          '&:hover fieldset': {
+                            borderColor: '#6D2323',
+                          },
+                          '&.Mui-focused fieldset': {
+                            borderColor: '#6D2323',
+                          },
+                        },
+                      }}
+                    />
+                  </Grid>
+                </Grid>
+
+                <Box sx={{ mt: 'auto', pt: 2 }}>
+                  <Button
+                    onClick={handleAdd}
+                    variant="contained"
+                    startIcon={<AddIcon />}
+                    fullWidth
                     sx={{
-                      display: "flex",
-                      justifyContent: "flex-end",
-                      mt: 3,
-                      gap: 2,
+                      backgroundColor: '#6D2323',
+                      color: '#FEF9E1',
+                      py: 1.2,
+                      fontWeight: 'bold',
+                      '&:hover': {
+                        backgroundColor: '#5a1d1d',
+                      },
                     }}
                   >
-                    {!isEditing ? (
-                      // View mode buttons
-                      <>
-                        <Button
-                          onClick={() => handleDelete(editVocational.id)}
-                          variant="outlined"
-                          startIcon={<DeleteIcon />}
-                          sx={{
-                            color: "#ffffff",
-                            backgroundColor: 'black'
-                          }}
-                        >
-                          Delete
-                        </Button>
-                        <Button
-                          onClick={handleStartEdit}
-                          variant="contained"
-                          startIcon={<EditIcon />}
-                          sx={{ backgroundColor: "#6D2323", color: "#FEF9E1" }}
-                        >
-                          Edit
-                        </Button>
-                      </>
-                    ) : (
-                      // Edit mode buttons
-                      <>
-                        <Button
-                          onClick={handleCancelEdit}
-                          variant="outlined"
-                          startIcon={<CancelIcon />}
-                          sx={{
-                            color: "#ffffff",
-                            backgroundColor: 'black'
-                          }}
-                        >
-                          Cancel
-                        </Button>
-                        <Button
-                          onClick={handleUpdate}
-                          variant="contained"
-                          startIcon={<SaveIcon />}
-                          sx={{ backgroundColor: "#6D2323", color: "#FEF9E1" }}
-                        >
-                          Save
-                        </Button>
-                      </>
-                    )}
+                    Add Vocational Record
+                  </Button>
+                </Box>
+              </Box>
+            </Paper>
+          </Grid>
+
+          <Grid
+            item
+            xs={12}
+            lg={6}
+            sx={{ display: 'flex', flexDirection: 'column' }}
+          >
+            <Paper
+              elevation={4}
+              sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                borderRadius: 2,
+                overflow: 'hidden',
+                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+                border: '1px solid rgba(109, 35, 35, 0.1)',
+                height: { xs: 'auto', lg: 'calc(100vh - 200px)' },
+                maxHeight: { xs: 'none', lg: 'calc(100vh - 200px)' },
+              }}
+            >
+              <Box
+                sx={{
+                  backgroundColor: '#6D2323',
+                  color: '#ffffff',
+                  p: 2,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                }}
+              >
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <ReorderIcon sx={{ fontSize: '1.8rem', mr: 2 }} />
+                  <Box>
+                    <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
+                      Vocational Records
+                    </Typography>
+                    <Typography variant="caption" sx={{ opacity: 0.9 }}>
+                      View and manage existing records
+                    </Typography>
                   </Box>
                 </Box>
-              </>
-            )}
-          </Box>
-        </Modal>
-      </Box>
 
-      {/* Snackbar */}
+                <ToggleButtonGroup
+                  value={viewMode}
+                  exclusive
+                  onChange={handleViewModeChange}
+                  aria-label="view mode"
+                  size="small"
+                  sx={{
+                    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                    '& .MuiToggleButton-root': {
+                      color: 'white',
+                      borderColor: 'rgba(255, 255, 255, 0.5)',
+                      padding: '4px 8px',
+                      '&.Mui-selected': {
+                        backgroundColor: 'rgba(255, 255, 255, 0.3)',
+                        color: 'white',
+                      },
+                    },
+                  }}
+                >
+                  <ToggleButton value="grid" aria-label="grid view">
+                    <ViewModuleIcon fontSize="small" />
+                  </ToggleButton>
+                  <ToggleButton value="list" aria-label="list view">
+                    <ViewListIcon fontSize="small" />
+                  </ToggleButton>
+                </ToggleButtonGroup>
+              </Box>
+
+              <Box
+                sx={{
+                  p: 3,
+                  flexGrow: 1,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  overflow: 'hidden',
+                }}
+              >
+                <Box sx={{ mb: 2 }}>
+                  <TextField
+                    size="small"
+                    variant="outlined"
+                    placeholder="Search by Employee ID, Name, or School"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    fullWidth
+                    sx={{
+                      '& .MuiOutlinedInput-root': {
+                        '& fieldset': {
+                          borderColor: '#6D2323',
+                          borderWidth: '1.5px',
+                        },
+                        '&:hover fieldset': {
+                          borderColor: '#6D2323',
+                        },
+                        '&.Mui-focused fieldset': {
+                          borderColor: '#6D2323',
+                        },
+                      },
+                    }}
+                    InputProps={{
+                      startAdornment: (
+                        <SearchIcon sx={{ color: '#6D2323', mr: 1 }} />
+                      ),
+                    }}
+                  />
+                </Box>
+
+                <Box
+                  sx={{
+                    flexGrow: 1,
+                    overflowY: 'auto',
+                    pr: 1,
+                    '&::-webkit-scrollbar': {
+                      width: '6px',
+                    },
+                    '&::-webkit-scrollbar-track': {
+                      background: '#f1f1f1',
+                      borderRadius: '3px',
+                    },
+                    '&::-webkit-scrollbar-thumb': {
+                      background: '#6D2323',
+                      borderRadius: '3px',
+                    },
+                  }}
+                >
+                  {viewMode === 'grid' ? (
+                    <Grid container spacing={1.5}>
+                      {filteredData.map((vocational) => (
+                        <Grid item xs={12} sm={6} md={4} key={vocational.id}>
+                          <Card
+                            onClick={() => handleOpenModal(vocational)}
+                            sx={{
+                              cursor: 'pointer',
+                              border: '1px solid #ddd',
+                              height: '100%',
+                              display: 'flex',
+                              flexDirection: 'column',
+                              '&:hover': {
+                                borderColor: '#6d2323',
+                                transform: 'translateY(-2px)',
+                                transition: 'all 0.2s ease',
+                                boxShadow: '0 4px 8px rgba(0,0,0,0.15)',
+                              },
+                            }}
+                          >
+                            <CardContent
+                              sx={{
+                                p: 1.5,
+                                flexGrow: 1,
+                                display: 'flex',
+                                flexDirection: 'column',
+                              }}
+                            >
+                              <Box
+                                sx={{
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  mb: 1,
+                                }}
+                              >
+                                <ConstructionIcon
+                                  sx={{
+                                    fontSize: 18,
+                                    color: '#6d2323',
+                                    mr: 0.5,
+                                  }}
+                                />
+                                <Typography
+                                  variant="caption"
+                                  sx={{
+                                    color: '#6d2323',
+                                    px: 0.5,
+                                    py: 0.2,
+                                    borderRadius: 0.5,
+                                    fontSize: '0.7rem',
+                                    fontWeight: 'bold',
+                                  }}
+                                >
+                                  {vocational.person_id}
+                                </Typography>
+                              </Box>
+
+                              <Typography
+                                variant="body2"
+                                fontWeight="bold"
+                                color="#333"
+                                mb={0.5}
+                                noWrap
+                              >
+                                {employeeNames[vocational.person_id] ||
+                                  'Loading...'}
+                              </Typography>
+
+                              <Typography
+                                variant="body2"
+                                fontWeight="bold"
+                                color="#333"
+                                mb={1}
+                                noWrap
+                                sx={{ flexGrow: 1 }}
+                              >
+                                {vocational.vocationalNameOfSchool ||
+                                  'No School'}
+                              </Typography>
+
+                              {vocational.vocationalDegree && (
+                                <Chip
+                                  label={vocational.vocationalDegree}
+                                  size="small"
+                                  sx={{
+                                    backgroundColor: '#6d2323',
+                                    color: '#fff',
+                                    fontWeight: 'bold',
+                                    fontSize: '0.7rem',
+                                    alignSelf: 'flex-start',
+                                  }}
+                                />
+                              )}
+                            </CardContent>
+                          </Card>
+                        </Grid>
+                      ))}
+                    </Grid>
+                  ) : (
+                    filteredData.map((vocational) => (
+                      <Card
+                        key={vocational.id}
+                        onClick={() => handleOpenModal(vocational)}
+                        sx={{
+                          cursor: 'pointer',
+                          border: '1px solid #ddd',
+                          mb: 1,
+                          '&:hover': {
+                            borderColor: '#6d2323',
+                            backgroundColor: '#fafafa',
+                          },
+                        }}
+                      >
+                        <Box sx={{ p: 1.5 }}>
+                          <Box
+                            sx={{ display: 'flex', alignItems: 'flex-start' }}
+                          >
+                            <Box sx={{ mr: 1.5, mt: 0.2 }}>
+                              <ConstructionIcon
+                                sx={{ fontSize: 20, color: '#6d2323' }}
+                              />
+                            </Box>
+
+                            <Box sx={{ flexGrow: 1 }}>
+                              <Box
+                                sx={{
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  mb: 0.5,
+                                }}
+                              >
+                                <Typography
+                                  variant="caption"
+                                  sx={{
+                                    backgroundColor: '#6d2323',
+                                    color: 'white',
+                                    px: 0.5,
+                                    py: 0.2,
+                                    borderRadius: 0.5,
+                                    fontSize: '0.7rem',
+                                    fontWeight: 'bold',
+                                    mr: 1,
+                                  }}
+                                >
+                                  {vocational.person_id}
+                                </Typography>
+                                <Typography
+                                  variant="body2"
+                                  fontWeight="bold"
+                                  color="#333"
+                                >
+                                  {employeeNames[vocational.person_id] ||
+                                    'Loading...'}
+                                </Typography>
+                              </Box>
+
+                              <Typography
+                                variant="body2"
+                                color="#666"
+                                sx={{ mb: 0.5 }}
+                              >
+                                {vocational.vocationalNameOfSchool ||
+                                  'No School'}
+                              </Typography>
+
+                              {vocational.vocationalDegree && (
+                                <Typography variant="caption" color="#666">
+                                  Degree: {vocational.vocationalDegree}
+                                </Typography>
+                              )}
+                            </Box>
+                          </Box>
+                        </Box>
+                      </Card>
+                    ))
+                  )}
+
+                  {filteredData.length === 0 && (
+                    <Box textAlign="center" py={4}>
+                      <Typography
+                        variant="body1"
+                        color="#555"
+                        fontWeight="bold"
+                      >
+                        No Records Found
+                      </Typography>
+                      <Typography variant="body2" color="#666" sx={{ mt: 0.5 }}>
+                        Try adjusting your search criteria
+                      </Typography>
+                    </Box>
+                  )}
+                </Box>
+              </Box>
+            </Paper>
+          </Grid>
+        </Grid>
+      </Container>
+
+      <Modal
+        open={!!editVocational}
+        onClose={handleCloseModal}
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        <Paper
+          sx={{
+            width: '90%',
+            maxWidth: '600px',
+            maxHeight: '90vh',
+            overflowY: 'auto',
+            borderRadius: 2,
+            boxShadow: '0 8px 24px rgba(0, 0, 0, 0.3)',
+          }}
+        >
+          {editVocational && (
+            <>
+              <Box
+                sx={{
+                  backgroundColor: '#6D2323',
+                  color: '#ffffff',
+                  p: 2,
+                  borderRadius: '8px 8px 0 0',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                }}
+              >
+                <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
+                  {isEditing
+                    ? 'Edit Vocational Information'
+                    : 'Vocational Details'}
+                </Typography>
+                <IconButton onClick={handleCloseModal} sx={{ color: '#fff' }}>
+                  <Close />
+                </IconButton>
+              </Box>
+
+              <Box sx={{ p: 3 }}>
+                <Grid container spacing={2}>
+                  <Grid item xs={12}>
+                    <Typography
+                      variant="subtitle2"
+                      sx={{ fontWeight: 'bold', mb: 1.5, color: '#6D2323' }}
+                    >
+                      Employee Information
+                    </Typography>
+                    <Grid container spacing={2}>
+                      <Grid item xs={12} sm={6}>
+                        <Typography
+                          variant="caption"
+                          sx={{
+                            fontWeight: 'bold',
+                            mb: 0.5,
+                            color: '#333',
+                            display: 'block',
+                          }}
+                        >
+                          Search Employee
+                        </Typography>
+                        <EmployeeAutocomplete
+                          value={editVocational?.person_id || ''}
+                          onChange={
+                            isEditing ? handleEditEmployeeChange : () => {}
+                          }
+                          selectedEmployee={selectedEditEmployee}
+                          onEmployeeSelect={
+                            isEditing ? handleEditEmployeeSelect : () => {}
+                          }
+                          placeholder="Search and select employee..."
+                          required
+                          disabled={!isEditing}
+                          dropdownDisabled={!isEditing}
+                        />
+                        {!isEditing && (
+                          <Typography
+                            variant="caption"
+                            sx={{
+                              color: '#666',
+                              fontStyle: 'italic',
+                              display: 'block',
+                              mt: 0.5,
+                            }}
+                          >
+                            Contact administrator for assistance.
+                          </Typography>
+                        )}
+                      </Grid>
+
+                      <Grid item xs={12} sm={6}>
+                        <Typography
+                          variant="caption"
+                          sx={{
+                            fontWeight: 'bold',
+                            mb: 0.5,
+                            color: '#333',
+                            display: 'block',
+                          }}
+                        >
+                          Selected Employee
+                        </Typography>
+                        {selectedEditEmployee ? (
+                          <Box
+                            sx={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              backgroundColor: '#f8f9fa',
+                              border: '2px solid #6D2323',
+                              borderRadius: '8px',
+                              padding: '8px 12px',
+                              gap: 1.5,
+                              height: '21px',
+                            }}
+                          >
+                            <PersonIcon
+                              sx={{ color: '#6D2323', fontSize: '20px' }}
+                            />
+                            <Box
+                              sx={{
+                                display: 'flex',
+                                flexDirection: 'column',
+                                flex: 1,
+                              }}
+                            >
+                              <Typography
+                                variant="body2"
+                                sx={{
+                                  fontWeight: 'bold',
+                                  color: '#6D2323',
+                                  fontSize: '13px',
+                                  lineHeight: 1.2,
+                                }}
+                              >
+                                {selectedEditEmployee.name}
+                              </Typography>
+                              <Typography
+                                variant="caption"
+                                sx={{
+                                  color: '#666',
+                                  fontSize: '11px',
+                                  lineHeight: 1.2,
+                                }}
+                              >
+                                ID: {selectedEditEmployee.employeeNumber}
+                              </Typography>
+                            </Box>
+                          </Box>
+                        ) : (
+                          <Box
+                            sx={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              backgroundColor: '#f5f5f5',
+                              border: '2px dashed #ccc',
+                              borderRadius: '8px',
+                              padding: '8px 12px',
+                              height: '21px',
+                            }}
+                          >
+                            <Typography
+                              variant="body2"
+                              sx={{
+                                color: '#999',
+                                fontStyle: 'italic',
+                                fontSize: '13px',
+                              }}
+                            >
+                              No employee selected
+                            </Typography>
+                          </Box>
+                        )}
+                      </Grid>
+                    </Grid>
+                  </Grid>
+
+                  <Grid item xs={12}>
+                    <Box
+                      sx={{
+                        borderBottom: '2px solid #e0e0e0',
+                        my: 2,
+                        '&::before': {
+                          content: '"Vocational Details"',
+                          position: 'absolute',
+                          left: 20,
+                          top: -10,
+                          backgroundColor: '#fff',
+                          px: 1,
+                          color: '#6D2323',
+                          fontWeight: 'bold',
+                          fontSize: '0.875rem',
+                        },
+                        position: 'relative',
+                      }}
+                    />
+                  </Grid>
+
+                  <Grid item xs={12}>
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        fontWeight: 'bold',
+                        mb: 0.5,
+                        color: '#333',
+                        display: 'block',
+                      }}
+                    >
+                      School Name
+                    </Typography>
+                    {isEditing ? (
+                      <TextField
+                        value={editVocational.vocationalNameOfSchool}
+                        onChange={(e) =>
+                          handleChange(
+                            'vocationalNameOfSchool',
+                            e.target.value,
+                            true
+                          )
+                        }
+                        fullWidth
+                        size="small"
+                        sx={{
+                          '& .MuiOutlinedInput-root': {
+                            '& fieldset': {
+                              borderColor: '#6D2323',
+                            },
+                            '&:hover fieldset': {
+                              borderColor: '#6D2323',
+                            },
+                            '&.Mui-focused fieldset': {
+                              borderColor: '#6D2323',
+                            },
+                          },
+                        }}
+                      />
+                    ) : (
+                      <Typography
+                        variant="body2"
+                        sx={{ p: 1, bgcolor: '#f5f5f5', borderRadius: 1 }}
+                      >
+                        {editVocational.vocationalNameOfSchool}
+                      </Typography>
+                    )}
+                  </Grid>
+
+                  <Grid item xs={12}>
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        fontWeight: 'bold',
+                        mb: 0.5,
+                        color: '#333',
+                        display: 'block',
+                      }}
+                    >
+                      Degree
+                    </Typography>
+                    {isEditing ? (
+                      <TextField
+                        value={editVocational.vocationalDegree}
+                        onChange={(e) =>
+                          handleChange('vocationalDegree', e.target.value, true)
+                        }
+                        fullWidth
+                        size="small"
+                        sx={{
+                          '& .MuiOutlinedInput-root': {
+                            '& fieldset': {
+                              borderColor: '#6D2323',
+                            },
+                            '&:hover fieldset': {
+                              borderColor: '#6D2323',
+                            },
+                            '&.Mui-focused fieldset': {
+                              borderColor: '#6D2323',
+                            },
+                          },
+                        }}
+                      />
+                    ) : (
+                      <Typography
+                        variant="body2"
+                        sx={{ p: 1, bgcolor: '#f5f5f5', borderRadius: 1 }}
+                      >
+                        {editVocational.vocationalDegree || 'N/A'}
+                      </Typography>
+                    )}
+                  </Grid>
+
+                  <Grid item xs={12} sm={6}>
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        fontWeight: 'bold',
+                        mb: 0.5,
+                        color: '#333',
+                        display: 'block',
+                      }}
+                    >
+                      Period From
+                    </Typography>
+                    {isEditing ? (
+                      <TextField
+                        type="date"
+                        value={
+                          editVocational.vocationalPeriodFrom?.split('T')[0] ||
+                          ''
+                        }
+                        onChange={(e) =>
+                          handleChange(
+                            'vocationalPeriodFrom',
+                            e.target.value,
+                            true
+                          )
+                        }
+                        fullWidth
+                        size="small"
+                        sx={{
+                          '& .MuiOutlinedInput-root': {
+                            '& fieldset': {
+                              borderColor: '#6D2323',
+                            },
+                            '&:hover fieldset': {
+                              borderColor: '#6D2323',
+                            },
+                            '&.Mui-focused fieldset': {
+                              borderColor: '#6D2323',
+                            },
+                          },
+                        }}
+                      />
+                    ) : (
+                      <Typography
+                        variant="body2"
+                        sx={{ p: 1, bgcolor: '#f5f5f5', borderRadius: 1 }}
+                      >
+                        {editVocational.vocationalPeriodFrom?.split('T')[0] ||
+                          'N/A'}
+                      </Typography>
+                    )}
+                  </Grid>
+
+                  <Grid item xs={12} sm={6}>
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        fontWeight: 'bold',
+                        mb: 0.5,
+                        color: '#333',
+                        display: 'block',
+                      }}
+                    >
+                      Period To
+                    </Typography>
+                    {isEditing ? (
+                      <TextField
+                        type="date"
+                        value={
+                          editVocational.vocationalPeriodTo?.split('T')[0] || ''
+                        }
+                        onChange={(e) =>
+                          handleChange(
+                            'vocationalPeriodTo',
+                            e.target.value,
+                            true
+                          )
+                        }
+                        fullWidth
+                        size="small"
+                        sx={{
+                          '& .MuiOutlinedInput-root': {
+                            '& fieldset': {
+                              borderColor: '#6D2323',
+                            },
+                            '&:hover fieldset': {
+                              borderColor: '#6D2323',
+                            },
+                            '&.Mui-focused fieldset': {
+                              borderColor: '#6D2323',
+                            },
+                          },
+                        }}
+                      />
+                    ) : (
+                      <Typography
+                        variant="body2"
+                        sx={{ p: 1, bgcolor: '#f5f5f5', borderRadius: 1 }}
+                      >
+                        {editVocational.vocationalPeriodTo?.split('T')[0] ||
+                          'N/A'}
+                      </Typography>
+                    )}
+                  </Grid>
+
+                  <Grid item xs={12} sm={6}>
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        fontWeight: 'bold',
+                        mb: 0.5,
+                        color: '#333',
+                        display: 'block',
+                      }}
+                    >
+                      Highest Attained
+                    </Typography>
+                    {isEditing ? (
+                      <TextField
+                        value={editVocational.vocationalHighestAttained}
+                        onChange={(e) =>
+                          handleChange(
+                            'vocationalHighestAttained',
+                            e.target.value,
+                            true
+                          )
+                        }
+                        fullWidth
+                        size="small"
+                        sx={{
+                          '& .MuiOutlinedInput-root': {
+                            '& fieldset': {
+                              borderColor: '#6D2323',
+                            },
+                            '&:hover fieldset': {
+                              borderColor: '#6D2323',
+                            },
+                            '&.Mui-focused fieldset': {
+                              borderColor: '#6D2323',
+                            },
+                          },
+                        }}
+                      />
+                    ) : (
+                      <Typography
+                        variant="body2"
+                        sx={{ p: 1, bgcolor: '#f5f5f5', borderRadius: 1 }}
+                      >
+                        {editVocational.vocationalHighestAttained || 'N/A'}
+                      </Typography>
+                    )}
+                  </Grid>
+
+                  <Grid item xs={12} sm={6}>
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        fontWeight: 'bold',
+                        mb: 0.5,
+                        color: '#333',
+                        display: 'block',
+                      }}
+                    >
+                      Year Graduated
+                    </Typography>
+                    {isEditing ? (
+                      <TextField
+                        value={editVocational.vocationalYearGraduated}
+                        onChange={(e) =>
+                          handleChange(
+                            'vocationalYearGraduated',
+                            e.target.value,
+                            true
+                          )
+                        }
+                        fullWidth
+                        size="small"
+                        sx={{
+                          '& .MuiOutlinedInput-root': {
+                            '& fieldset': {
+                              borderColor: '#6D2323',
+                            },
+                            '&:hover fieldset': {
+                              borderColor: '#6D2323',
+                            },
+                            '&.Mui-focused fieldset': {
+                              borderColor: '#6D2323',
+                            },
+                          },
+                        }}
+                      />
+                    ) : (
+                      <Typography
+                        variant="body2"
+                        sx={{ p: 1, bgcolor: '#f5f5f5', borderRadius: 1 }}
+                      >
+                        {editVocational.vocationalYearGraduated || 'N/A'}
+                      </Typography>
+                    )}
+                  </Grid>
+
+                  <Grid item xs={12}>
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        fontWeight: 'bold',
+                        mb: 0.5,
+                        color: '#333',
+                        display: 'block',
+                      }}
+                    >
+                      Honors Received
+                    </Typography>
+                    {isEditing ? (
+                      <TextField
+                        value={
+                          editVocational.vocationalScholarshipAcademicHonorsReceived
+                        }
+                        onChange={(e) =>
+                          handleChange(
+                            'vocationalScholarshipAcademicHonorsReceived',
+                            e.target.value,
+                            true
+                          )
+                        }
+                        fullWidth
+                        size="small"
+                        sx={{
+                          '& .MuiOutlinedInput-root': {
+                            '& fieldset': {
+                              borderColor: '#6D2323',
+                            },
+                            '&:hover fieldset': {
+                              borderColor: '#6D2323',
+                            },
+                            '&.Mui-focused fieldset': {
+                              borderColor: '#6D2323',
+                            },
+                          },
+                        }}
+                      />
+                    ) : (
+                      <Typography
+                        variant="body2"
+                        sx={{ p: 1, bgcolor: '#f5f5f5', borderRadius: 1 }}
+                      >
+                        {editVocational.vocationalScholarshipAcademicHonorsReceived ||
+                          'N/A'}
+                      </Typography>
+                    )}
+                  </Grid>
+                </Grid>
+
+                <Box
+                  sx={{
+                    display: 'flex',
+                    gap: 2,
+                    mt: 3,
+                    justifyContent: 'flex-end',
+                  }}
+                >
+                  {!isEditing ? (
+                    <>
+                      <Button
+                        onClick={() => handleDelete(editVocational.id)}
+                        variant="outlined"
+                        startIcon={<DeleteIcon />}
+                        sx={{
+                          color: '#d32f2f',
+                          borderColor: '#d32f2f',
+                          '&:hover': {
+                            backgroundColor: '#d32f2f',
+                            color: '#fff',
+                          },
+                        }}
+                      >
+                        Delete
+                      </Button>
+                      <Button
+                        onClick={handleStartEdit}
+                        variant="contained"
+                        startIcon={<EditIcon />}
+                        sx={{
+                          backgroundColor: '#6D2323',
+                          color: '#FEF9E1',
+                          '&:hover': { backgroundColor: '#5a1d1d' },
+                        }}
+                      >
+                        Edit
+                      </Button>
+                    </>
+                  ) : (
+                    <>
+                      <Button
+                        onClick={handleCancelEdit}
+                        variant="outlined"
+                        startIcon={<CancelIcon />}
+                        sx={{
+                          color: '#666',
+                          borderColor: '#666',
+                          '&:hover': {
+                            backgroundColor: '#f5f5f5',
+                          },
+                        }}
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        onClick={handleUpdate}
+                        variant="contained"
+                        startIcon={<SaveIcon />}
+                        disabled={!hasChanges()}
+                        sx={{
+                          backgroundColor: hasChanges() ? '#6D2323' : '#ccc',
+                          color: '#FEF9E1',
+                          '&:hover': {
+                            backgroundColor: hasChanges() ? '#5a1d1d' : '#ccc',
+                          },
+                          '&:disabled': {
+                            backgroundColor: '#ccc',
+                            color: '#999',
+                          },
+                        }}
+                      >
+                        Save
+                      </Button>
+                    </>
+                  )}
+                </Box>
+              </Box>
+            </>
+          )}
+        </Paper>
+      </Modal>
+
       <Snackbar
         open={snackbar.open}
         autoHideDuration={3000}
@@ -1095,7 +2191,7 @@ const Vocational = () => {
           {snackbar.message}
         </Alert>
       </Snackbar>
-    </Container>
+    </Box>
   );
 };
 
