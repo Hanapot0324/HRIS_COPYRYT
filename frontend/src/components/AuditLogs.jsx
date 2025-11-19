@@ -726,20 +726,7 @@ const AuditLogs = () => {
                           )}
                         </IconButton>
                       </Tooltip>
-                      <ProfessionalButton
-                        variant="outlined"
-                        onClick={clearSession}
-                        sx={{
-                          borderColor: accentColor,
-                          color: accentColor,
-                          '&:hover': {
-                            borderColor: accentDark,
-                            bgcolor: alpha(accentColor, 0.05),
-                          },
-                        }}
-                      >
-                        Logout
-                      </ProfessionalButton>
+                      
                       <IconButton
                         onClick={() => navigate('/')}
                         sx={{
@@ -749,7 +736,6 @@ const AuditLogs = () => {
                           },
                         }}
                       >
-                        <CloseIcon />
                       </IconButton>
                     </Box>
                   </Box>

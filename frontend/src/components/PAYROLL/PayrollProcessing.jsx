@@ -1241,6 +1241,18 @@ const PayrollProcess = () => {
                   <TableRow>
                     <TableCell padding="checkbox">
                       <Checkbox
+                        sx={{
+                          color: 'white',
+                          '&.Mui-checked': {
+                            color: 'white',
+                          },
+                          '&:hover': {
+                            color: '#F5F5F5',
+                          },
+                          '&.MuiCheckbox-indeterminate': {
+                            color: 'white',
+                          },
+                        }}
                         indeterminate={
                           selectedRows.length > 0 &&
                           selectedRows.length <
@@ -1287,7 +1299,7 @@ const PayrollProcess = () => {
                         }}
                       />
                     </TableCell>
-                    
+
                     <ExcelTableCell header>No.</ExcelTableCell>
                     <ExcelTableCell header>View</ExcelTableCell>
                     <ExcelTableCell header>Department</ExcelTableCell>

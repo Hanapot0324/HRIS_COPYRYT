@@ -539,8 +539,7 @@ const Sidebar = ({
                           height: 35,
                           marginLeft: -1,
                           color: settings.textSecondaryColor,
-                          bgcolor: "#000000",
-                          border: "2px solid " + (settings.hoverColor || '#6d2323'),
+                          bgcolor: "inherit",
                         }}
                       />
                       <Box>
@@ -1722,7 +1721,7 @@ const Sidebar = ({
                       >
                         <WorkHistory />
                       </ListItemIcon>
-                      <ListItemText primary="Attendance Module Faculty (Non-teaching)" sx={{ marginLeft: '-10px' }} />
+                      <ListItemText primary="Attendance Records (Non-teaching)" sx={{ marginLeft: '-10px' }} />
                     </ListItem>
 
                     {/* Attendance Module Faculty (30hrs) */}
@@ -1756,7 +1755,7 @@ const Sidebar = ({
                       >
                         <WorkHistory />
                       </ListItemIcon>
-                      <ListItemText primary="Attendance Module Faculty (30hrs)" sx={{ marginLeft: '-10px' }} />
+                      <ListItemText primary="Attendance Records (30hrs | Job Order)" sx={{ marginLeft: '-10px' }} />
                     </ListItem>
 
                     {/* Attendance Module Faculty (Designated) */}
@@ -1790,7 +1789,7 @@ const Sidebar = ({
                       >
                         <WorkHistory />
                       </ListItemIcon>
-                      <ListItemText primary="Attendance Module Faculty (Designated)" sx={{ marginLeft: '-10px' }} />
+                      <ListItemText primary="Attendance Records (Designated)" sx={{ marginLeft: '-10px' }} />
                     </ListItem>
 
                     {/* Attendance Overall Summary */}

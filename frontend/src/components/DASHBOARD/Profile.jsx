@@ -1,20 +1,41 @@
-import API_BASE_URL from "../../apiConfig";
+import API_BASE_URL from '../../apiConfig';
 import React, { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
 import {
-  Avatar, Typography, Box, CircularProgress, Paper,
-  Grid, Container, Button,
-  Modal, TextField, Chip, IconButton,
-  Card, CardContent, Tooltip,
-  useTheme, alpha, Backdrop,
-  Tabs, Tab,
+  Avatar,
+  Typography,
+  Box,
+  CircularProgress,
+  Paper,
+  Grid,
+  Container,
+  Button,
+  Modal,
+  TextField,
+  Chip,
+  IconButton,
+  Card,
+  CardContent,
+  Tooltip,
+  useTheme,
+  alpha,
+  Backdrop,
+  Tabs,
+  Tab,
   useMediaQuery,
   Fab,
-  Snackbar, SnackbarContent, useScrollTrigger,
-  Menu, MenuItem, ListItemIcon,
+  Snackbar,
+  SnackbarContent,
+  useScrollTrigger,
+  Menu,
+  MenuItem,
+  ListItemIcon,
   ListItemText,
-  ToggleButton, ToggleButtonGroup,
-  List, ListItem, ListItemText as MuiListItemText,
+  ToggleButton,
+  ToggleButtonGroup,
+  List,
+  ListItem,
+  ListItemText as MuiListItemText,
   ListItemIcon as MuiListItemIcon,
   Divider,
   Accordion,
@@ -24,7 +45,7 @@ import {
   InputLabel,
   Select,
   MenuItem as MuiMenuItem,
-  InputAdornment
+  InputAdornment,
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import PersonIcon from '@mui/icons-material/Person';
@@ -33,7 +54,7 @@ import BadgeIcon from '@mui/icons-material/Badge';
 import HomeIcon from '@mui/icons-material/Home';
 import CallIcon from '@mui/icons-material/Call';
 import GroupIcon from '@mui/icons-material/Group';
-import SchoolIcon from "@mui/icons-material/School";
+import SchoolIcon from '@mui/icons-material/School';
 import EditIcon from '@mui/icons-material/Edit';
 import SaveIcon from '@mui/icons-material/Save';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -53,7 +74,7 @@ import PhotoSizeSelectActualIcon from '@mui/icons-material/PhotoSizeSelectActual
 import CropOriginalIcon from '@mui/icons-material/CropOriginal';
 import GridViewIcon from '@mui/icons-material/GridView';
 import ViewListIcon from '@mui/icons-material/ViewList';
-import { ExitToApp } from "@mui/icons-material";
+import { ExitToApp } from '@mui/icons-material';
 import ChildCareIcon from '@mui/icons-material/ChildCare';
 import FamilyRestroomIcon from '@mui/icons-material/FamilyRestroom';
 import AddIcon from '@mui/icons-material/Add';
@@ -65,6 +86,8 @@ import PercentIcon from '@mui/icons-material/Percent';
 import PsychologyIcon from '@mui/icons-material/Psychology';
 import BookIcon from '@mui/icons-material/Book';
 import LightbulbIcon from '@mui/icons-material/Lightbulb';
+import InfoIcon from '@mui/icons-material/Info';
+import ConstructionIcon from '@mui/icons-material/Construction';
 
 // HR Professional Color Palette
 const colors = {
@@ -89,7 +112,7 @@ const shadows = {
   light: '0 2px 8px rgba(0,0,0,0.08)',
   medium: '0 4px 16px rgba(0,0,0,0.12)',
   heavy: '0 8px 24px rgba(0,0,0,0.16)',
-  colored: '0 4px 16px rgba(109, 35, 35, 0.2)'
+  colored: '0 4px 16px rgba(109, 35, 35, 0.2)',
 };
 
 const ProfileContainer = styled(Container)(({ theme }) => ({
@@ -110,7 +133,7 @@ const ProfileContainer = styled(Container)(({ theme }) => ({
     zIndex: 0,
     borderBottomLeftRadius: '50% 20%',
     borderBottomRightRadius: '50% 20%',
-  }
+  },
 }));
 
 const ProfileHeader = styled(Paper)(({ theme }) => ({
@@ -127,7 +150,7 @@ const ProfileHeader = styled(Paper)(({ theme }) => ({
   [theme.breakpoints.down('md')]: {
     flexDirection: 'column',
     textAlign: 'center',
-    padding: theme.spacing(4)
+    padding: theme.spacing(4),
   },
   '&::before': {
     content: '""',
@@ -136,8 +159,8 @@ const ProfileHeader = styled(Paper)(({ theme }) => ({
     left: 0,
     right: 0,
     height: '8px',
-    background: colors.gradientPrimary
-  }
+    background: colors.gradientPrimary,
+  },
 }));
 
 const ProfileAvatarContainer = styled(Box)(({ theme }) => ({
@@ -145,8 +168,8 @@ const ProfileAvatarContainer = styled(Box)(({ theme }) => ({
   position: 'relative',
   [theme.breakpoints.down('md')]: {
     marginRight: 0,
-    marginBottom: theme.spacing(3)
-  }
+    marginBottom: theme.spacing(3),
+  },
 }));
 
 const ProfileAvatar = styled(Avatar)(({ theme }) => ({
@@ -158,12 +181,12 @@ const ProfileAvatar = styled(Avatar)(({ theme }) => ({
   transition: 'transform 0.3s ease, box-shadow 0.3s ease',
   '&:hover': {
     transform: 'scale(1.05)',
-    boxShadow: shadows.colored
-  }
+    boxShadow: shadows.colored,
+  },
 }));
 
 const ProfileInfo = styled(Box)(({ theme }) => ({
-  flex: 1
+  flex: 1,
 }));
 
 const ProfileName = styled(Typography)(({ theme }) => ({
@@ -173,14 +196,14 @@ const ProfileName = styled(Typography)(({ theme }) => ({
   marginBottom: theme.spacing(0.5),
   transition: 'color 0.3s ease',
   '&:hover': {
-    color: colors.primary
-  }
+    color: colors.primary,
+  },
 }));
 
 const ProfileSubtitle = styled(Typography)(({ theme }) => ({
   color: colors.textSecondary,
   marginBottom: theme.spacing(2),
-  fontSize: '1.1rem'
+  fontSize: '1.1rem',
 }));
 
 const ProfileActions = styled(Box)(({ theme }) => ({
@@ -189,8 +212,8 @@ const ProfileActions = styled(Box)(({ theme }) => ({
   [theme.breakpoints.down('md')]: {
     justifyContent: 'center',
     marginTop: theme.spacing(2),
-    flexWrap: 'wrap'
-  }
+    flexWrap: 'wrap',
+  },
 }));
 
 const SectionPaper = styled(Paper)(({ theme }) => ({
@@ -203,7 +226,7 @@ const SectionPaper = styled(Paper)(({ theme }) => ({
   overflow: 'hidden',
   '&:hover': {
     boxShadow: shadows.medium,
-    transform: 'translateY(-4px)'
+    transform: 'translateY(-4px)',
   },
   '&::before': {
     content: '""',
@@ -214,11 +237,11 @@ const SectionPaper = styled(Paper)(({ theme }) => ({
     height: '100%',
     background: colors.gradientPrimary,
     opacity: 0,
-    transition: 'opacity 0.3s ease'
+    transition: 'opacity 0.3s ease',
   },
   '&:hover::before': {
-    opacity: 1
-  }
+    opacity: 1,
+  },
 }));
 
 const SectionTitle = styled(Typography)(({ theme }) => ({
@@ -238,8 +261,8 @@ const SectionTitle = styled(Typography)(({ theme }) => ({
     width: '60px',
     height: '3px',
     background: colors.gradientPrimary,
-    borderRadius: theme.spacing(1)
-  }
+    borderRadius: theme.spacing(1),
+  },
 }));
 
 const InfoItem = styled(Box)(({ theme }) => ({
@@ -250,8 +273,8 @@ const InfoItem = styled(Box)(({ theme }) => ({
   borderRadius: theme.spacing(2),
   transition: 'background-color 0.2s ease',
   '&:hover': {
-    backgroundColor: alpha(colors.primary, 0.05)
-  }
+    backgroundColor: alpha(colors.primary, 0.05),
+  },
 }));
 
 const InfoLabel = styled(Typography)(({ theme }) => ({
@@ -261,19 +284,19 @@ const InfoLabel = styled(Typography)(({ theme }) => ({
   marginRight: theme.spacing(2),
   display: 'flex',
   alignItems: 'center',
-  gap: theme.spacing(1)
+  gap: theme.spacing(1),
 }));
 
 const InfoValue = styled(Typography)(({ theme }) => ({
   color: colors.textPrimary,
   flex: 1,
   fontWeight: 500,
-  fontSize: '1rem'
+  fontSize: '1rem',
 }));
 
 const TabContainer = styled(Box)(({ theme }) => ({
   marginBottom: theme.spacing(3),
-  position: 'relative'
+  position: 'relative',
 }));
 
 const CustomTab = styled(Tab)(({ theme }) => ({
@@ -286,15 +309,15 @@ const CustomTab = styled(Tab)(({ theme }) => ({
   transition: 'all 0.3s ease',
   '&.Mui-selected': {
     color: colors.textLight,
-    backgroundColor: colors.primary
+    backgroundColor: colors.primary,
   },
   '&:not(.Mui-selected)': {
     color: colors.textSecondary,
     '&:hover': {
       backgroundColor: alpha(colors.primary, 0.1),
-      color: colors.primary
-    }
-  }
+      color: colors.primary,
+    },
+  },
 }));
 
 const CustomTabs = styled(Tabs)(({ theme }) => ({
@@ -302,9 +325,9 @@ const CustomTabs = styled(Tabs)(({ theme }) => ({
   borderRadius: theme.spacing(3),
   padding: theme.spacing(0.5),
   '& .MuiTabs-indicator': {
-    display: 'none'
+    display: 'none',
   },
-  marginBottom: theme.spacing(4)
+  marginBottom: theme.spacing(4),
 }));
 
 const ActionButton = styled(Button)(({ theme, variant = 'contained' }) => ({
@@ -320,8 +343,8 @@ const ActionButton = styled(Button)(({ theme, variant = 'contained' }) => ({
     '&:hover': {
       background: colors.primaryDark,
       transform: 'translateY(-2px)',
-      boxShadow: shadows.medium
-    }
+      boxShadow: shadows.medium,
+    },
   }),
   ...(variant === 'outlined' && {
     color: colors.primary,
@@ -330,9 +353,9 @@ const ActionButton = styled(Button)(({ theme, variant = 'contained' }) => ({
     '&:hover': {
       backgroundColor: alpha(colors.primary, 0.1),
       borderColor: colors.primaryDark,
-      transform: 'translateY(-2px)'
-    }
-  })
+      transform: 'translateY(-2px)',
+    },
+  }),
 }));
 
 const ModalContainer = styled(Box)(({ theme }) => ({
@@ -349,7 +372,7 @@ const ModalContainer = styled(Box)(({ theme }) => ({
   maxHeight: '90vh',
   overflow: 'hidden',
   display: 'flex',
-  flexDirection: 'column'
+  flexDirection: 'column',
 }));
 
 const ModalHeader = styled(Box)(({ theme }) => ({
@@ -358,18 +381,18 @@ const ModalHeader = styled(Box)(({ theme }) => ({
   color: colors.textLight,
   display: 'flex',
   justifyContent: 'space-between',
-  alignItems: 'center'
+  alignItems: 'center',
 }));
 
 const ModalTitle = styled(Typography)(({ theme }) => ({
   fontWeight: 700,
-  fontSize: '1.5rem'
+  fontSize: '1.5rem',
 }));
 
 const ModalBody = styled(Box)(({ theme }) => ({
   padding: theme.spacing(4),
   overflowY: 'auto',
-  flex: 1
+  flex: 1,
 }));
 
 const FormField = styled(TextField)(({ theme }) => ({
@@ -385,15 +408,15 @@ const FormField = styled(TextField)(({ theme }) => ({
     },
     '&.Mui-focused fieldset': {
       borderColor: colors.primary,
-      borderWidth: '2px'
+      borderWidth: '2px',
     },
   },
   '& .MuiInputLabel-root': {
     fontWeight: 500,
     '&.Mui-focused': {
-      color: colors.primary
-    }
-  }
+      color: colors.primary,
+    },
+  },
 }));
 
 const ViewToggleButton = styled(ToggleButton)(({ theme }) => ({
@@ -405,15 +428,15 @@ const ViewToggleButton = styled(ToggleButton)(({ theme }) => ({
     backgroundColor: colors.primary,
     color: colors.textLight,
     '&:hover': {
-      backgroundColor: colors.primaryDark
-    }
-  }
+      backgroundColor: colors.primaryDark,
+    },
+  },
 }));
 
 const ImagePreviewModal = styled(Modal)(({ theme }) => ({
   '& .MuiModal-backdrop': {
-    backgroundColor: 'rgba(0, 0, 0, 0.9)'
-  }
+    backgroundColor: 'rgba(0, 0, 0, 0.9)',
+  },
 }));
 
 const ImagePreviewContainer = styled(Box)(({ theme }) => ({
@@ -427,7 +450,7 @@ const ImagePreviewContainer = styled(Box)(({ theme }) => ({
   flexDirection: 'column',
   alignItems: 'center',
   justifyContent: 'center',
-  outline: 'none'
+  outline: 'none',
 }));
 
 const ImagePreviewContent = styled(Box)(({ theme }) => ({
@@ -436,7 +459,7 @@ const ImagePreviewContent = styled(Box)(({ theme }) => ({
   alignItems: 'center',
   justifyContent: 'center',
   maxWidth: '100%',
-  maxHeight: '80vh'
+  maxHeight: '80vh',
 }));
 
 const PreviewImage = styled('img')(({ theme }) => ({
@@ -444,7 +467,7 @@ const PreviewImage = styled('img')(({ theme }) => ({
   maxHeight: '80vh',
   borderRadius: theme.spacing(2),
   boxShadow: shadows.heavy,
-  objectFit: 'contain'
+  objectFit: 'contain',
 }));
 
 const ImagePreviewActions = styled(Box)(({ theme }) => ({
@@ -455,7 +478,7 @@ const ImagePreviewActions = styled(Box)(({ theme }) => ({
   gap: theme.spacing(1),
   backgroundColor: alpha(colors.surface, 0.9),
   borderRadius: theme.spacing(2),
-  padding: theme.spacing(0.5)
+  padding: theme.spacing(0.5),
 }));
 
 const ImagePreviewButton = styled(IconButton)(({ theme }) => ({
@@ -463,8 +486,8 @@ const ImagePreviewButton = styled(IconButton)(({ theme }) => ({
   color: colors.textPrimary,
   '&:hover': {
     backgroundColor: colors.primary,
-    color: colors.textLight
-  }
+    color: colors.textLight,
+  },
 }));
 
 const EditModalPictureSection = styled(Box)(({ theme }) => ({
@@ -478,8 +501,8 @@ const EditModalPictureSection = styled(Box)(({ theme }) => ({
   position: 'relative',
   [theme.breakpoints.down('sm')]: {
     flexDirection: 'column',
-    textAlign: 'center'
-  }
+    textAlign: 'center',
+  },
 }));
 
 const EditModalAvatar = styled(Avatar)(({ theme }) => ({
@@ -490,24 +513,24 @@ const EditModalAvatar = styled(Avatar)(({ theme }) => ({
   cursor: 'pointer',
   transition: 'transform 0.3s ease',
   '&:hover': {
-    transform: 'scale(1.05)'
-  }
+    transform: 'scale(1.05)',
+  },
 }));
 
 const EditModalPictureInfo = styled(Box)(({ theme }) => ({
-  flex: 1
+  flex: 1,
 }));
 
 const EditModalPictureActions = styled(Box)(({ theme }) => ({
   display: 'flex',
   flexDirection: 'column',
-  gap: theme.spacing(1)
+  gap: theme.spacing(1),
 }));
 
 const ContentContainer = styled(Box)(({ theme }) => ({
   width: '100%',
   position: 'relative',
-  minHeight: '600px'
+  minHeight: '600px',
 }));
 
 const ViewWrapper = styled(Box)(({ theme }) => ({
@@ -520,18 +543,23 @@ const ViewWrapper = styled(Box)(({ theme }) => ({
   transition: 'opacity 0.3s ease, visibility 0.3s ease',
   '&.active': {
     opacity: 1,
-    visibility: 'visible'
-  }
+    visibility: 'visible',
+  },
 }));
 
 const Notification = styled(SnackbarContent)(({ theme, variant }) => ({
-  backgroundColor: variant === 'success' ? colors.success : 
-                  variant === 'error' ? colors.error : 
-                  variant === 'warning' ? colors.warning : colors.info,
+  backgroundColor:
+    variant === 'success'
+      ? colors.success
+      : variant === 'error'
+      ? colors.error
+      : variant === 'warning'
+      ? colors.warning
+      : colors.info,
   color: colors.textLight,
   fontWeight: 500,
   borderRadius: theme.spacing(2),
-  boxShadow: shadows.medium
+  boxShadow: shadows.medium,
 }));
 
 const FloatingButton = styled(Fab)(({ theme }) => ({
@@ -544,76 +572,76 @@ const FloatingButton = styled(Fab)(({ theme }) => ({
   transition: 'all 0.3s ease',
   '&:hover': {
     transform: 'scale(1.1)',
-    boxShadow: shadows.colored
-  }
+    boxShadow: shadows.colored,
+  },
 }));
 
 const ChildCard = styled(Card)(({ theme }) => ({
-  border: "1px solid #e0e0e0",
-  height: "100%",
+  border: '1px solid #e0e0e0',
+  height: '100%',
   display: 'flex',
   flexDirection: 'column',
-  "&:hover": { 
+  '&:hover': {
     borderColor: colors.primary,
     transform: 'translateY(-2px)',
     transition: 'all 0.2s ease',
-    boxShadow: shadows.medium
+    boxShadow: shadows.medium,
   },
 }));
 
 const ChildListItem = styled(ListItem)(({ theme }) => ({
-  border: "1px solid #e0e0e0",
+  border: '1px solid #e0e0e0',
   borderRadius: theme.spacing(1),
   marginBottom: theme.spacing(1),
-  "&:hover": { 
+  '&:hover': {
     borderColor: colors.primary,
-    backgroundColor: alpha(colors.primary, 0.05)
+    backgroundColor: alpha(colors.primary, 0.05),
   },
 }));
 
 const CollegeCard = styled(Card)(({ theme }) => ({
-  border: "1px solid #e0e0e0",
-  height: "100%",
+  border: '1px solid #e0e0e0',
+  height: '100%',
   display: 'flex',
   flexDirection: 'column',
-  "&:hover": { 
+  '&:hover': {
     borderColor: colors.primary,
     transform: 'translateY(-2px)',
     transition: 'all 0.2s ease',
-    boxShadow: shadows.medium
+    boxShadow: shadows.medium,
   },
 }));
 
 const CollegeListItem = styled(ListItem)(({ theme }) => ({
-  border: "1px solid #e0e0e0",
+  border: '1px solid #e0e0e0',
   borderRadius: theme.spacing(1),
   marginBottom: theme.spacing(1),
-  "&:hover": { 
+  '&:hover': {
     borderColor: colors.primary,
-    backgroundColor: alpha(colors.primary, 0.05)
+    backgroundColor: alpha(colors.primary, 0.05),
   },
 }));
 
 const GraduateCard = styled(Card)(({ theme }) => ({
-  border: "1px solid #e0e0e0",
-  height: "100%",
+  border: '1px solid #e0e0e0',
+  height: '100%',
   display: 'flex',
   flexDirection: 'column',
-  "&:hover": { 
+  '&:hover': {
     borderColor: colors.primary,
     transform: 'translateY(-2px)',
     transition: 'all 0.2s ease',
-    boxShadow: shadows.medium
+    boxShadow: shadows.medium,
   },
 }));
 
 const GraduateListItem = styled(ListItem)(({ theme }) => ({
-  border: "1px solid #e0e0e0",
+  border: '1px solid #e0e0e0',
   borderRadius: theme.spacing(1),
   marginBottom: theme.spacing(1),
-  "&:hover": { 
+  '&:hover': {
     borderColor: colors.primary,
-    backgroundColor: alpha(colors.primary, 0.05)
+    backgroundColor: alpha(colors.primary, 0.05),
   },
 }));
 
@@ -640,7 +668,7 @@ const EducationSubTabs = styled(Tabs)(({ theme }) => ({
   padding: theme.spacing(0.5),
   marginBottom: theme.spacing(3),
   '& .MuiTabs-indicator': {
-    display: 'none'
+    display: 'none',
   },
 }));
 
@@ -654,66 +682,156 @@ const EducationSubTab = styled(Tab)(({ theme }) => ({
   transition: 'all 0.3s ease',
   '&.Mui-selected': {
     color: colors.textLight,
-    backgroundColor: colors.primary
+    backgroundColor: colors.primary,
   },
   '&:not(.Mui-selected)': {
     color: colors.textSecondary,
     '&:hover': {
       backgroundColor: alpha(colors.primary, 0.1),
-      color: colors.primary
-    }
-  }
+      color: colors.primary,
+    },
+  },
 }));
 
 const EligibilityCard = styled(Card)(({ theme }) => ({
-  border: "1px solid #e0e0e0",
-  height: "100%",
+  border: '1px solid #e0e0e0',
+  height: '100%',
   display: 'flex',
   flexDirection: 'column',
-  "&:hover": { 
+  '&:hover': {
     borderColor: colors.primary,
     transform: 'translateY(-2px)',
     transition: 'all 0.2s ease',
-    boxShadow: shadows.medium
+    boxShadow: shadows.medium,
   },
 }));
 
 const EligibilityListItem = styled(ListItem)(({ theme }) => ({
-  border: "1px solid #e0e0e0",
+  border: '1px solid #e0e0e0',
   borderRadius: theme.spacing(1),
   marginBottom: theme.spacing(1),
-  "&:hover": { 
+  '&:hover': {
     borderColor: colors.primary,
-    backgroundColor: alpha(colors.primary, 0.05)
+    backgroundColor: alpha(colors.primary, 0.05),
   },
 }));
 
 // Learning and Development Card and ListItem
 const LearningDevelopmentCard = styled(Card)(({ theme }) => ({
-  border: "1px solid #e0e0e0",
-  height: "100%",
+  border: '1px solid #e0e0e0',
+  height: '100%',
   display: 'flex',
   flexDirection: 'column',
-  "&:hover": { 
+  '&:hover': {
     borderColor: colors.primary,
     transform: 'translateY(-2px)',
     transition: 'all 0.2s ease',
-    boxShadow: shadows.medium
+    boxShadow: shadows.medium,
   },
 }));
 
 const LearningDevelopmentListItem = styled(ListItem)(({ theme }) => ({
-  border: "1px solid #e0e0e0",
+  border: '1px solid #e0e0e0',
   borderRadius: theme.spacing(1),
   marginBottom: theme.spacing(1),
-  "&:hover": { 
+  '&:hover': {
     borderColor: colors.primary,
-    backgroundColor: alpha(colors.primary, 0.05)
+    backgroundColor: alpha(colors.primary, 0.05),
   },
 }));
 
+// Other Information Card and ListItem
+const OtherInformationCard = styled(Card)(({ theme }) => ({
+  border: '1px solid #e0e0e0',
+  height: '100%',
+  display: 'flex',
+  flexDirection: 'column',
+  '&:hover': {
+    borderColor: colors.primary,
+    transform: 'translateY(-2px)',
+    transition: 'all 0.2s ease',
+    boxShadow: shadows.medium,
+  },
+}));
+
+const OtherInformationListItem = styled(ListItem)(({ theme }) => ({
+  border: '1px solid #e0e0e0',
+  borderRadius: theme.spacing(1),
+  marginBottom: theme.spacing(1),
+  '&:hover': {
+    borderColor: colors.primary,
+    backgroundColor: alpha(colors.primary, 0.05),
+  },
+}));
+
+const VocationalCard = styled(Card)(({ theme }) => ({
+  border: '1px solid #e0e0e0',
+  height: '100%',
+  display: 'flex',
+  flexDirection: 'column',
+  '&:hover': {
+    borderColor: colors.primary,
+    transform: 'translateY(-2px)',
+    transition: 'all 0.2s ease',
+    boxShadow: shadows.medium,
+  },
+}));
+
+const VocationalListItem = styled(ListItem)(({ theme }) => ({
+  border: '1px solid #e0e0e0',
+  borderRadius: theme.spacing(1),
+  marginBottom: theme.spacing(1),
+  '&:hover': {
+    borderColor: colors.primary,
+    backgroundColor: alpha(colors.primary, 0.05),
+  },
+}));
+
+const WorkExperienceCard = styled(Card)(({ theme }) => ({
+  border: '1px solid #e0e0e0',
+  height: '100%',
+  display: 'flex',
+  flexDirection: 'column',
+  '&:hover': {
+    borderColor: colors.primary,
+    transform: 'translateY(-2px)',
+    transition: 'all 0.2s ease',
+    boxShadow: shadows.medium,
+  },
+}));
+
+const WorkExperienceListItem = styled(ListItem)(({ theme }) => ({
+  border: '1px solid #e0e0e0',
+  borderRadius: theme.spacing(1),
+  marginBottom: theme.spacing(1),
+  '&:hover': {
+    borderColor: colors.primary,
+    backgroundColor: alpha(colors.primary, 0.05),
+  },
+}));
+
+const StickyActionBar = styled(Box)(({ theme }) => ({
+  position: 'sticky',
+  top: 0,
+  backgroundColor: colors.surface,
+  padding: theme.spacing(2),
+  borderBottom: `1px solid ${colors.border}`,
+  zIndex: 10,
+  display: 'flex',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+}));
+
 // Percentage Input Component
-const PercentageInput = ({ value, onChange, label, disabled = false, error = false, helperText = '' }) => {
+const PercentageInput = ({
+  value,
+  onChange,
+  label,
+  disabled = false,
+  error = false,
+  helperText = '',
+}) => {
   const [inputValue, setInputValue] = useState(value || '');
 
   useEffect(() => {
@@ -722,34 +840,37 @@ const PercentageInput = ({ value, onChange, label, disabled = false, error = fal
 
   const handleInputChange = (e) => {
     let newValue = e.target.value;
-    
+
     // Remove any non-digit characters except for decimal point
     newValue = newValue.replace(/[^\d.]/g, '');
-    
+
     // Ensure only one decimal point
     const parts = newValue.split('.');
     if (parts.length > 2) {
       newValue = parts[0] + '.' + parts.slice(1).join('');
     }
-    
+
     // Limit to 2 decimal places
     if (parts.length === 2 && parts[1].length > 2) {
       newValue = parts[0] + '.' + parts[1].substring(0, 2);
     }
-    
+
     // Ensure value is between 0 and 100
     const numValue = parseFloat(newValue);
     if (!isNaN(numValue) && numValue > 100) {
       newValue = '100';
     }
-    
+
     setInputValue(newValue);
     onChange(newValue);
   };
 
   return (
     <Box>
-      <Typography variant="caption" sx={{ fontWeight: "bold", mb: 0.5, color: "#333", display: 'block' }}>
+      <Typography
+        variant="caption"
+        sx={{ fontWeight: 'bold', mb: 0.5, color: '#333', display: 'block' }}
+      >
         {label}
       </Typography>
       <TextField
@@ -772,7 +893,7 @@ const PercentageInput = ({ value, onChange, label, disabled = false, error = fal
           '& .MuiOutlinedInput-root': {
             '& fieldset': {
               borderColor: error ? 'red' : '#6D2323',
-              borderWidth: '1.5px'
+              borderWidth: '1.5px',
             },
             '&:hover fieldset': {
               borderColor: error ? 'red' : '#6D2323',
@@ -804,35 +925,51 @@ const Profile = () => {
   const [viewMode, setViewMode] = useState('grid');
   const employeeNumber = localStorage.getItem('employeeNumber');
   const profileRef = useRef(null);
-  
+
   // Children related state
   const [children, setChildren] = useState([]);
   const [childrenFormData, setChildrenFormData] = useState([]);
-  
+
   // College related state
   const [colleges, setColleges] = useState([]);
   const [collegesFormData, setCollegesFormData] = useState([]);
-  
+
   // Graduate studies related state
   const [graduates, setGraduates] = useState([]);
   const [graduatesFormData, setGraduatesFormData] = useState([]);
-  
+
   // Eligibility related state
   const [eligibilities, setEligibilities] = useState([]);
   const [eligibilitiesFormData, setEligibilitiesFormData] = useState([]);
-  
+
   // Learning and Development related state
   const [learningDevelopment, setLearningDevelopment] = useState([]);
-  const [learningDevelopmentFormData, setLearningDevelopmentFormData] = useState([]);
-  
+  const [learningDevelopmentFormData, setLearningDevelopmentFormData] =
+    useState([]);
+
+  // Other Information related state
+  const [otherInformation, setOtherInformation] = useState([]);
+  const [otherInformationFormData, setOtherInformationFormData] = useState([]);
+
   // Education sub-tab state
   const [educationSubTabValue, setEducationSubTabValue] = useState(0);
+
+  // Vocational related state
+  const [vocational, setVocational] = useState([]);
+  const [vocationalFormData, setVocationalFormData] = useState([]);
+
+  const [workExperiences, setWorkExperiences] = useState([]);
+  const [workExperiencesFormData, setWorkExperiencesFormData] = useState([]);
 
   useEffect(() => {
     const fetchPersonData = async () => {
       try {
-        const response = await axios.get(`${API_BASE_URL}/personalinfo/person_table`);
-        const match = response.data.find(p => p.agencyEmployeeNum === employeeNumber);
+        const response = await axios.get(
+          `${API_BASE_URL}/personalinfo/person_table`
+        );
+        const match = response.data.find(
+          (p) => p.agencyEmployeeNum === employeeNumber
+        );
         setPerson(match);
 
         if (match) {
@@ -848,7 +985,10 @@ const Profile = () => {
         }
       } catch (err) {
         console.error('Error loading profile:', err);
-        setUploadStatus({ message: 'Failed to load profile data', type: 'error' });
+        setUploadStatus({
+          message: 'Failed to load profile data',
+          type: 'error',
+        });
         setNotificationOpen(true);
       } finally {
         setLoading(false);
@@ -862,19 +1002,24 @@ const Profile = () => {
   useEffect(() => {
     const fetchChildren = async () => {
       try {
-        const response = await axios.get(`${API_BASE_URL}/ChildrenRoute/children-by-person/${employeeNumber}`);
+        const response = await axios.get(
+          `${API_BASE_URL}/ChildrenRoute/children-by-person/${employeeNumber}`
+        );
         console.log('Children data:', response.data);
         setChildren(response.data);
-        
+
         // Initialize form data with fetched children
-        const formattedChildren = response.data.map(child => ({
+        const formattedChildren = response.data.map((child) => ({
           ...child,
-          dateOfBirth: child.dateOfBirth ? child.dateOfBirth.split('T')[0] : ''
+          dateOfBirth: child.dateOfBirth ? child.dateOfBirth.split('T')[0] : '',
         }));
         setChildrenFormData(formattedChildren);
       } catch (error) {
         console.error('Error fetching children:', error);
-        setUploadStatus({ message: 'Failed to load children data', type: 'error' });
+        setUploadStatus({
+          message: 'Failed to load children data',
+          type: 'error',
+        });
         setNotificationOpen(true);
       }
     };
@@ -883,18 +1028,23 @@ const Profile = () => {
       fetchChildren();
     }
   }, [employeeNumber]);
-  
+
   // Fetch college data for current user
   useEffect(() => {
     const fetchColleges = async () => {
       try {
-        const response = await axios.get(`${API_BASE_URL}/college/college-by-person/${employeeNumber}`);
+        const response = await axios.get(
+          `${API_BASE_URL}/college/college-by-person/${employeeNumber}`
+        );
         console.log('College data:', response.data);
         setColleges(response.data);
         setCollegesFormData(response.data);
       } catch (error) {
         console.error('Error fetching colleges:', error);
-        setUploadStatus({ message: 'Failed to load college data', type: 'error' });
+        setUploadStatus({
+          message: 'Failed to load college data',
+          type: 'error',
+        });
         setNotificationOpen(true);
       }
     };
@@ -903,18 +1053,23 @@ const Profile = () => {
       fetchColleges();
     }
   }, [employeeNumber]);
-  
+
   // Fetch graduate studies data for current user
   useEffect(() => {
     const fetchGraduates = async () => {
       try {
-        const response = await axios.get(`${API_BASE_URL}/GraduateRoute/graduate-by-person/${employeeNumber}`);
+        const response = await axios.get(
+          `${API_BASE_URL}/GraduateRoute/graduate-by-person/${employeeNumber}`
+        );
         console.log('Graduate data:', response.data);
         setGraduates(response.data);
         setGraduatesFormData(response.data);
       } catch (error) {
         console.error('Error fetching graduates:', error);
-        setUploadStatus({ message: 'Failed to load graduate data', type: 'error' });
+        setUploadStatus({
+          message: 'Failed to load graduate data',
+          type: 'error',
+        });
         setNotificationOpen(true);
       }
     };
@@ -923,25 +1078,34 @@ const Profile = () => {
       fetchGraduates();
     }
   }, [employeeNumber]);
-  
+
   // Fetch eligibility data for current user
   useEffect(() => {
     const fetchEligibilities = async () => {
       try {
-        const response = await axios.get(`${API_BASE_URL}/eligibilityRoute/eligibility-by-person/${employeeNumber}`);
+        const response = await axios.get(
+          `${API_BASE_URL}/eligibilityRoute/eligibility-by-person/${employeeNumber}`
+        );
         console.log('Eligibility data:', response.data);
         setEligibilities(response.data);
-        
+
         // Initialize form data with fetched eligibilities
-        const formattedEligibilities = response.data.map(eligibility => ({
+        const formattedEligibilities = response.data.map((eligibility) => ({
           ...eligibility,
-          eligibilityDateOfExam: eligibility.eligibilityDateOfExam ? eligibility.eligibilityDateOfExam.split('T')[0] : '',
-          DateOfValidity: eligibility.DateOfValidity ? eligibility.DateOfValidity.split('T')[0] : ''
+          eligibilityDateOfExam: eligibility.eligibilityDateOfExam
+            ? eligibility.eligibilityDateOfExam.split('T')[0]
+            : '',
+          DateOfValidity: eligibility.DateOfValidity
+            ? eligibility.DateOfValidity.split('T')[0]
+            : '',
         }));
         setEligibilitiesFormData(formattedEligibilities);
       } catch (error) {
         console.error('Error fetching eligibilities:', error);
-        setUploadStatus({ message: 'Failed to load eligibility data', type: 'error' });
+        setUploadStatus({
+          message: 'Failed to load eligibility data',
+          type: 'error',
+        });
         setNotificationOpen(true);
       }
     };
@@ -950,18 +1114,23 @@ const Profile = () => {
       fetchEligibilities();
     }
   }, [employeeNumber]);
-  
+
   // Fetch learning and development data for current user
   useEffect(() => {
     const fetchLearningDevelopment = async () => {
       try {
-        const response = await axios.get(`${API_BASE_URL}/learning_and_development_table/by-person/${employeeNumber}`);
+        const response = await axios.get(
+          `${API_BASE_URL}/learning_and_development_table/by-person/${employeeNumber}`
+        );
         console.log('Learning and Development data:', response.data);
         setLearningDevelopment(response.data);
         setLearningDevelopmentFormData(response.data);
       } catch (error) {
         console.error('Error fetching learning and development:', error);
-        setUploadStatus({ message: 'Failed to load learning and development data', type: 'error' });
+        setUploadStatus({
+          message: 'Failed to load learning and development data',
+          type: 'error',
+        });
         setNotificationOpen(true);
       }
     };
@@ -971,88 +1140,260 @@ const Profile = () => {
     }
   }, [employeeNumber]);
 
+  // Fetch other information data for current user
+  useEffect(() => {
+    const fetchOtherInformation = async () => {
+      try {
+        const response = await axios.get(
+          `${API_BASE_URL}/OtherInfo/other-information-by-person/${employeeNumber}`
+        );
+        console.log('Other Information data:', response.data);
+        setOtherInformation(response.data);
+        setOtherInformationFormData(response.data);
+      } catch (error) {
+        console.error('Error fetching other information:', error);
+        setUploadStatus({
+          message: 'Failed to load other information data',
+          type: 'error',
+        });
+        setNotificationOpen(true);
+      }
+    };
+
+    if (employeeNumber) {
+      fetchOtherInformation();
+    }
+  }, [employeeNumber]);
+
+  // Fetch vocational data for current user
+  useEffect(() => {
+    const fetchVocational = async () => {
+      try {
+        const response = await axios.get(
+          `${API_BASE_URL}/vocational/vocational-by-person/${employeeNumber}`
+        );
+        console.log('Vocational data:', response.data);
+        setVocational(response.data);
+        setVocationalFormData(response.data);
+      } catch (error) {
+        console.error('Error fetching vocational:', error);
+        setUploadStatus({
+          message: 'Failed to load vocational data',
+          type: 'error',
+        });
+        setNotificationOpen(true);
+      }
+    };
+
+    if (employeeNumber) {
+      fetchVocational();
+    }
+  }, [employeeNumber]);
+
+  useEffect(() => {
+    const fetchWorkExperiences = async () => {
+      try {
+        const response = await axios.get(
+          `${API_BASE_URL}/WorkExperienceRoute/work-experience-by-person/${employeeNumber}`
+        );
+        console.log('Work Experience data:', response.data);
+        setWorkExperiences(response.data);
+
+        // Initialize form data with fetched work experiences
+        const formattedWorkExperiences = response.data.map((workExp) => ({
+          ...workExp,
+          workDateFrom: workExp.workDateFrom
+            ? workExp.workDateFrom.split('T')[0]
+            : '',
+          workDateTo: workExp.workDateTo
+            ? workExp.workDateTo.split('T')[0]
+            : '',
+        }));
+        setWorkExperiencesFormData(formattedWorkExperiences);
+      } catch (error) {
+        console.error('Error fetching work experiences:', error);
+        setUploadStatus({
+          message: 'Failed to load work experience data',
+          type: 'error',
+        });
+        setNotificationOpen(true);
+      }
+    };
+
+    if (employeeNumber) {
+      fetchWorkExperiences();
+    }
+  }, [employeeNumber]);
+
   const handleEditOpen = () => {
     setEditOpen(true);
   };
-  
+
   const handleEditClose = () => {
     setEditOpen(false);
   };
 
   const handleFormChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSave = async () => {
     try {
       // Save personal info
-      await axios.put(`${API_BASE_URL}/personalinfo/person_table/by-employee/${employeeNumber}`, formData);
+      await axios.put(
+        `${API_BASE_URL}/personalinfo/person_table/by-employee/${employeeNumber}`,
+        formData
+      );
       setPerson(formData);
-      
+
       // Save children data
       for (const child of childrenFormData) {
         if (child.id) {
           // Update existing child
-          await axios.put(`${API_BASE_URL}/ChildrenRoute/children-table/${child.id}`, child);
-        } else if (child.childrenFirstName && child.childrenLastName && child.dateOfBirth) {
+          await axios.put(
+            `${API_BASE_URL}/ChildrenRoute/children-table/${child.id}`,
+            child
+          );
+        } else if (
+          child.childrenFirstName &&
+          child.childrenLastName &&
+          child.dateOfBirth
+        ) {
           // Add new child
-          await axios.post(`${API_BASE_URL}/ChildrenRoute/children-table`, child);
+          await axios.post(
+            `${API_BASE_URL}/ChildrenRoute/children-table`,
+            child
+          );
         }
       }
-      
+
       // Save college data
       for (const college of collegesFormData) {
         if (college.id) {
           // Update existing college
-          await axios.put(`${API_BASE_URL}/college/college-table/${college.id}`, college);
+          await axios.put(
+            `${API_BASE_URL}/college/college-table/${college.id}`,
+            college
+          );
         } else if (college.collegeNameOfSchool && college.collegeDegree) {
           // Add new college
           await axios.post(`${API_BASE_URL}/college/college-table`, college);
         }
       }
-      
+
       // Save graduate studies data
       for (const graduate of graduatesFormData) {
         if (graduate.id) {
           // Update existing graduate
-          await axios.put(`${API_BASE_URL}/graduate/graduate-table/${graduate.id}`, graduate);
+          await axios.put(
+            `${API_BASE_URL}/graduate/graduate-table/${graduate.id}`,
+            graduate
+          );
         } else if (graduate.graduateNameOfSchool && graduate.graduateDegree) {
           // Add new graduate
           await axios.post(`${API_BASE_URL}/graduate/graduate-table`, graduate);
         }
       }
-      
+
       // Save eligibility data
       for (const eligibility of eligibilitiesFormData) {
         if (eligibility.id) {
           // Update existing eligibility
-          await axios.put(`${API_BASE_URL}/eligibilityRoute/eligibility/${eligibility.id}`, eligibility);
+          await axios.put(
+            `${API_BASE_URL}/eligibilityRoute/eligibility/${eligibility.id}`,
+            eligibility
+          );
         } else if (eligibility.eligibilityName && eligibility.DateOfValidity) {
           // Add new eligibility
-          await axios.post(`${API_BASE_URL}/eligibilityRoute/eligibility`, eligibility);
+          await axios.post(
+            `${API_BASE_URL}/eligibilityRoute/eligibility`,
+            eligibility
+          );
         }
       }
-      
+
       // Save learning and development data
       for (const learning of learningDevelopmentFormData) {
         if (learning.id) {
           // Update existing learning and development
-          await axios.put(`${API_BASE_URL}/learning_and_development_table/${learning.id}`, learning);
-        } else if (learning.titleOfProgram && learning.dateFrom && learning.dateTo) {
+          await axios.put(
+            `${API_BASE_URL}/learning_and_development_table/${learning.id}`,
+            learning
+          );
+        } else if (
+          learning.titleOfProgram &&
+          learning.dateFrom &&
+          learning.dateTo
+        ) {
           // Add new learning and development
-          await axios.post(`${API_BASE_URL}/learning_and_development_table`, learning);
+          await axios.post(
+            `${API_BASE_URL}/learning_and_development_table`,
+            learning
+          );
         }
       }
-      
+
+      // Save other information data
+      for (const info of otherInformationFormData) {
+        if (info.id) {
+          // Update existing other information
+          await axios.put(
+            `${API_BASE_URL}/OtherInfo/other-information/${info.id}`,
+            info
+          );
+        } else {
+          // Add new other information
+          await axios.post(`${API_BASE_URL}/OtherInfo/other-information`, info);
+        }
+      }
+
+      // Save vocational data
+      for (const voc of vocationalFormData) {
+        if (voc.id) {
+          // Update existing vocational record
+          await axios.put(
+            `${API_BASE_URL}/vocational/vocational-table/${voc.id}`,
+            voc
+          );
+        } else if (voc.vocationalNameOfSchool && voc.vocationalDegree) {
+          // Add new vocational record
+          await axios.post(`${API_BASE_URL}/vocational/vocational-table`, voc);
+        }
+      }
+
+      for (const workExp of workExperiencesFormData) {
+        if (workExp.id) {
+          // Update existing work experience
+          await axios.put(
+            `${API_BASE_URL}/WorkExperienceRoute/work-experience-table/${workExp.id}`,
+            workExp
+          );
+        } else if (
+          workExp.workPositionTitle &&
+          workExp.workCompany &&
+          workExp.workDateFrom &&
+          workExp.workDateTo
+        ) {
+          // Add new work experience
+          await axios.post(
+            `${API_BASE_URL}/WorkExperienceRoute/work-experience-table`,
+            workExp
+          );
+        }
+      }
+
       setEditOpen(false);
-      setUploadStatus({ message: 'Profile updated successfully!', type: 'success' });
+      setUploadStatus({
+        message: 'Profile updated successfully!',
+        type: 'success',
+      });
       setNotificationOpen(true);
-      
+
       // Refresh data
       window.location.reload();
     } catch (err) {
-      console.error("Update failed:", err);
+      console.error('Update failed:', err);
       setUploadStatus({ message: 'Failed to update profile', type: 'error' });
       setNotificationOpen(true);
     }
@@ -1064,14 +1405,20 @@ const Profile = () => {
 
     const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
     if (!allowedTypes.includes(file.type)) {
-      setUploadStatus({ message: 'Please upload a valid image file (JPEG, PNG, GIF)', type: 'error' });
+      setUploadStatus({
+        message: 'Please upload a valid image file (JPEG, PNG, GIF)',
+        type: 'error',
+      });
       setNotificationOpen(true);
       return;
     }
 
     const maxSize = 5 * 1024 * 1024;
     if (file.size > maxSize) {
-      setUploadStatus({ message: 'File size must be less than 5MB', type: 'error' });
+      setUploadStatus({
+        message: 'File size must be less than 5MB',
+        type: 'error',
+      });
       setNotificationOpen(true);
       return;
     }
@@ -1088,7 +1435,7 @@ const Profile = () => {
         fd,
         {
           headers: { 'Content-Type': 'multipart/form-data' },
-          timeout: 30000
+          timeout: 30000,
         }
       );
 
@@ -1096,15 +1443,19 @@ const Profile = () => {
       setProfilePicture(newPicturePath);
 
       if (person) {
-        setPerson(prev => ({ ...prev, profile_picture: newPicturePath }));
+        setPerson((prev) => ({ ...prev, profile_picture: newPicturePath }));
       }
 
-      setUploadStatus({ message: 'Profile picture updated successfully!', type: 'success' });
+      setUploadStatus({
+        message: 'Profile picture updated successfully!',
+        type: 'success',
+      });
       setNotificationOpen(true);
-
     } catch (err) {
       console.error('Image upload failed:', err);
-      const errorMessage = err.response?.data?.message || 'Failed to upload image. Please try again.';
+      const errorMessage =
+        err.response?.data?.message ||
+        'Failed to upload image. Please try again.';
       setUploadStatus({ message: errorMessage, type: 'error' });
       setNotificationOpen(true);
     }
@@ -1114,10 +1465,15 @@ const Profile = () => {
     if (!person?.id) return;
 
     try {
-      axios.delete(`${API_BASE_URL}/personalinfo/remove-profile-picture/${person.id}`);
+      axios.delete(
+        `${API_BASE_URL}/personalinfo/remove-profile-picture/${person.id}`
+      );
       setProfilePicture(null);
-      setPerson(prev => ({ ...prev, profile_picture: null }));
-      setUploadStatus({ message: 'Profile picture removed successfully!', type: 'success' });
+      setPerson((prev) => ({ ...prev, profile_picture: null }));
+      setUploadStatus({
+        message: 'Profile picture removed successfully!',
+        type: 'success',
+      });
       setNotificationOpen(true);
     } catch (err) {
       console.error('Remove picture failed:', err);
@@ -1192,7 +1548,7 @@ const Profile = () => {
         childrenNameExtension: '',
         dateOfBirth: '',
         person_id: employeeNumber,
-      }
+      },
     ]);
   };
 
@@ -1201,7 +1557,7 @@ const Profile = () => {
     updatedChildren.splice(index, 1);
     setChildrenFormData(updatedChildren);
   };
-  
+
   // College related functions
   const handleCollegeFormChange = (index, e) => {
     const { name, value } = e.target;
@@ -1222,7 +1578,7 @@ const Profile = () => {
         collegeYearGraduated: '',
         collegeScholarshipAcademicHonorsReceived: '',
         person_id: employeeNumber,
-      }
+      },
     ]);
   };
 
@@ -1231,7 +1587,7 @@ const Profile = () => {
     updatedColleges.splice(index, 1);
     setCollegesFormData(updatedColleges);
   };
-  
+
   // Graduate studies related functions
   const handleGraduateFormChange = (index, e) => {
     const { name, value } = e.target;
@@ -1252,7 +1608,7 @@ const Profile = () => {
         graduateYearGraduated: '',
         graduateScholarshipAcademicHonorsReceived: '',
         person_id: employeeNumber,
-      }
+      },
     ]);
   };
 
@@ -1261,12 +1617,15 @@ const Profile = () => {
     updatedGraduates.splice(index, 1);
     setGraduatesFormData(updatedGraduates);
   };
-  
+
   // Eligibility related functions
   const handleEligibilityFormChange = (index, e) => {
     const { name, value } = e.target;
     const updatedEligibilities = [...eligibilitiesFormData];
-    updatedEligibilities[index] = { ...updatedEligibilities[index], [name]: value };
+    updatedEligibilities[index] = {
+      ...updatedEligibilities[index],
+      [name]: value,
+    };
     setEligibilitiesFormData(updatedEligibilities);
   };
 
@@ -1281,7 +1640,7 @@ const Profile = () => {
         licenseNumber: '',
         DateOfValidity: '',
         person_id: employeeNumber,
-      }
+      },
     ]);
   };
 
@@ -1290,12 +1649,15 @@ const Profile = () => {
     updatedEligibilities.splice(index, 1);
     setEligibilitiesFormData(updatedEligibilities);
   };
-  
+
   // Learning and Development related functions
   const handleLearningDevelopmentFormChange = (index, e) => {
     const { name, value } = e.target;
     const updatedLearningDevelopment = [...learningDevelopmentFormData];
-    updatedLearningDevelopment[index] = { ...updatedLearningDevelopment[index], [name]: value };
+    updatedLearningDevelopment[index] = {
+      ...updatedLearningDevelopment[index],
+      [name]: value,
+    };
     setLearningDevelopmentFormData(updatedLearningDevelopment);
   };
 
@@ -1310,7 +1672,7 @@ const Profile = () => {
         typeOfLearningDevelopment: '',
         conductedSponsored: '',
         person_id: employeeNumber,
-      }
+      },
     ]);
   };
 
@@ -1320,14 +1682,111 @@ const Profile = () => {
     setLearningDevelopmentFormData(updatedLearningDevelopment);
   };
 
+  // Other Information related functions
+  const handleOtherInformationFormChange = (index, e) => {
+    const { name, value } = e.target;
+    const updatedOtherInformation = [...otherInformationFormData];
+    updatedOtherInformation[index] = {
+      ...updatedOtherInformation[index],
+      [name]: value,
+    };
+    setOtherInformationFormData(updatedOtherInformation);
+  };
+
+  const handleAddOtherInformation = () => {
+    setOtherInformationFormData([
+      ...otherInformationFormData,
+      {
+        specialSkills: '',
+        nonAcademicDistinctions: '',
+        membershipInAssociation: '',
+        person_id: employeeNumber,
+      },
+    ]);
+  };
+
+  const handleRemoveOtherInformation = (index) => {
+    const updatedOtherInformation = [...otherInformationFormData];
+    updatedOtherInformation.splice(index, 1);
+    setOtherInformationFormData(updatedOtherInformation);
+  };
+
+  // Vocational related functions
+  const handleVocationalFormChange = (index, e) => {
+    const { name, value } = e.target;
+    const updatedVocational = [...vocationalFormData];
+    updatedVocational[index] = { ...updatedVocational[index], [name]: value };
+    setVocationalFormData(updatedVocational);
+  };
+
+  const handleAddVocational = () => {
+    setVocationalFormData([
+      ...vocationalFormData,
+      {
+        vocationalNameOfSchool: '',
+        vocationalDegree: '',
+        vocationalPeriodFrom: '',
+        vocationalPeriodTo: '',
+        vocationalHighestAttained: '',
+        vocationalYearGraduated: '',
+        vocationalScholarshipAcademicHonorsReceived: '',
+        person_id: employeeNumber,
+      },
+    ]);
+  };
+
+  const handleRemoveVocational = (index) => {
+    const updatedVocational = [...vocationalFormData];
+    updatedVocational.splice(index, 1);
+    setVocationalFormData(updatedVocational);
+  };
+
+  const handleWorkExperienceFormChange = (index, e) => {
+    const { name, value } = e.target;
+    const updatedWorkExperiences = [...workExperiencesFormData];
+    updatedWorkExperiences[index] = {
+      ...updatedWorkExperiences[index],
+      [name]: value,
+    };
+    setWorkExperiencesFormData(updatedWorkExperiences);
+  };
+
+  // Add new work experience
+  const handleAddWorkExperience = () => {
+    setWorkExperiencesFormData([
+      ...workExperiencesFormData,
+      {
+        workDateFrom: '',
+        workDateTo: '',
+        workPositionTitle: '',
+        workCompany: '',
+        workMonthlySalary: '',
+        SalaryJobOrPayGrade: '',
+        StatusOfAppointment: '',
+        isGovtService: 'No',
+        person_id: employeeNumber,
+      },
+    ]);
+  };
+
+  // Remove work experience
+  const handleRemoveWorkExperience = (index) => {
+    const updatedWorkExperiences = [...workExperiencesFormData];
+    updatedWorkExperiences.splice(index, 1);
+    setWorkExperiencesFormData(updatedWorkExperiences);
+  };
+
   const getAge = (dateOfBirth) => {
     if (!dateOfBirth) return 'N/A';
-    
+
     const today = new Date();
     const birthDate = new Date(dateOfBirth);
     let age = today.getFullYear() - birthDate.getFullYear();
     const monthDiff = today.getMonth() - birthDate.getMonth();
-    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+    if (
+      monthDiff < 0 ||
+      (monthDiff === 0 && today.getDate() < birthDate.getDate())
+    ) {
       age--;
     }
     return age;
@@ -1341,7 +1800,7 @@ const Profile = () => {
     return `${numRating}%`;
   };
 
-  // Always include the Children, College, Eligibility, and Learning and Development tabs
+  // Always include the Children, College, Eligibility, Learning and Development, and Other Information tabs
   const tabs = [
     { key: 0, label: 'Personal', icon: <PersonIcon /> },
     { key: 1, label: 'Gov. IDs', icon: <BadgeIcon /> },
@@ -1352,59 +1811,191 @@ const Profile = () => {
     { key: 6, label: 'Children', icon: <ChildCareIcon /> },
     { key: 7, label: 'Eligibility', icon: <FactCheckIcon /> },
     { key: 8, label: 'Learning & Development', icon: <BookIcon /> },
+    { key: 9, label: 'Other Information', icon: <InfoIcon /> },
+    { key: 10, label: 'Work Experience', icon: <WorkIcon /> }, // Add this line
   ];
 
   const formFields = {
     0: [
-      { label: "First Name", name: "firstName", icon: <PersonIcon fontSize="small" /> },
-      { label: "Middle Name", name: "middleName", icon: <PersonIcon fontSize="small" /> },
-      { label: "Last Name", name: "lastName", icon: <PersonIcon fontSize="small" /> },
-      { label: "Name Extension", name: "nameExtension", icon: <PersonIcon fontSize="small" /> },
-      { label: "Date of Birth", name: "birthDate", type: "date", icon: <CakeIcon fontSize="small" /> },
-      { label: "Place of Birth", name: "placeOfBirth", icon: <LocationOnIcon fontSize="small" /> }
+      {
+        label: 'First Name',
+        name: 'firstName',
+        icon: <PersonIcon fontSize="small" />,
+      },
+      {
+        label: 'Middle Name',
+        name: 'middleName',
+        icon: <PersonIcon fontSize="small" />,
+      },
+      {
+        label: 'Last Name',
+        name: 'lastName',
+        icon: <PersonIcon fontSize="small" />,
+      },
+      {
+        label: 'Name Extension',
+        name: 'nameExtension',
+        icon: <PersonIcon fontSize="small" />,
+      },
+      {
+        label: 'Date of Birth',
+        name: 'birthDate',
+        type: 'date',
+        icon: <CakeIcon fontSize="small" />,
+      },
+      {
+        label: 'Place of Birth',
+        name: 'placeOfBirth',
+        icon: <LocationOnIcon fontSize="small" />,
+      },
     ],
     1: [
-      { label: "GSIS Number", name: "gsisNum", disabled: true, icon: <BadgeIcon fontSize="small" /> },
-      { label: "Pag-IBIG Number", name: "pagibigNum", disabled: true, icon: <BadgeIcon fontSize="small" /> },
-      { label: "PhilHealth Number", name: "philhealthNum", disabled: true, icon: <BadgeIcon fontSize="small" /> },
-      { label: "SSS Number", name: "sssNum", disabled: true, icon: <BadgeIcon fontSize="small" /> },
-      { label: "TIN Number", name: "tinNum", disabled: true, icon: <BadgeIcon fontSize="small" /> },
-      { label: "Agency Employee Number", name: "agencyEmployeeNum", disabled: true, icon: <BadgeIcon fontSize="small" /> }
+      {
+        label: 'GSIS Number',
+        name: 'gsisNum',
+        disabled: true,
+        icon: <BadgeIcon fontSize="small" />,
+      },
+      {
+        label: 'Pag-IBIG Number',
+        name: 'pagibigNum',
+        disabled: true,
+        icon: <BadgeIcon fontSize="small" />,
+      },
+      {
+        label: 'PhilHealth Number',
+        name: 'philhealthNum',
+        disabled: true,
+        icon: <BadgeIcon fontSize="small" />,
+      },
+      {
+        label: 'SSS Number',
+        name: 'sssNum',
+        disabled: true,
+        icon: <BadgeIcon fontSize="small" />,
+      },
+      {
+        label: 'TIN Number',
+        name: 'tinNum',
+        disabled: true,
+        icon: <BadgeIcon fontSize="small" />,
+      },
+      {
+        label: 'Agency Employee Number',
+        name: 'agencyEmployeeNum',
+        disabled: true,
+        icon: <BadgeIcon fontSize="small" />,
+      },
     ],
     2: [
-      { label: "House & Lot Number", name: "permanent_houseBlockLotNum", icon: <HomeIcon fontSize="small" /> },
-      { label: "Street", name: "permanent_streetName", icon: <HomeIcon fontSize="small" /> },
-      { label: "Subdivision", name: "permanent_subdivisionOrVillage", icon: <HomeIcon fontSize="small" /> },
-      { label: "Barangay", name: "permanent_barangay", icon: <HomeIcon fontSize="small" /> },
-      { label: "City/Municipality", name: "permanent_cityOrMunicipality", icon: <HomeIcon fontSize="small" /> },
-      { label: "Province", name: "permanent_provinceName", icon: <HomeIcon fontSize="small" /> },
-      { label: "Zip Code", name: "permanent_zipcode", icon: <HomeIcon fontSize="small" /> }
+      {
+        label: 'House & Lot Number',
+        name: 'permanent_houseBlockLotNum',
+        icon: <HomeIcon fontSize="small" />,
+      },
+      {
+        label: 'Street',
+        name: 'permanent_streetName',
+        icon: <HomeIcon fontSize="small" />,
+      },
+      {
+        label: 'Subdivision',
+        name: 'permanent_subdivisionOrVillage',
+        icon: <HomeIcon fontSize="small" />,
+      },
+      {
+        label: 'Barangay',
+        name: 'permanent_barangay',
+        icon: <HomeIcon fontSize="small" />,
+      },
+      {
+        label: 'City/Municipality',
+        name: 'permanent_cityOrMunicipality',
+        icon: <HomeIcon fontSize="small" />,
+      },
+      {
+        label: 'Province',
+        name: 'permanent_provinceName',
+        icon: <HomeIcon fontSize="small" />,
+      },
+      {
+        label: 'Zip Code',
+        name: 'permanent_zipcode',
+        icon: <HomeIcon fontSize="small" />,
+      },
     ],
     3: [
-      { label: "Telephone", name: "telephone", icon: <CallIcon fontSize="small" /> },
-      { label: "Mobile", name: "mobileNum", icon: <PhoneIcon fontSize="small" /> },
-      { label: "Email", name: "emailAddress", icon: <EmailIcon fontSize="small" /> }
+      {
+        label: 'Telephone',
+        name: 'telephone',
+        icon: <CallIcon fontSize="small" />,
+      },
+      {
+        label: 'Mobile',
+        name: 'mobileNum',
+        icon: <PhoneIcon fontSize="small" />,
+      },
+      {
+        label: 'Email',
+        name: 'emailAddress',
+        icon: <EmailIcon fontSize="small" />,
+      },
     ],
     4: [
-      { label: "Spouse First Name", name: "spouseFirstName", icon: <GroupIcon fontSize="small" /> },
-      { label: "Spouse Middle Name", name: "spouseMiddleName", icon: <GroupIcon fontSize="small" /> },
-      { label: "Spouse Last Name", name: "spouseLastName", icon: <GroupIcon fontSize="small" /> },
-      { label: "Spouse Occupation", name: "spouseOccupation", icon: <WorkIcon fontSize="small" /> }
+      {
+        label: 'Spouse First Name',
+        name: 'spouseFirstName',
+        icon: <GroupIcon fontSize="small" />,
+      },
+      {
+        label: 'Spouse Middle Name',
+        name: 'spouseMiddleName',
+        icon: <GroupIcon fontSize="small" />,
+      },
+      {
+        label: 'Spouse Last Name',
+        name: 'spouseLastName',
+        icon: <GroupIcon fontSize="small" />,
+      },
+      {
+        label: 'Spouse Occupation',
+        name: 'spouseOccupation',
+        icon: <WorkIcon fontSize="small" />,
+      },
     ],
     5: [], // Education tab will have sub-tabs
     6: [], // Children tab doesn't have form fields
     7: [], // Eligibility tab doesn't have form fields
     8: [], // Learning and Development tab doesn't have form fields
+    9: [], // Other Information tab doesn't have form fields
+    10: [], // Work Experience tab doesn't have form fields
   };
 
   if (loading) {
     return (
       <ProfileContainer ref={profileRef}>
-        <Box display="flex" justifyContent="center" alignItems="center" height="70vh">
+        <Box
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+          height="70vh"
+        >
           <Box textAlign="center">
-            <CircularProgress size={64} thickness={4} sx={{ color: colors.primary, mb: 3 }} />
-            <Typography variant="h6" color={colors.textPrimary} fontWeight={600}>Loading Profile...</Typography>
-            <Typography variant="body2" color={colors.textSecondary} mt={1}>Fetching data securely — this may take a moment.</Typography>
+            <CircularProgress
+              size={64}
+              thickness={4}
+              sx={{ color: colors.primary, mb: 3 }}
+            />
+            <Typography
+              variant="h6"
+              color={colors.textPrimary}
+              fontWeight={600}
+            >
+              Loading Profile...
+            </Typography>
+            <Typography variant="body2" color={colors.textSecondary} mt={1}>
+              Fetching data securely — this may take a moment.
+            </Typography>
           </Box>
         </Box>
       </ProfileContainer>
@@ -1412,6 +2003,7 @@ const Profile = () => {
   }
 
   const renderTabContentGrid = (tabIndex) => {
+    // Special handling for Education tab with sub-tabs
     // Special handling for Education tab with sub-tabs
     if (tabIndex === 5) {
       return (
@@ -1421,30 +2013,41 @@ const Profile = () => {
             onChange={(e, newValue) => setEducationSubTabValue(newValue)}
             variant="fullWidth"
           >
-            <EducationSubTab label="Elementary & Secondary" icon={<SchoolIcon />} />
+            <EducationSubTab
+              label="Elementary & Secondary"
+              icon={<SchoolIcon />}
+            />
             <EducationSubTab label="College" icon={<SchoolRoundedIcon />} />
-            <EducationSubTab label="Graduate Studies" icon={<PsychologyIcon />} />
+            <EducationSubTab
+              label="Graduate Studies"
+              icon={<PsychologyIcon />}
+            />
+            <EducationSubTab label="Vocational" icon={<ConstructionIcon />} />
           </EducationSubTabs>
-          
+
           {educationSubTabValue === 0 && (
             <Grid container spacing={3}>
               <Grid item xs={12} sm={6} md={4}>
-                <Card 
-                  sx={{ 
-                    height: '100%', 
+                <Card
+                  sx={{
+                    height: '100%',
                     display: 'flex',
                     flexDirection: 'column',
                     transition: 'all 0.3s ease',
                     '&:hover': {
                       transform: 'translateY(-5px)',
-                      boxShadow: shadows.medium
-                    }
+                      boxShadow: shadows.medium,
+                    },
                   }}
                 >
                   <CardContent sx={{ flex: 1 }}>
                     <Box display="flex" alignItems="center" mb={1}>
                       <SchoolIcon fontSize="small" />
-                      <Typography variant="subtitle2" color={colors.textSecondary} ml={1}>
+                      <Typography
+                        variant="subtitle2"
+                        color={colors.textSecondary}
+                        ml={1}
+                      >
                         Elementary School
                       </Typography>
                     </Box>
@@ -1455,22 +2058,26 @@ const Profile = () => {
                 </Card>
               </Grid>
               <Grid item xs={12} sm={6} md={4}>
-                <Card 
-                  sx={{ 
-                    height: '100%', 
+                <Card
+                  sx={{
+                    height: '100%',
                     display: 'flex',
                     flexDirection: 'column',
                     transition: 'all 0.3s ease',
                     '&:hover': {
                       transform: 'translateY(-5px)',
-                      boxShadow: shadows.medium
-                    }
+                      boxShadow: shadows.medium,
+                    },
                   }}
                 >
                   <CardContent sx={{ flex: 1 }}>
                     <Box display="flex" alignItems="center" mb={1}>
                       <SchoolIcon fontSize="small" />
-                      <Typography variant="subtitle2" color={colors.textSecondary} ml={1}>
+                      <Typography
+                        variant="subtitle2"
+                        color={colors.textSecondary}
+                        ml={1}
+                      >
                         Elementary Degree
                       </Typography>
                     </Box>
@@ -1481,22 +2088,26 @@ const Profile = () => {
                 </Card>
               </Grid>
               <Grid item xs={12} sm={6} md={4}>
-                <Card 
-                  sx={{ 
-                    height: '100%', 
+                <Card
+                  sx={{
+                    height: '100%',
                     display: 'flex',
                     flexDirection: 'column',
                     transition: 'all 0.3s ease',
                     '&:hover': {
                       transform: 'translateY(-5px)',
-                      boxShadow: shadows.medium
-                    }
+                      boxShadow: shadows.medium,
+                    },
                   }}
                 >
                   <CardContent sx={{ flex: 1 }}>
                     <Box display="flex" alignItems="center" mb={1}>
                       <SchoolIcon fontSize="small" />
-                      <Typography variant="subtitle2" color={colors.textSecondary} ml={1}>
+                      <Typography
+                        variant="subtitle2"
+                        color={colors.textSecondary}
+                        ml={1}
+                      >
                         Secondary School
                       </Typography>
                     </Box>
@@ -1507,22 +2118,26 @@ const Profile = () => {
                 </Card>
               </Grid>
               <Grid item xs={12} sm={6} md={4}>
-                <Card 
-                  sx={{ 
-                    height: '100%', 
+                <Card
+                  sx={{
+                    height: '100%',
                     display: 'flex',
                     flexDirection: 'column',
                     transition: 'all 0.3s ease',
                     '&:hover': {
                       transform: 'translateY(-5px)',
-                      boxShadow: shadows.medium
-                    }
+                      boxShadow: shadows.medium,
+                    },
                   }}
                 >
                   <CardContent sx={{ flex: 1 }}>
                     <Box display="flex" alignItems="center" mb={1}>
                       <SchoolIcon fontSize="small" />
-                      <Typography variant="subtitle2" color={colors.textSecondary} ml={1}>
+                      <Typography
+                        variant="subtitle2"
+                        color={colors.textSecondary}
+                        ml={1}
+                      >
                         Secondary Degree
                       </Typography>
                     </Box>
@@ -1534,7 +2149,7 @@ const Profile = () => {
               </Grid>
             </Grid>
           )}
-          
+
           {educationSubTabValue === 1 && (
             <Box>
               {colleges.length > 0 ? (
@@ -1543,20 +2158,40 @@ const Profile = () => {
                     <Grid item xs={12} sm={6} md={4} key={college.id}>
                       <CollegeCard>
                         <CardContent sx={{ flex: 1 }}>
-                          <Typography variant="h6" fontWeight="bold" color={colors.textPrimary} mb={1}>
+                          <Typography
+                            variant="h6"
+                            fontWeight="bold"
+                            color={colors.textPrimary}
+                            mb={1}
+                          >
                             {college.collegeNameOfSchool}
                           </Typography>
-                          <Typography variant="body2" color={colors.textSecondary} mb={1}>
+                          <Typography
+                            variant="body2"
+                            color={colors.textSecondary}
+                            mb={1}
+                          >
                             {college.collegeDegree}
                           </Typography>
-                          {college.collegePeriodFrom && college.collegePeriodTo && (
-                            <Box display="flex" alignItems="center">
-                              <CalendarTodayIcon sx={{ fontSize: 16, color: colors.textSecondary, mr: 1 }} />
-                              <Typography variant="body2" color={colors.textSecondary}>
-                                {college.collegePeriodFrom} - {college.collegePeriodTo}
-                              </Typography>
-                            </Box>
-                          )}
+                          {college.collegePeriodFrom &&
+                            college.collegePeriodTo && (
+                              <Box display="flex" alignItems="center">
+                                <CalendarTodayIcon
+                                  sx={{
+                                    fontSize: 16,
+                                    color: colors.textSecondary,
+                                    mr: 1,
+                                  }}
+                                />
+                                <Typography
+                                  variant="body2"
+                                  color={colors.textSecondary}
+                                >
+                                  {college.collegePeriodFrom} -{' '}
+                                  {college.collegePeriodTo}
+                                </Typography>
+                              </Box>
+                            )}
                         </CardContent>
                       </CollegeCard>
                     </Grid>
@@ -1567,14 +2202,18 @@ const Profile = () => {
                   <Typography variant="h6" color={colors.textSecondary}>
                     No college records found
                   </Typography>
-                  <Typography variant="body2" color={colors.textSecondary} mt={1}>
+                  <Typography
+                    variant="body2"
+                    color={colors.textSecondary}
+                    mt={1}
+                  >
                     Click "Edit Profile" to add college records
                   </Typography>
                 </Box>
               )}
             </Box>
           )}
-          
+
           {educationSubTabValue === 2 && (
             <Box>
               {graduates.length > 0 ? (
@@ -1583,20 +2222,40 @@ const Profile = () => {
                     <Grid item xs={12} sm={6} md={4} key={graduate.id}>
                       <GraduateCard>
                         <CardContent sx={{ flex: 1 }}>
-                          <Typography variant="h6" fontWeight="bold" color={colors.textPrimary} mb={1}>
+                          <Typography
+                            variant="h6"
+                            fontWeight="bold"
+                            color={colors.textPrimary}
+                            mb={1}
+                          >
                             {graduate.graduateNameOfSchool}
                           </Typography>
-                          <Typography variant="body2" color={colors.textSecondary} mb={1}>
+                          <Typography
+                            variant="body2"
+                            color={colors.textSecondary}
+                            mb={1}
+                          >
                             {graduate.graduateDegree}
                           </Typography>
-                          {graduate.graduatePeriodFrom && graduate.graduatePeriodTo && (
-                            <Box display="flex" alignItems="center">
-                              <CalendarTodayIcon sx={{ fontSize: 16, color: colors.textSecondary, mr: 1 }} />
-                              <Typography variant="body2" color={colors.textSecondary}>
-                                {graduate.graduatePeriodFrom} - {graduate.graduatePeriodTo}
-                              </Typography>
-                            </Box>
-                          )}
+                          {graduate.graduatePeriodFrom &&
+                            graduate.graduatePeriodTo && (
+                              <Box display="flex" alignItems="center">
+                                <CalendarTodayIcon
+                                  sx={{
+                                    fontSize: 16,
+                                    color: colors.textSecondary,
+                                    mr: 1,
+                                  }}
+                                />
+                                <Typography
+                                  variant="body2"
+                                  color={colors.textSecondary}
+                                >
+                                  {graduate.graduatePeriodFrom} -{' '}
+                                  {graduate.graduatePeriodTo}
+                                </Typography>
+                              </Box>
+                            )}
                         </CardContent>
                       </GraduateCard>
                     </Grid>
@@ -1607,8 +2266,76 @@ const Profile = () => {
                   <Typography variant="h6" color={colors.textSecondary}>
                     No graduate studies records found
                   </Typography>
-                  <Typography variant="body2" color={colors.textSecondary} mt={1}>
+                  <Typography
+                    variant="body2"
+                    color={colors.textSecondary}
+                    mt={1}
+                  >
                     Click "Edit Profile" to add graduate studies records
+                  </Typography>
+                </Box>
+              )}
+            </Box>
+          )}
+
+          {educationSubTabValue === 3 && (
+            <Box>
+              {vocational.length > 0 ? (
+                <Grid container spacing={3}>
+                  {vocational.map((voc) => (
+                    <Grid item xs={12} sm={6} md={4} key={voc.id}>
+                      <VocationalCard>
+                        <CardContent sx={{ flex: 1 }}>
+                          <Typography
+                            variant="h6"
+                            fontWeight="bold"
+                            color={colors.textPrimary}
+                            mb={1}
+                          >
+                            {voc.vocationalNameOfSchool}
+                          </Typography>
+                          <Typography
+                            variant="body2"
+                            color={colors.textSecondary}
+                            mb={1}
+                          >
+                            {voc.vocationalDegree}
+                          </Typography>
+                          {voc.vocationalPeriodFrom &&
+                            voc.vocationalPeriodTo && (
+                              <Box display="flex" alignItems="center">
+                                <CalendarTodayIcon
+                                  sx={{
+                                    fontSize: 16,
+                                    color: colors.textSecondary,
+                                    mr: 1,
+                                  }}
+                                />
+                                <Typography
+                                  variant="body2"
+                                  color={colors.textSecondary}
+                                >
+                                  {voc.vocationalPeriodFrom} -{' '}
+                                  {voc.vocationalPeriodTo}
+                                </Typography>
+                              </Box>
+                            )}
+                        </CardContent>
+                      </VocationalCard>
+                    </Grid>
+                  ))}
+                </Grid>
+              ) : (
+                <Box textAlign="center" py={4}>
+                  <Typography variant="h6" color={colors.textSecondary}>
+                    No vocational records found
+                  </Typography>
+                  <Typography
+                    variant="body2"
+                    color={colors.textSecondary}
+                    mt={1}
+                  >
+                    Click "Edit Profile" to add vocational records
                   </Typography>
                 </Box>
               )}
@@ -1617,7 +2344,7 @@ const Profile = () => {
         </Box>
       );
     }
-    
+
     // Special handling for Children tab
     if (tabIndex === 6) {
       return (
@@ -1630,17 +2357,36 @@ const Profile = () => {
                     <ChildCard>
                       <CardContent sx={{ flex: 1 }}>
                         <Box display="flex" alignItems="center" mb={1}>
-                          <ChildCareIcon sx={{ color: colors.primary, mr: 1 }} />
+                          <ChildCareIcon
+                            sx={{ color: colors.primary, mr: 1 }}
+                          />
                         </Box>
-                        <Typography variant="h6" fontWeight="bold" color={colors.textPrimary} mb={1}>
-                          {child.childrenFirstName} {child.childrenMiddleName} {child.childrenLastName}
-                          {child.childrenNameExtension && ` ${child.childrenNameExtension}`}
+                        <Typography
+                          variant="h6"
+                          fontWeight="bold"
+                          color={colors.textPrimary}
+                          mb={1}
+                        >
+                          {child.childrenFirstName} {child.childrenMiddleName}{' '}
+                          {child.childrenLastName}
+                          {child.childrenNameExtension &&
+                            ` ${child.childrenNameExtension}`}
                         </Typography>
                         {child.dateOfBirth && (
                           <Box display="flex" alignItems="center" mb={1}>
-                            <CakeIcon sx={{ fontSize: 16, color: colors.textSecondary, mr: 1 }} />
-                            <Typography variant="body2" color={colors.textSecondary}>
-                              {new Date(child.dateOfBirth).toLocaleDateString()} (Age: {getAge(child.dateOfBirth)})
+                            <CakeIcon
+                              sx={{
+                                fontSize: 16,
+                                color: colors.textSecondary,
+                                mr: 1,
+                              }}
+                            />
+                            <Typography
+                              variant="body2"
+                              color={colors.textSecondary}
+                            >
+                              {new Date(child.dateOfBirth).toLocaleDateString()}{' '}
+                              (Age: {getAge(child.dateOfBirth)})
                             </Typography>
                           </Box>
                         )}
@@ -1663,7 +2409,7 @@ const Profile = () => {
         </Box>
       );
     }
-    
+
     // Special handling for Eligibility tab
     if (tabIndex === 7) {
       return (
@@ -1676,31 +2422,58 @@ const Profile = () => {
                     <EligibilityCard>
                       <CardContent sx={{ flex: 1 }}>
                         <Box display="flex" alignItems="center" mb={1}>
-                          <FactCheckIcon sx={{ color: colors.primary, mr: 1 }} />
+                          <FactCheckIcon
+                            sx={{ color: colors.primary, mr: 1 }}
+                          />
                         </Box>
-                        <Typography variant="h6" fontWeight="bold" color={colors.textPrimary} mb={1}>
+                        <Typography
+                          variant="h6"
+                          fontWeight="bold"
+                          color={colors.textPrimary}
+                          mb={1}
+                        >
                           {eligibility.eligibilityName}
                         </Typography>
-                        <Typography variant="body2" color={colors.textSecondary} mb={1}>
+                        <Typography
+                          variant="body2"
+                          color={colors.textSecondary}
+                          mb={1}
+                        >
                           Rating: {formatRating(eligibility.eligibilityRating)}
                         </Typography>
                         {eligibility.licenseNumber && (
                           <Box display="flex" alignItems="center" mb={1}>
-                            <Typography variant="body2" color={colors.textSecondary} sx={{ mr: 1 }}>
+                            <Typography
+                              variant="body2"
+                              color={colors.textSecondary}
+                              sx={{ mr: 1 }}
+                            >
                               License:
                             </Typography>
-                            <Typography variant="body2" color={colors.textPrimary}>
+                            <Typography
+                              variant="body2"
+                              color={colors.textPrimary}
+                            >
                               {eligibility.licenseNumber}
                             </Typography>
                           </Box>
                         )}
                         {eligibility.DateOfValidity && (
                           <Box display="flex" alignItems="center">
-                            <Typography variant="body2" color={colors.textSecondary} sx={{ mr: 1 }}>
+                            <Typography
+                              variant="body2"
+                              color={colors.textSecondary}
+                              sx={{ mr: 1 }}
+                            >
                               Valid Until:
                             </Typography>
-                            <Typography variant="body2" color={colors.textPrimary}>
-                              {new Date(eligibility.DateOfValidity).toLocaleDateString()}
+                            <Typography
+                              variant="body2"
+                              color={colors.textPrimary}
+                            >
+                              {new Date(
+                                eligibility.DateOfValidity
+                              ).toLocaleDateString()}
                             </Typography>
                           </Box>
                         )}
@@ -1723,7 +2496,7 @@ const Profile = () => {
         </Box>
       );
     }
-    
+
     // Special handling for Learning and Development tab
     if (tabIndex === 8) {
       return (
@@ -1736,30 +2509,58 @@ const Profile = () => {
                     <LearningDevelopmentCard>
                       <CardContent sx={{ flex: 1 }}>
                         <Box display="flex" alignItems="center" mb={1}>
-                          <LightbulbIcon sx={{ color: colors.primary, mr: 1 }} />
+                          <LightbulbIcon
+                            sx={{ color: colors.primary, mr: 1 }}
+                          />
                         </Box>
-                        <Typography variant="h6" fontWeight="bold" color={colors.textPrimary} mb={1}>
+                        <Typography
+                          variant="h6"
+                          fontWeight="bold"
+                          color={colors.textPrimary}
+                          mb={1}
+                        >
                           {learning.titleOfProgram}
                         </Typography>
-                        <Typography variant="body2" color={colors.textSecondary} mb={1}>
+                        <Typography
+                          variant="body2"
+                          color={colors.textSecondary}
+                          mb={1}
+                        >
                           Type: {learning.typeOfLearningDevelopment || 'N/A'}
                         </Typography>
                         {learning.dateFrom && learning.dateTo && (
                           <Box display="flex" alignItems="center" mb={1}>
-                            <CalendarTodayIcon sx={{ fontSize: 16, color: colors.textSecondary, mr: 1 }} />
-                            <Typography variant="body2" color={colors.textSecondary}>
+                            <CalendarTodayIcon
+                              sx={{
+                                fontSize: 16,
+                                color: colors.textSecondary,
+                                mr: 1,
+                              }}
+                            />
+                            <Typography
+                              variant="body2"
+                              color={colors.textSecondary}
+                            >
                               {learning.dateFrom} - {learning.dateTo}
                             </Typography>
                           </Box>
                         )}
                         {learning.numberOfHours && (
-                          <Typography variant="body2" color={colors.textSecondary} mb={1}>
+                          <Typography
+                            variant="body2"
+                            color={colors.textSecondary}
+                            mb={1}
+                          >
                             Hours: {learning.numberOfHours}
                           </Typography>
                         )}
                         {learning.conductedSponsored && (
-                          <Typography variant="body2" color={colors.textSecondary}>
-                            Conducted/Sponsored by: {learning.conductedSponsored}
+                          <Typography
+                            variant="body2"
+                            color={colors.textSecondary}
+                          >
+                            Conducted/Sponsored by:{' '}
+                            {learning.conductedSponsored}
                           </Typography>
                         )}
                       </CardContent>
@@ -1781,29 +2582,220 @@ const Profile = () => {
         </Box>
       );
     }
-    
+
+    // Special handling for Other Information tab
+    if (tabIndex === 9) {
+      return (
+        <Box>
+          <ScrollableContainer>
+            {otherInformation.length > 0 ? (
+              <Grid container spacing={3}>
+                {otherInformation.map((info) => (
+                  <Grid item xs={12} sm={6} md={4} key={info.id}>
+                    <OtherInformationCard>
+                      <CardContent sx={{ flex: 1 }}>
+                        <Box display="flex" alignItems="center" mb={1}>
+                          <InfoIcon sx={{ color: colors.primary, mr: 1 }} />
+                        </Box>
+                        <Typography
+                          variant="h6"
+                          fontWeight="bold"
+                          color={colors.textPrimary}
+                          mb={1}
+                        >
+                          Other Information
+                        </Typography>
+                        {info.specialSkills && (
+                          <Typography
+                            variant="body2"
+                            color={colors.textSecondary}
+                            mb={1}
+                          >
+                            Skills:{' '}
+                            {info.specialSkills.length > 50
+                              ? `${info.specialSkills.substring(0, 50)}...`
+                              : info.specialSkills}
+                          </Typography>
+                        )}
+                        {info.nonAcademicDistinctions && (
+                          <Typography
+                            variant="body2"
+                            color={colors.textSecondary}
+                            mb={1}
+                          >
+                            Distinctions:{' '}
+                            {info.nonAcademicDistinctions.length > 50
+                              ? `${info.nonAcademicDistinctions.substring(
+                                  0,
+                                  50
+                                )}...`
+                              : info.nonAcademicDistinctions}
+                          </Typography>
+                        )}
+                        {info.membershipInAssociation && (
+                          <Typography
+                            variant="body2"
+                            color={colors.textSecondary}
+                          >
+                            Associations:{' '}
+                            {info.membershipInAssociation.length > 50
+                              ? `${info.membershipInAssociation.substring(
+                                  0,
+                                  50
+                                )}...`
+                              : info.membershipInAssociation}
+                          </Typography>
+                        )}
+                      </CardContent>
+                    </OtherInformationCard>
+                  </Grid>
+                ))}
+              </Grid>
+            ) : (
+              <Box textAlign="center" py={4}>
+                <Typography variant="h6" color={colors.textSecondary}>
+                  No other information records found
+                </Typography>
+                <Typography variant="body2" color={colors.textSecondary} mt={1}>
+                  Click "Edit Profile" to add other information records
+                </Typography>
+              </Box>
+            )}
+          </ScrollableContainer>
+        </Box>
+      );
+    }
+
+    if (tabIndex === 10) {
+      return (
+        <Box>
+          <ScrollableContainer>
+            {workExperiences.length > 0 ? (
+              <Grid container spacing={3}>
+                {workExperiences.map((workExp) => (
+                  <Grid item xs={12} sm={6} md={4} key={workExp.id}>
+                    <WorkExperienceCard>
+                      <CardContent sx={{ flex: 1 }}>
+                        <Box display="flex" alignItems="center" mb={1}>
+                          <WorkIcon sx={{ color: colors.primary, mr: 1 }} />
+                        </Box>
+                        <Typography
+                          variant="h6"
+                          fontWeight="bold"
+                          color={colors.textPrimary}
+                          mb={1}
+                        >
+                          {workExp.workPositionTitle}
+                        </Typography>
+                        <Typography
+                          variant="body2"
+                          color={colors.textSecondary}
+                          mb={1}
+                        >
+                          {workExp.workCompany}
+                        </Typography>
+                        {workExp.workDateFrom && workExp.workDateTo && (
+                          <Box display="flex" alignItems="center" mb={1}>
+                            <CalendarTodayIcon
+                              sx={{
+                                fontSize: 16,
+                                color: colors.textSecondary,
+                                mr: 1,
+                              }}
+                            />
+                            <Typography
+                              variant="body2"
+                              color={colors.textSecondary}
+                            >
+                              {new Date(
+                                workExp.workDateFrom
+                              ).toLocaleDateString()}{' '}
+                              -{' '}
+                              {new Date(
+                                workExp.workDateTo
+                              ).toLocaleDateString()}
+                            </Typography>
+                          </Box>
+                        )}
+                        {workExp.workMonthlySalary && (
+                          <Typography
+                            variant="body2"
+                            color={colors.textSecondary}
+                            mb={1}
+                          >
+                            Salary: ₱
+                            {parseFloat(
+                              workExp.workMonthlySalary
+                            ).toLocaleString()}
+                          </Typography>
+                        )}
+                        {workExp.isGovtService && (
+                          <Chip
+                            label={
+                              workExp.isGovtService === 'Yes'
+                                ? 'Government'
+                                : 'Private'
+                            }
+                            size="small"
+                            sx={{
+                              backgroundColor:
+                                workExp.isGovtService === 'Yes'
+                                  ? alpha(colors.primary, 0.1)
+                                  : alpha(colors.secondary, 0.5),
+                              color:
+                                workExp.isGovtService === 'Yes'
+                                  ? colors.primary
+                                  : colors.textSecondary,
+                              fontWeight: 600,
+                            }}
+                          />
+                        )}
+                      </CardContent>
+                    </WorkExperienceCard>
+                  </Grid>
+                ))}
+              </Grid>
+            ) : (
+              <Box textAlign="center" py={4}>
+                <Typography variant="h6" color={colors.textSecondary}>
+                  No work experience records found
+                </Typography>
+                <Typography variant="body2" color={colors.textSecondary} mt={1}>
+                  Click "Edit Profile" to add work experience records
+                </Typography>
+              </Box>
+            )}
+          </ScrollableContainer>
+        </Box>
+      );
+    }
+
     const fields = formFields[tabIndex] || [];
-    
+
     return (
       <Grid container spacing={3}>
         {fields.map((field, idx) => (
           <Grid item xs={12} sm={6} md={4} key={idx}>
-            <Card 
-              sx={{ 
-                height: '100%', 
+            <Card
+              sx={{
+                height: '100%',
                 display: 'flex',
                 flexDirection: 'column',
                 transition: 'all 0.3s ease',
                 '&:hover': {
                   transform: 'translateY(-5px)',
-                  boxShadow: shadows.medium
-                }
+                  boxShadow: shadows.medium,
+                },
               }}
             >
               <CardContent sx={{ flex: 1 }}>
                 <Box display="flex" alignItems="center" mb={1}>
                   {field.icon}
-                  <Typography variant="subtitle2" color={colors.textSecondary} ml={1}>
+                  <Typography
+                    variant="subtitle2"
+                    color={colors.textSecondary}
+                    ml={1}
+                  >
                     {field.label}
                   </Typography>
                 </Box>
@@ -1820,6 +2812,7 @@ const Profile = () => {
 
   const renderTabContentList = (tabIndex) => {
     // Special handling for Education tab with sub-tabs
+    // Special handling for Education tab with sub-tabs
     if (tabIndex === 5) {
       return (
         <Box>
@@ -1828,11 +2821,18 @@ const Profile = () => {
             onChange={(e, newValue) => setEducationSubTabValue(newValue)}
             variant="fullWidth"
           >
-            <EducationSubTab label="Elementary & Secondary" icon={<SchoolIcon />} />
+            <EducationSubTab
+              label="Elementary & Secondary"
+              icon={<SchoolIcon />}
+            />
             <EducationSubTab label="College" icon={<SchoolRoundedIcon />} />
-            <EducationSubTab label="Graduate Studies" icon={<PsychologyIcon />} />
+            <EducationSubTab
+              label="Graduate Studies"
+              icon={<PsychologyIcon />}
+            />
+            <EducationSubTab label="Vocational" icon={<ConstructionIcon />} />
           </EducationSubTabs>
-          
+
           {educationSubTabValue === 0 && (
             <Box>
               <InfoItem>
@@ -1873,7 +2873,7 @@ const Profile = () => {
               </InfoItem>
             </Box>
           )}
-          
+
           {educationSubTabValue === 1 && (
             <Box>
               <ScrollableContainer>
@@ -1888,8 +2888,10 @@ const Profile = () => {
                           <MuiListItemText
                             primary={college.collegeNameOfSchool}
                             secondary={
-                              college.collegeDegree 
-                                ? `${college.collegeDegree} (${college.collegePeriodFrom || 'N/A'} - ${college.collegePeriodTo || 'N/A'})`
+                              college.collegeDegree
+                                ? `${college.collegeDegree} (${
+                                    college.collegePeriodFrom || 'N/A'
+                                  } - ${college.collegePeriodTo || 'N/A'})`
                                 : 'No degree information'
                             }
                           />
@@ -1903,7 +2905,11 @@ const Profile = () => {
                     <Typography variant="h6" color={colors.textSecondary}>
                       No college records found
                     </Typography>
-                    <Typography variant="body2" color={colors.textSecondary} mt={1}>
+                    <Typography
+                      variant="body2"
+                      color={colors.textSecondary}
+                      mt={1}
+                    >
                       Click "Edit Profile" to add college records
                     </Typography>
                   </Box>
@@ -1911,7 +2917,7 @@ const Profile = () => {
               </ScrollableContainer>
             </Box>
           )}
-          
+
           {educationSubTabValue === 2 && (
             <Box>
               <ScrollableContainer>
@@ -1926,8 +2932,10 @@ const Profile = () => {
                           <MuiListItemText
                             primary={graduate.graduateNameOfSchool}
                             secondary={
-                              graduate.graduateDegree 
-                                ? `${graduate.graduateDegree} (${graduate.graduatePeriodFrom || 'N/A'} - ${graduate.graduatePeriodTo || 'N/A'})`
+                              graduate.graduateDegree
+                                ? `${graduate.graduateDegree} (${
+                                    graduate.graduatePeriodFrom || 'N/A'
+                                  } - ${graduate.graduatePeriodTo || 'N/A'})`
                                 : 'No degree information'
                             }
                           />
@@ -1941,8 +2949,56 @@ const Profile = () => {
                     <Typography variant="h6" color={colors.textSecondary}>
                       No graduate studies records found
                     </Typography>
-                    <Typography variant="body2" color={colors.textSecondary} mt={1}>
+                    <Typography
+                      variant="body2"
+                      color={colors.textSecondary}
+                      mt={1}
+                    >
                       Click "Edit Profile" to add graduate studies records
+                    </Typography>
+                  </Box>
+                )}
+              </ScrollableContainer>
+            </Box>
+          )}
+
+          {educationSubTabValue === 3 && (
+            <Box>
+              <ScrollableContainer>
+                {vocational.length > 0 ? (
+                  <List>
+                    {vocational.map((voc) => (
+                      <React.Fragment key={voc.id}>
+                        <VocationalListItem>
+                          <MuiListItemIcon>
+                            <ConstructionIcon sx={{ color: colors.primary }} />
+                          </MuiListItemIcon>
+                          <MuiListItemText
+                            primary={voc.vocationalNameOfSchool}
+                            secondary={
+                              voc.vocationalDegree
+                                ? `${voc.vocationalDegree} (${
+                                    voc.vocationalPeriodFrom || 'N/A'
+                                  } - ${voc.vocationalPeriodTo || 'N/A'})`
+                                : 'No degree information'
+                            }
+                          />
+                        </VocationalListItem>
+                        <Divider variant="inset" component="li" />
+                      </React.Fragment>
+                    ))}
+                  </List>
+                ) : (
+                  <Box textAlign="center" py={4}>
+                    <Typography variant="h6" color={colors.textSecondary}>
+                      No vocational records found
+                    </Typography>
+                    <Typography
+                      variant="body2"
+                      color={colors.textSecondary}
+                      mt={1}
+                    >
+                      Click "Edit Profile" to add vocational records
                     </Typography>
                   </Box>
                 )}
@@ -1952,7 +3008,7 @@ const Profile = () => {
         </Box>
       );
     }
-    
+
     // Special handling for Children tab
     if (tabIndex === 6) {
       return (
@@ -1967,10 +3023,18 @@ const Profile = () => {
                         <ChildCareIcon sx={{ color: colors.primary }} />
                       </MuiListItemIcon>
                       <MuiListItemText
-                        primary={`${child.childrenFirstName} ${child.childrenMiddleName} ${child.childrenLastName}${child.childrenNameExtension ? ` ${child.childrenNameExtension}` : ''}`}
+                        primary={`${child.childrenFirstName} ${
+                          child.childrenMiddleName
+                        } ${child.childrenLastName}${
+                          child.childrenNameExtension
+                            ? ` ${child.childrenNameExtension}`
+                            : ''
+                        }`}
                         secondary={
-                          child.dateOfBirth 
-                            ? `Born: ${new Date(child.dateOfBirth).toLocaleDateString()} (Age: {getAge(child.dateOfBirth)})`
+                          child.dateOfBirth
+                            ? `Born: ${new Date(
+                                child.dateOfBirth
+                              ).toLocaleDateString()} (Age: {getAge(child.dateOfBirth)})`
                             : 'No birth date recorded'
                         }
                       />
@@ -1993,7 +3057,7 @@ const Profile = () => {
         </Box>
       );
     }
-    
+
     // Special handling for Eligibility tab
     if (tabIndex === 7) {
       return (
@@ -2011,15 +3075,22 @@ const Profile = () => {
                         primary={eligibility.eligibilityName}
                         secondary={
                           <>
-                            Rating: {formatRating(eligibility.eligibilityRating)}
+                            Rating:{' '}
+                            {formatRating(eligibility.eligibilityRating)}
                             {eligibility.licenseNumber && (
                               <Typography component="span" sx={{ ml: 1 }}>
                                 License: {eligibility.licenseNumber}
                               </Typography>
                             )}
                             {eligibility.DateOfValidity && (
-                              <Typography component="span" sx={{ ml: 1, display: 'block' }}>
-                                Valid Until: {new Date(eligibility.DateOfValidity).toLocaleDateString()}
+                              <Typography
+                                component="span"
+                                sx={{ ml: 1, display: 'block' }}
+                              >
+                                Valid Until:{' '}
+                                {new Date(
+                                  eligibility.DateOfValidity
+                                ).toLocaleDateString()}
                               </Typography>
                             )}
                           </>
@@ -2044,7 +3115,7 @@ const Profile = () => {
         </Box>
       );
     }
-    
+
     // Special handling for Learning and Development tab
     if (tabIndex === 8) {
       return (
@@ -2064,18 +3135,28 @@ const Profile = () => {
                           <>
                             Type: {learning.typeOfLearningDevelopment || 'N/A'}
                             {learning.dateFrom && learning.dateTo && (
-                              <Typography component="span" sx={{ ml: 1, display: 'block' }}>
+                              <Typography
+                                component="span"
+                                sx={{ ml: 1, display: 'block' }}
+                              >
                                 Period: {learning.dateFrom} - {learning.dateTo}
                               </Typography>
                             )}
                             {learning.numberOfHours && (
-                              <Typography component="span" sx={{ ml: 1, display: 'block' }}>
+                              <Typography
+                                component="span"
+                                sx={{ ml: 1, display: 'block' }}
+                              >
                                 Hours: {learning.numberOfHours}
                               </Typography>
                             )}
                             {learning.conductedSponsored && (
-                              <Typography component="span" sx={{ ml: 1, display: 'block' }}>
-                                Conducted/Sponsored by: {learning.conductedSponsored}
+                              <Typography
+                                component="span"
+                                sx={{ ml: 1, display: 'block' }}
+                              >
+                                Conducted/Sponsored by:{' '}
+                                {learning.conductedSponsored}
                               </Typography>
                             )}
                           </>
@@ -2100,9 +3181,154 @@ const Profile = () => {
         </Box>
       );
     }
-    
+
+    // Special handling for Other Information tab
+    if (tabIndex === 9) {
+      return (
+        <Box>
+          <ScrollableContainer>
+            {otherInformation.length > 0 ? (
+              <List>
+                {otherInformation.map((info) => (
+                  <React.Fragment key={info.id}>
+                    <OtherInformationListItem>
+                      <MuiListItemIcon>
+                        <InfoIcon sx={{ color: colors.primary }} />
+                      </MuiListItemIcon>
+                      <MuiListItemText
+                        primary="Other Information"
+                        secondary={
+                          <>
+                            {info.specialSkills && (
+                              <Typography
+                                component="span"
+                                sx={{ display: 'block' }}
+                              >
+                                Skills: {info.specialSkills}
+                              </Typography>
+                            )}
+                            {info.nonAcademicDistinctions && (
+                              <Typography
+                                component="span"
+                                sx={{ display: 'block' }}
+                              >
+                                Distinctions: {info.nonAcademicDistinctions}
+                              </Typography>
+                            )}
+                            {info.membershipInAssociation && (
+                              <Typography
+                                component="span"
+                                sx={{ display: 'block' }}
+                              >
+                                Associations: {info.membershipInAssociation}
+                              </Typography>
+                            )}
+                          </>
+                        }
+                      />
+                    </OtherInformationListItem>
+                    <Divider variant="inset" component="li" />
+                  </React.Fragment>
+                ))}
+              </List>
+            ) : (
+              <Box textAlign="center" py={4}>
+                <Typography variant="h6" color={colors.textSecondary}>
+                  No other information records found
+                </Typography>
+                <Typography variant="body2" color={colors.textSecondary} mt={1}>
+                  Click "Edit Profile" to add other information records
+                </Typography>
+              </Box>
+            )}
+          </ScrollableContainer>
+        </Box>
+      );
+    }
+
+    if (tabIndex === 10) {
+      return (
+        <Box>
+          <ScrollableContainer>
+            {workExperiences.length > 0 ? (
+              <List>
+                {workExperiences.map((workExp) => (
+                  <React.Fragment key={workExp.id}>
+                    <WorkExperienceListItem>
+                      <MuiListItemIcon>
+                        <WorkIcon sx={{ color: colors.primary }} />
+                      </MuiListItemIcon>
+                      <MuiListItemText
+                        primary={workExp.workPositionTitle}
+                        secondary={
+                          <>
+                            <Typography
+                              component="span"
+                              sx={{ display: 'block' }}
+                            >
+                              {workExp.workCompany}
+                            </Typography>
+                            {workExp.workDateFrom && workExp.workDateTo && (
+                              <Typography
+                                component="span"
+                                sx={{ display: 'block' }}
+                              >
+                                {new Date(
+                                  workExp.workDateFrom
+                                ).toLocaleDateString()}{' '}
+                                -{' '}
+                                {new Date(
+                                  workExp.workDateTo
+                                ).toLocaleDateString()}
+                              </Typography>
+                            )}
+                            {workExp.workMonthlySalary && (
+                              <Typography
+                                component="span"
+                                sx={{ display: 'block' }}
+                              >
+                                Salary: ₱
+                                {parseFloat(
+                                  workExp.workMonthlySalary
+                                ).toLocaleString()}
+                              </Typography>
+                            )}
+                            {workExp.isGovtService && (
+                              <Typography
+                                component="span"
+                                sx={{ display: 'block' }}
+                              >
+                                Service Type:{' '}
+                                {workExp.isGovtService === 'Yes'
+                                  ? 'Government'
+                                  : 'Private'}
+                              </Typography>
+                            )}
+                          </>
+                        }
+                      />
+                    </WorkExperienceListItem>
+                    <Divider variant="inset" component="li" />
+                  </React.Fragment>
+                ))}
+              </List>
+            ) : (
+              <Box textAlign="center" py={4}>
+                <Typography variant="h6" color={colors.textSecondary}>
+                  No work experience records found
+                </Typography>
+                <Typography variant="body2" color={colors.textSecondary} mt={1}>
+                  Click "Edit Profile" to add work experience records
+                </Typography>
+              </Box>
+            )}
+          </ScrollableContainer>
+        </Box>
+      );
+    }
+
     const fields = formFields[tabIndex] || [];
-    
+
     return (
       <Box>
         {fields.map((field, idx) => (
@@ -2111,9 +3337,7 @@ const Profile = () => {
               {field.icon}
               {field.label}:
             </InfoLabel>
-            <InfoValue variant="body1">
-              {person?.[field.name] || '—'}
-            </InfoValue>
+            <InfoValue variant="body1">{person?.[field.name] || '—'}</InfoValue>
           </InfoItem>
         ))}
       </Box>
@@ -2123,289 +3347,498 @@ const Profile = () => {
   const renderFormFields = () => {
     // Special handling for Education tab with sub-tabs
     if (tabValue === 5) {
-      if (educationSubTabValue === 0) {
-        return (
-          <Box>
-            <Typography variant="h6" gutterBottom>
-              Elementary & Secondary Education
-            </Typography>
-            <Typography variant="body2" color="textSecondary" gutterBottom>
-              This section displays your elementary and secondary education information.
-            </Typography>
-            
-            <Grid container spacing={3}>
-              <Grid item xs={12} sm={6}>
-                <FormField
-                  fullWidth
-                  label="Elementary School"
-                  name="elementaryNameOfSchool"
-                  value={formData.elementaryNameOfSchool || ''}
-                  onChange={handleFormChange}
-                  variant="outlined"
-                />
+      return (
+        <Box>
+          <Typography variant="h6" gutterBottom>
+            Education Information
+          </Typography>
+
+          {/* Add the sub-tabs navigation here */}
+          <EducationSubTabs
+            value={educationSubTabValue}
+            onChange={(e, newValue) => setEducationSubTabValue(newValue)}
+            variant="fullWidth"
+          >
+            <EducationSubTab
+              label="Elementary & Secondary"
+              icon={<SchoolIcon />}
+            />
+            <EducationSubTab label="College" icon={<SchoolRoundedIcon />} />
+            <EducationSubTab
+              label="Graduate Studies"
+              icon={<PsychologyIcon />}
+            />
+            <EducationSubTab label="Vocational" icon={<ConstructionIcon />} />
+          </EducationSubTabs>
+
+          {educationSubTabValue === 0 && (
+            <Box>
+              <Typography variant="h6" gutterBottom>
+                Elementary & Secondary Education
+              </Typography>
+              <Typography variant="body2" color="textSecondary" gutterBottom>
+                This section displays your elementary and secondary education
+                information.
+              </Typography>
+
+              <Grid container spacing={3}>
+                <Grid item xs={12} sm={6}>
+                  <FormField
+                    fullWidth
+                    label="Elementary School"
+                    name="elementaryNameOfSchool"
+                    value={formData.elementaryNameOfSchool || ''}
+                    onChange={handleFormChange}
+                    variant="outlined"
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <FormField
+                    fullWidth
+                    label="Elementary Degree"
+                    name="elementaryDegree"
+                    value={formData.elementaryDegree || ''}
+                    onChange={handleFormChange}
+                    variant="outlined"
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <FormField
+                    fullWidth
+                    label="Secondary School"
+                    name="secondaryNameOfSchool"
+                    value={formData.secondaryNameOfSchool || ''}
+                    onChange={handleFormChange}
+                    variant="outlined"
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <FormField
+                    fullWidth
+                    label="Secondary Degree"
+                    name="secondaryDegree"
+                    value={formData.secondaryDegree || ''}
+                    onChange={handleFormChange}
+                    variant="outlined"
+                  />
+                </Grid>
               </Grid>
-              <Grid item xs={12} sm={6}>
-                <FormField
-                  fullWidth
-                  label="Elementary Degree"
-                  name="elementaryDegree"
-                  value={formData.elementaryDegree || ''}
-                  onChange={handleFormChange}
-                  variant="outlined"
-                />
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <FormField
-                  fullWidth
-                  label="Secondary School"
-                  name="secondaryNameOfSchool"
-                  value={formData.secondaryNameOfSchool || ''}
-                  onChange={handleFormChange}
-                  variant="outlined"
-                />
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <FormField
-                  fullWidth
-                  label="Secondary Degree"
-                  name="secondaryDegree"
-                  value={formData.secondaryDegree || ''}
-                  onChange={handleFormChange}
-                  variant="outlined"
-                />
-              </Grid>
-            </Grid>
-          </Box>
-        );
-      } else if (educationSubTabValue === 1) {
-        return (
-          <Box>
-            <Typography variant="h6" gutterBottom>
-              College Information
-            </Typography>
-            
-            {collegesFormData.length > 0 ? (
-              <Box>
-                {collegesFormData.map((college, index) => (
-                  <Box key={index} mb={3} p={2} sx={{ backgroundColor: alpha(colors.secondary, 0.3), borderRadius: 2 }}>
-                    <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-                      <Typography variant="h6">
-                        College {index + 1}
-                      </Typography>
-                      <IconButton onClick={() => handleRemoveCollege(index)} color="error">
-                        <DeleteIcon />
-                      </IconButton>
-                    </Box>
-                    <Grid container spacing={2}>
-                      <Grid item xs={12}>
-                        <FormField
-                          fullWidth
-                          label="College Name"
-                          name="collegeNameOfSchool"
-                          value={college.collegeNameOfSchool || ''}
-                          onChange={(e) => handleCollegeFormChange(index, e)}
-                          variant="outlined"
-                        />
-                      </Grid>
-                      <Grid item xs={12}>
-                        <FormField
-                          fullWidth
-                          label="Degree"
-                          name="collegeDegree"
-                          value={college.collegeDegree || ''}
-                          onChange={(e) => handleCollegeFormChange(index, e)}
-                          variant="outlined"
-                        />
-                      </Grid>
-                      <Grid item xs={12} sm={6}>
-                        <FormField
-                          fullWidth
-                          label="Period From"
-                          name="collegePeriodFrom"
-                          value={college.collegePeriodFrom || ''}
-                          onChange={(e) => handleCollegeFormChange(index, e)}
-                          variant="outlined"
-                        />
-                      </Grid>
-                      <Grid item xs={12} sm={6}>
-                        <FormField
-                          fullWidth
-                          label="Period To"
-                          name="collegePeriodTo"
-                          value={college.collegePeriodTo || ''}
-                          onChange={(e) => handleCollegeFormChange(index, e)}
-                          variant="outlined"
-                        />
-                      </Grid>
-                      <Grid item xs={12} sm={6}>
-                        <FormField
-                          fullWidth
-                          label="Highest Attained"
-                          name="collegeHighestAttained"
-                          value={college.collegeHighestAttained || ''}
-                          onChange={(e) => handleCollegeFormChange(index, e)}
-                          variant="outlined"
-                        />
-                      </Grid>
-                      <Grid item xs={12} sm={6}>
-                        <FormField
-                          fullWidth
-                          label="Year Graduated"
-                          name="collegeYearGraduated"
-                          value={college.collegeYearGraduated || ''}
-                          onChange={(e) => handleCollegeFormChange(index, e)}
-                          variant="outlined"
-                        />
-                      </Grid>
-                      <Grid item xs={12}>
-                        <FormField
-                          fullWidth
-                          label="Honors Received"
-                          name="collegeScholarshipAcademicHonorsReceived"
-                          value={college.collegeScholarshipAcademicHonorsReceived || ''}
-                          onChange={(e) => handleCollegeFormChange(index, e)}
-                          variant="outlined"
-                        />
-                      </Grid>
-                    </Grid>
-                  </Box>
-                ))}
-              </Box>
-            ) : (
-              <Box textAlign="center" py={4}>
-                <Typography variant="h6" color={colors.textSecondary}>
-                  No college records found
-                </Typography>
-              </Box>
-            )}
-            
-            <Box mt={2} display="flex" justifyContent="center">
-              <ActionButton
-                variant="contained"
-                startIcon={<AddIcon />}
-                onClick={handleAddCollege}
-              >
-                Add College
-              </ActionButton>
             </Box>
-          </Box>
-        );
-      } else {
-        return (
-          <Box>
-            <Typography variant="h6" gutterBottom>
-              Graduate Studies Information
-            </Typography>
-            
-            {graduatesFormData.length > 0 ? (
-              <Box>
-                {graduatesFormData.map((graduate, index) => (
-                  <Box key={index} mb={3} p={2} sx={{ backgroundColor: alpha(colors.secondary, 0.3), borderRadius: 2 }}>
-                    <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-                      <Typography variant="h6">
-                        Graduate Studies {index + 1}
-                      </Typography>
-                      <IconButton onClick={() => handleRemoveGraduate(index)} color="error">
-                        <DeleteIcon />
-                      </IconButton>
+          )}
+
+          {educationSubTabValue === 1 && (
+            <Box>
+              <Typography variant="h6" gutterBottom>
+                College Information
+              </Typography>
+
+              {collegesFormData.length > 0 ? (
+                <Box>
+                  {collegesFormData.map((college, index) => (
+                    <Box
+                      key={index}
+                      mb={3}
+                      p={2}
+                      sx={{
+                        backgroundColor: alpha(colors.secondary, 0.3),
+                        borderRadius: 2,
+                      }}
+                    >
+                      <Box
+                        display="flex"
+                        justifyContent="space-between"
+                        alignItems="center"
+                        mb={2}
+                      >
+                        <Typography variant="h6">
+                          College {index + 1}
+                        </Typography>
+                        <IconButton
+                          onClick={() => handleRemoveCollege(index)}
+                          color="error"
+                        >
+                          <DeleteIcon />
+                        </IconButton>
+                      </Box>
+                      <Grid container spacing={2}>
+                        <Grid item xs={12}>
+                          <FormField
+                            fullWidth
+                            label="College Name"
+                            name="collegeNameOfSchool"
+                            value={college.collegeNameOfSchool || ''}
+                            onChange={(e) => handleCollegeFormChange(index, e)}
+                            variant="outlined"
+                          />
+                        </Grid>
+                        <Grid item xs={12}>
+                          <FormField
+                            fullWidth
+                            label="Degree"
+                            name="collegeDegree"
+                            value={college.collegeDegree || ''}
+                            onChange={(e) => handleCollegeFormChange(index, e)}
+                            variant="outlined"
+                          />
+                        </Grid>
+                        <Grid item xs={12} sm={6}>
+                          <FormField
+                            fullWidth
+                            label="Period From"
+                            name="collegePeriodFrom"
+                            value={college.collegePeriodFrom || ''}
+                            onChange={(e) => handleCollegeFormChange(index, e)}
+                            variant="outlined"
+                          />
+                        </Grid>
+                        <Grid item xs={12} sm={6}>
+                          <FormField
+                            fullWidth
+                            label="Period To"
+                            name="collegePeriodTo"
+                            value={college.collegePeriodTo || ''}
+                            onChange={(e) => handleCollegeFormChange(index, e)}
+                            variant="outlined"
+                          />
+                        </Grid>
+                        <Grid item xs={12} sm={6}>
+                          <FormField
+                            fullWidth
+                            label="Highest Attained"
+                            name="collegeHighestAttained"
+                            value={college.collegeHighestAttained || ''}
+                            onChange={(e) => handleCollegeFormChange(index, e)}
+                            variant="outlined"
+                          />
+                        </Grid>
+                        <Grid item xs={12} sm={6}>
+                          <FormField
+                            fullWidth
+                            label="Year Graduated"
+                            name="collegeYearGraduated"
+                            value={college.collegeYearGraduated || ''}
+                            onChange={(e) => handleCollegeFormChange(index, e)}
+                            variant="outlined"
+                          />
+                        </Grid>
+                        <Grid item xs={12}>
+                          <FormField
+                            fullWidth
+                            label="Honors Received"
+                            name="collegeScholarshipAcademicHonorsReceived"
+                            value={
+                              college.collegeScholarshipAcademicHonorsReceived ||
+                              ''
+                            }
+                            onChange={(e) => handleCollegeFormChange(index, e)}
+                            variant="outlined"
+                          />
+                        </Grid>
+                      </Grid>
                     </Box>
-                    <Grid container spacing={2}>
-                      <Grid item xs={12}>
-                        <FormField
-                          fullWidth
-                          label="School Name"
-                          name="graduateNameOfSchool"
-                          value={graduate.graduateNameOfSchool || ''}
-                          onChange={(e) => handleGraduateFormChange(index, e)}
-                          variant="outlined"
-                        />
-                      </Grid>
-                      <Grid item xs={12}>
-                        <FormField
-                          fullWidth
-                          label="Degree"
-                          name="graduateDegree"
-                          value={graduate.graduateDegree || ''}
-                          onChange={(e) => handleGraduateFormChange(index, e)}
-                          variant="outlined"
-                        />
-                      </Grid>
-                      <Grid item xs={12} sm={6}>
-                        <FormField
-                          fullWidth
-                          label="Period From"
-                          name="graduatePeriodFrom"
-                          value={graduate.graduatePeriodFrom || ''}
-                          onChange={(e) => handleGraduateFormChange(index, e)}
-                          variant="outlined"
-                        />
-                      </Grid>
-                      <Grid item xs={12} sm={6}>
-                        <FormField
-                          fullWidth
-                          label="Period To"
-                          name="graduatePeriodTo"
-                          value={graduate.graduatePeriodTo || ''}
-                          onChange={(e) => handleGraduateFormChange(index, e)}
-                          variant="outlined"
-                        />
-                      </Grid>
-                      <Grid item xs={12} sm={6}>
-                        <FormField
-                          fullWidth
-                          label="Highest Level"
-                          name="graduateHighestLevel"
-                          value={graduate.graduateHighestLevel || ''}
-                          onChange={(e) => handleGraduateFormChange(index, e)}
-                          variant="outlined"
-                        />
-                      </Grid>
-                      <Grid item xs={12} sm={6}>
-                        <FormField
-                          fullWidth
-                          label="Year Graduated"
-                          name="graduateYearGraduated"
-                          value={graduate.graduateYearGraduated || ''}
-                          onChange={(e) => handleGraduateFormChange(index, e)}
-                          variant="outlined"
-                        />
-                      </Grid>
-                      <Grid item xs={12}>
-                        <FormField
-                          fullWidth
-                          label="Honors Received"
-                          name="graduateScholarshipAcademicHonorsReceived"
-                          value={graduate.graduateScholarshipAcademicHonorsReceived || ''}
-                          onChange={(e) => handleGraduateFormChange(index, e)}
-                          variant="outlined"
-                        />
-                      </Grid>
-                    </Grid>
-                  </Box>
-                ))}
+                  ))}
+                </Box>
+              ) : (
+                <Box textAlign="center" py={4}>
+                  <Typography variant="h6" color={colors.textSecondary}>
+                    No college records found
+                  </Typography>
+                </Box>
+              )}
+
+              <Box mt={2} display="flex" justifyContent="center">
+                <ActionButton
+                  variant="contained"
+                  startIcon={<AddIcon />}
+                  onClick={handleAddCollege}
+                >
+                  Add College
+                </ActionButton>
               </Box>
-            ) : (
-              <Box textAlign="center" py={4}>
-                <Typography variant="h6" color={colors.textSecondary}>
-                  No graduate studies records found
-                </Typography>
-              </Box>
-            )}
-            
-            <Box mt={2} display="flex" justifyContent="center">
-              <ActionButton
-                variant="contained"
-                startIcon={<AddIcon />}
-                onClick={handleAddGraduate}
-              >
-                Add Graduate Studies
-              </ActionButton>
             </Box>
-          </Box>
-        );
-      }
+          )}
+
+          {educationSubTabValue === 2 && (
+            <Box>
+              <Typography variant="h6" gutterBottom>
+                Graduate Studies Information
+              </Typography>
+
+              {graduatesFormData.length > 0 ? (
+                <Box>
+                  {graduatesFormData.map((graduate, index) => (
+                    <Box
+                      key={index}
+                      mb={3}
+                      p={2}
+                      sx={{
+                        backgroundColor: alpha(colors.secondary, 0.3),
+                        borderRadius: 2,
+                      }}
+                    >
+                      <Box
+                        display="flex"
+                        justifyContent="space-between"
+                        alignItems="center"
+                        mb={2}
+                      >
+                        <Typography variant="h6">
+                          Graduate Studies {index + 1}
+                        </Typography>
+                        <IconButton
+                          onClick={() => handleRemoveGraduate(index)}
+                          color="error"
+                        >
+                          <DeleteIcon />
+                        </IconButton>
+                      </Box>
+                      <Grid container spacing={2}>
+                        <Grid item xs={12}>
+                          <FormField
+                            fullWidth
+                            label="School Name"
+                            name="graduateNameOfSchool"
+                            value={graduate.graduateNameOfSchool || ''}
+                            onChange={(e) => handleGraduateFormChange(index, e)}
+                            variant="outlined"
+                          />
+                        </Grid>
+                        <Grid item xs={12}>
+                          <FormField
+                            fullWidth
+                            label="Degree"
+                            name="graduateDegree"
+                            value={graduate.graduateDegree || ''}
+                            onChange={(e) => handleGraduateFormChange(index, e)}
+                            variant="outlined"
+                          />
+                        </Grid>
+                        <Grid item xs={12} sm={6}>
+                          <FormField
+                            fullWidth
+                            label="Period From"
+                            name="graduatePeriodFrom"
+                            value={graduate.graduatePeriodFrom || ''}
+                            onChange={(e) => handleGraduateFormChange(index, e)}
+                            variant="outlined"
+                          />
+                        </Grid>
+                        <Grid item xs={12} sm={6}>
+                          <FormField
+                            fullWidth
+                            label="Period To"
+                            name="graduatePeriodTo"
+                            value={graduate.graduatePeriodTo || ''}
+                            onChange={(e) => handleGraduateFormChange(index, e)}
+                            variant="outlined"
+                          />
+                        </Grid>
+                        <Grid item xs={12} sm={6}>
+                          <FormField
+                            fullWidth
+                            label="Highest Level"
+                            name="graduateHighestLevel"
+                            value={graduate.graduateHighestLevel || ''}
+                            onChange={(e) => handleGraduateFormChange(index, e)}
+                            variant="outlined"
+                          />
+                        </Grid>
+                        <Grid item xs={12} sm={6}>
+                          <FormField
+                            fullWidth
+                            label="Year Graduated"
+                            name="graduateYearGraduated"
+                            value={graduate.graduateYearGraduated || ''}
+                            onChange={(e) => handleGraduateFormChange(index, e)}
+                            variant="outlined"
+                          />
+                        </Grid>
+                        <Grid item xs={12}>
+                          <FormField
+                            fullWidth
+                            label="Honors Received"
+                            name="graduateScholarshipAcademicHonorsReceived"
+                            value={
+                              graduate.graduateScholarshipAcademicHonorsReceived ||
+                              ''
+                            }
+                            onChange={(e) => handleGraduateFormChange(index, e)}
+                            variant="outlined"
+                          />
+                        </Grid>
+                      </Grid>
+                    </Box>
+                  ))}
+                </Box>
+              ) : (
+                <Box textAlign="center" py={4}>
+                  <Typography variant="h6" color={colors.textSecondary}>
+                    No graduate studies records found
+                  </Typography>
+                </Box>
+              )}
+
+              <Box mt={2} display="flex" justifyContent="center">
+                <ActionButton
+                  variant="contained"
+                  startIcon={<AddIcon />}
+                  onClick={handleAddGraduate}
+                >
+                  Add Graduate Studies
+                </ActionButton>
+              </Box>
+            </Box>
+          )}
+
+          {educationSubTabValue === 3 && (
+            <Box>
+              <Typography variant="h6" gutterBottom>
+                Vocational Information
+              </Typography>
+
+              {vocationalFormData.length > 0 ? (
+                <Box>
+                  {vocationalFormData.map((voc, index) => (
+                    <Box
+                      key={index}
+                      mb={3}
+                      p={2}
+                      sx={{
+                        backgroundColor: alpha(colors.secondary, 0.3),
+                        borderRadius: 2,
+                      }}
+                    >
+                      <Box
+                        display="flex"
+                        justifyContent="space-between"
+                        alignItems="center"
+                        mb={2}
+                      >
+                        <Typography variant="h6">
+                          Vocational {index + 1}
+                        </Typography>
+                        <IconButton
+                          onClick={() => handleRemoveVocational(index)}
+                          color="error"
+                        >
+                          <DeleteIcon />
+                        </IconButton>
+                      </Box>
+                      <Grid container spacing={2}>
+                        <Grid item xs={12}>
+                          <FormField
+                            fullWidth
+                            label="School Name"
+                            name="vocationalNameOfSchool"
+                            value={voc.vocationalNameOfSchool || ''}
+                            onChange={(e) =>
+                              handleVocationalFormChange(index, e)
+                            }
+                            variant="outlined"
+                          />
+                        </Grid>
+                        <Grid item xs={12}>
+                          <FormField
+                            fullWidth
+                            label="Degree"
+                            name="vocationalDegree"
+                            value={voc.vocationalDegree || ''}
+                            onChange={(e) =>
+                              handleVocationalFormChange(index, e)
+                            }
+                            variant="outlined"
+                          />
+                        </Grid>
+                        <Grid item xs={12} sm={6}>
+                          <FormField
+                            fullWidth
+                            label="Period From"
+                            name="vocationalPeriodFrom"
+                            value={voc.vocationalPeriodFrom || ''}
+                            onChange={(e) =>
+                              handleVocationalFormChange(index, e)
+                            }
+                            variant="outlined"
+                          />
+                        </Grid>
+                        <Grid item xs={12} sm={6}>
+                          <FormField
+                            fullWidth
+                            label="Period To"
+                            name="vocationalPeriodTo"
+                            value={voc.vocationalPeriodTo || ''}
+                            onChange={(e) =>
+                              handleVocationalFormChange(index, e)
+                            }
+                            variant="outlined"
+                          />
+                        </Grid>
+                        <Grid item xs={12} sm={6}>
+                          <FormField
+                            fullWidth
+                            label="Highest Attained"
+                            name="vocationalHighestAttained"
+                            value={voc.vocationalHighestAttained || ''}
+                            onChange={(e) =>
+                              handleVocationalFormChange(index, e)
+                            }
+                            variant="outlined"
+                          />
+                        </Grid>
+                        <Grid item xs={12} sm={6}>
+                          <FormField
+                            fullWidth
+                            label="Year Graduated"
+                            name="vocationalYearGraduated"
+                            value={voc.vocationalYearGraduated || ''}
+                            onChange={(e) =>
+                              handleVocationalFormChange(index, e)
+                            }
+                            variant="outlined"
+                          />
+                        </Grid>
+                        <Grid item xs={12}>
+                          <FormField
+                            fullWidth
+                            label="Honors Received"
+                            name="vocationalScholarshipAcademicHonorsReceived"
+                            value={
+                              voc.vocationalScholarshipAcademicHonorsReceived ||
+                              ''
+                            }
+                            onChange={(e) =>
+                              handleVocationalFormChange(index, e)
+                            }
+                            variant="outlined"
+                          />
+                        </Grid>
+                      </Grid>
+                    </Box>
+                  ))}
+                </Box>
+              ) : (
+                <Box textAlign="center" py={4}>
+                  <Typography variant="h6" color={colors.textSecondary}>
+                    No vocational records found
+                  </Typography>
+                </Box>
+              )}
+
+              <Box mt={2} display="flex" justifyContent="center">
+                <ActionButton
+                  variant="contained"
+                  startIcon={<AddIcon />}
+                  onClick={handleAddVocational}
+                >
+                  Add Vocational
+                </ActionButton>
+              </Box>
+            </Box>
+          )}
+        </Box>
+      );
     }
-    
+
     // Special handling for Children tab
     if (tabValue === 6) {
       return (
@@ -2413,16 +3846,30 @@ const Profile = () => {
           <Typography variant="h6" gutterBottom>
             Children Information
           </Typography>
-          
+
           {childrenFormData.length > 0 ? (
             <Box>
               {childrenFormData.map((child, index) => (
-                <Box key={index} mb={3} p={2} sx={{ backgroundColor: alpha(colors.secondary, 0.3), borderRadius: 2 }}>
-                  <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-                    <Typography variant="h6">
-                      Child {index + 1}
-                    </Typography>
-                    <IconButton onClick={() => handleRemoveChild(index)} color="error">
+                <Box
+                  key={index}
+                  mb={3}
+                  p={2}
+                  sx={{
+                    backgroundColor: alpha(colors.secondary, 0.3),
+                    borderRadius: 2,
+                  }}
+                >
+                  <Box
+                    display="flex"
+                    justifyContent="space-between"
+                    alignItems="center"
+                    mb={2}
+                  >
+                    <Typography variant="h6">Child {index + 1}</Typography>
+                    <IconButton
+                      onClick={() => handleRemoveChild(index)}
+                      color="error"
+                    >
                       <DeleteIcon />
                     </IconButton>
                   </Box>
@@ -2491,7 +3938,7 @@ const Profile = () => {
               </Typography>
             </Box>
           )}
-          
+
           <Box mt={2} display="flex" justifyContent="center">
             <ActionButton
               variant="contained"
@@ -2504,7 +3951,7 @@ const Profile = () => {
         </Box>
       );
     }
-    
+
     // Special handling for Eligibility tab
     if (tabValue === 7) {
       return (
@@ -2512,16 +3959,32 @@ const Profile = () => {
           <Typography variant="h6" gutterBottom>
             Eligibility Information
           </Typography>
-          
+
           {eligibilitiesFormData.length > 0 ? (
             <Box>
               {eligibilitiesFormData.map((eligibility, index) => (
-                <Box key={index} mb={3} p={2} sx={{ backgroundColor: alpha(colors.secondary, 0.3), borderRadius: 2 }}>
-                  <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+                <Box
+                  key={index}
+                  mb={3}
+                  p={2}
+                  sx={{
+                    backgroundColor: alpha(colors.secondary, 0.3),
+                    borderRadius: 2,
+                  }}
+                >
+                  <Box
+                    display="flex"
+                    justifyContent="space-between"
+                    alignItems="center"
+                    mb={2}
+                  >
                     <Typography variant="h6">
                       Eligibility {index + 1}
                     </Typography>
-                    <IconButton onClick={() => handleRemoveEligibility(index)} color="error">
+                    <IconButton
+                      onClick={() => handleRemoveEligibility(index)}
+                      color="error"
+                    >
                       <DeleteIcon />
                     </IconButton>
                   </Box>
@@ -2538,12 +4001,24 @@ const Profile = () => {
                     </Grid>
                     <Grid item xs={12}>
                       <Box sx={{ mb: 1 }}>
-                        <Typography variant="caption" sx={{ fontWeight: "bold", mb: 0.5, color: "#333", display: 'block' }}>
+                        <Typography
+                          variant="caption"
+                          sx={{
+                            fontWeight: 'bold',
+                            mb: 0.5,
+                            color: '#333',
+                            display: 'block',
+                          }}
+                        >
                           Rating
                         </Typography>
                         <PercentageInput
                           value={eligibility.eligibilityRating || ''}
-                          onChange={(value) => handleEligibilityFormChange(index, { target: { name: 'eligibilityRating', value } })}
+                          onChange={(value) =>
+                            handleEligibilityFormChange(index, {
+                              target: { name: 'eligibilityRating', value },
+                            })
+                          }
                         />
                       </Box>
                     </Grid>
@@ -2602,7 +4077,7 @@ const Profile = () => {
               </Typography>
             </Box>
           )}
-          
+
           <Box mt={2} display="flex" justifyContent="center">
             <ActionButton
               variant="contained"
@@ -2615,7 +4090,7 @@ const Profile = () => {
         </Box>
       );
     }
-    
+
     // Special handling for Learning and Development tab
     if (tabValue === 8) {
       return (
@@ -2623,16 +4098,32 @@ const Profile = () => {
           <Typography variant="h6" gutterBottom>
             Learning and Development Information
           </Typography>
-          
+
           {learningDevelopmentFormData.length > 0 ? (
             <Box>
               {learningDevelopmentFormData.map((learning, index) => (
-                <Box key={index} mb={3} p={2} sx={{ backgroundColor: alpha(colors.secondary, 0.3), borderRadius: 2 }}>
-                  <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+                <Box
+                  key={index}
+                  mb={3}
+                  p={2}
+                  sx={{
+                    backgroundColor: alpha(colors.secondary, 0.3),
+                    borderRadius: 2,
+                  }}
+                >
+                  <Box
+                    display="flex"
+                    justifyContent="space-between"
+                    alignItems="center"
+                    mb={2}
+                  >
                     <Typography variant="h6">
                       Learning Program {index + 1}
                     </Typography>
-                    <IconButton onClick={() => handleRemoveLearningDevelopment(index)} color="error">
+                    <IconButton
+                      onClick={() => handleRemoveLearningDevelopment(index)}
+                      color="error"
+                    >
                       <DeleteIcon />
                     </IconButton>
                   </Box>
@@ -2643,7 +4134,9 @@ const Profile = () => {
                         label="Title of Program"
                         name="titleOfProgram"
                         value={learning.titleOfProgram || ''}
-                        onChange={(e) => handleLearningDevelopmentFormChange(index, e)}
+                        onChange={(e) =>
+                          handleLearningDevelopmentFormChange(index, e)
+                        }
                         variant="outlined"
                       />
                     </Grid>
@@ -2654,7 +4147,9 @@ const Profile = () => {
                         name="dateFrom"
                         type="date"
                         value={learning.dateFrom || ''}
-                        onChange={(e) => handleLearningDevelopmentFormChange(index, e)}
+                        onChange={(e) =>
+                          handleLearningDevelopmentFormChange(index, e)
+                        }
                         variant="outlined"
                         InputLabelProps={{ shrink: true }}
                       />
@@ -2666,7 +4161,9 @@ const Profile = () => {
                         name="dateTo"
                         type="date"
                         value={learning.dateTo || ''}
-                        onChange={(e) => handleLearningDevelopmentFormChange(index, e)}
+                        onChange={(e) =>
+                          handleLearningDevelopmentFormChange(index, e)
+                        }
                         variant="outlined"
                         InputLabelProps={{ shrink: true }}
                       />
@@ -2677,7 +4174,9 @@ const Profile = () => {
                         label="Number of Hours"
                         name="numberOfHours"
                         value={learning.numberOfHours || ''}
-                        onChange={(e) => handleLearningDevelopmentFormChange(index, e)}
+                        onChange={(e) =>
+                          handleLearningDevelopmentFormChange(index, e)
+                        }
                         variant="outlined"
                       />
                     </Grid>
@@ -2687,7 +4186,9 @@ const Profile = () => {
                         label="Type of Learning Development"
                         name="typeOfLearningDevelopment"
                         value={learning.typeOfLearningDevelopment || ''}
-                        onChange={(e) => handleLearningDevelopmentFormChange(index, e)}
+                        onChange={(e) =>
+                          handleLearningDevelopmentFormChange(index, e)
+                        }
                         variant="outlined"
                       />
                     </Grid>
@@ -2697,7 +4198,9 @@ const Profile = () => {
                         label="Conducted/Sponsored"
                         name="conductedSponsored"
                         value={learning.conductedSponsored || ''}
-                        onChange={(e) => handleLearningDevelopmentFormChange(index, e)}
+                        onChange={(e) =>
+                          handleLearningDevelopmentFormChange(index, e)
+                        }
                         variant="outlined"
                       />
                     </Grid>
@@ -2712,7 +4215,7 @@ const Profile = () => {
               </Typography>
             </Box>
           )}
-          
+
           <Box mt={2} display="flex" justifyContent="center">
             <ActionButton
               variant="contained"
@@ -2725,9 +4228,278 @@ const Profile = () => {
         </Box>
       );
     }
-    
+
+    // Special handling for Other Information tab
+    if (tabValue === 9) {
+      return (
+        <Box>
+          <Typography variant="h6" gutterBottom>
+            Other Information
+          </Typography>
+
+          {otherInformationFormData.length > 0 ? (
+            <Box>
+              {otherInformationFormData.map((info, index) => (
+                <Box
+                  key={index}
+                  mb={3}
+                  p={2}
+                  sx={{
+                    backgroundColor: alpha(colors.secondary, 0.3),
+                    borderRadius: 2,
+                  }}
+                >
+                  <Box
+                    display="flex"
+                    justifyContent="space-between"
+                    alignItems="center"
+                    mb={2}
+                  >
+                    <Typography variant="h6">
+                      Information {index + 1}
+                    </Typography>
+                    <IconButton
+                      onClick={() => handleRemoveOtherInformation(index)}
+                      color="error"
+                    >
+                      <DeleteIcon />
+                    </IconButton>
+                  </Box>
+                  <Grid container spacing={2}>
+                    <Grid item xs={12}>
+                      <FormField
+                        fullWidth
+                        label="Special Skills"
+                        name="specialSkills"
+                        value={info.specialSkills || ''}
+                        onChange={(e) =>
+                          handleOtherInformationFormChange(index, e)
+                        }
+                        variant="outlined"
+                        multiline
+                        rows={2}
+                      />
+                    </Grid>
+                    <Grid item xs={12}>
+                      <FormField
+                        fullWidth
+                        label="Non-Academic Distinctions"
+                        name="nonAcademicDistinctions"
+                        value={info.nonAcademicDistinctions || ''}
+                        onChange={(e) =>
+                          handleOtherInformationFormChange(index, e)
+                        }
+                        variant="outlined"
+                        multiline
+                        rows={2}
+                      />
+                    </Grid>
+                    <Grid item xs={12}>
+                      <FormField
+                        fullWidth
+                        label="Membership in Association"
+                        name="membershipInAssociation"
+                        value={info.membershipInAssociation || ''}
+                        onChange={(e) =>
+                          handleOtherInformationFormChange(index, e)
+                        }
+                        variant="outlined"
+                        multiline
+                        rows={2}
+                      />
+                    </Grid>
+                  </Grid>
+                </Box>
+              ))}
+            </Box>
+          ) : (
+            <Box textAlign="center" py={4}>
+              <Typography variant="h6" color={colors.textSecondary}>
+                No other information records found
+              </Typography>
+            </Box>
+          )}
+
+          <Box mt={2} display="flex" justifyContent="center">
+            <ActionButton
+              variant="contained"
+              startIcon={<AddIcon />}
+              onClick={handleAddOtherInformation}
+            >
+              Add Other Information
+            </ActionButton>
+          </Box>
+        </Box>
+      );
+    }
+
+    if (tabValue === 10) {
+      return (
+        <Box>
+          <Typography variant="h6" gutterBottom>
+            Work Experience Information
+          </Typography>
+
+          {workExperiencesFormData.length > 0 ? (
+            <Box>
+              {workExperiencesFormData.map((workExp, index) => (
+                <Box
+                  key={index}
+                  mb={3}
+                  p={2}
+                  sx={{
+                    backgroundColor: alpha(colors.secondary, 0.3),
+                    borderRadius: 2,
+                  }}
+                >
+                  <Box
+                    display="flex"
+                    justifyContent="space-between"
+                    alignItems="center"
+                    mb={2}
+                  >
+                    <Typography variant="h6">
+                      Work Experience {index + 1}
+                    </Typography>
+                    <IconButton
+                      onClick={() => handleRemoveWorkExperience(index)}
+                      color="error"
+                    >
+                      <DeleteIcon />
+                    </IconButton>
+                  </Box>
+                  <Grid container spacing={2}>
+                    <Grid item xs={12} sm={6}>
+                      <FormField
+                        fullWidth
+                        label="Date From"
+                        name="workDateFrom"
+                        type="date"
+                        value={workExp.workDateFrom || ''}
+                        onChange={(e) =>
+                          handleWorkExperienceFormChange(index, e)
+                        }
+                        variant="outlined"
+                        InputLabelProps={{ shrink: true }}
+                      />
+                    </Grid>
+                    <Grid item xs={12} sm={6}>
+                      <FormField
+                        fullWidth
+                        label="Date To"
+                        name="workDateTo"
+                        type="date"
+                        value={workExp.workDateTo || ''}
+                        onChange={(e) =>
+                          handleWorkExperienceFormChange(index, e)
+                        }
+                        variant="outlined"
+                        InputLabelProps={{ shrink: true }}
+                      />
+                    </Grid>
+                    <Grid item xs={12}>
+                      <FormField
+                        fullWidth
+                        label="Position Title"
+                        name="workPositionTitle"
+                        value={workExp.workPositionTitle || ''}
+                        onChange={(e) =>
+                          handleWorkExperienceFormChange(index, e)
+                        }
+                        variant="outlined"
+                      />
+                    </Grid>
+                    <Grid item xs={12}>
+                      <FormField
+                        fullWidth
+                        label="Company"
+                        name="workCompany"
+                        value={workExp.workCompany || ''}
+                        onChange={(e) =>
+                          handleWorkExperienceFormChange(index, e)
+                        }
+                        variant="outlined"
+                      />
+                    </Grid>
+                    <Grid item xs={12} sm={6}>
+                      <FormField
+                        fullWidth
+                        label="Monthly Salary"
+                        name="workMonthlySalary"
+                        value={workExp.workMonthlySalary || ''}
+                        onChange={(e) =>
+                          handleWorkExperienceFormChange(index, e)
+                        }
+                        variant="outlined"
+                      />
+                    </Grid>
+                    <Grid item xs={12} sm={6}>
+                      <FormField
+                        fullWidth
+                        label="Salary Job/Pay Grade"
+                        name="SalaryJobOrPayGrade"
+                        value={workExp.SalaryJobOrPayGrade || ''}
+                        onChange={(e) =>
+                          handleWorkExperienceFormChange(index, e)
+                        }
+                        variant="outlined"
+                      />
+                    </Grid>
+                    <Grid item xs={12} sm={6}>
+                      <FormField
+                        fullWidth
+                        label="Status of Appointment"
+                        name="StatusOfAppointment"
+                        value={workExp.StatusOfAppointment || ''}
+                        onChange={(e) =>
+                          handleWorkExperienceFormChange(index, e)
+                        }
+                        variant="outlined"
+                      />
+                    </Grid>
+                    <Grid item xs={12} sm={6}>
+                      <FormControl fullWidth>
+                        <InputLabel>Government Service</InputLabel>
+                        <Select
+                          name="isGovtService"
+                          value={workExp.isGovtService || 'No'}
+                          onChange={(e) =>
+                            handleWorkExperienceFormChange(index, e)
+                          }
+                          label="Government Service"
+                        >
+                          <MenuItem value="Yes">Yes</MenuItem>
+                          <MenuItem value="No">No</MenuItem>
+                        </Select>
+                      </FormControl>
+                    </Grid>
+                  </Grid>
+                </Box>
+              ))}
+            </Box>
+          ) : (
+            <Box textAlign="center" py={4}>
+              <Typography variant="h6" color={colors.textSecondary}>
+                No work experience records found
+              </Typography>
+            </Box>
+          )}
+
+          <Box mt={2} display="flex" justifyContent="center">
+            <ActionButton
+              variant="contained"
+              startIcon={<AddIcon />}
+              onClick={handleAddWorkExperience}
+            >
+              Add Work Experience
+            </ActionButton>
+          </Box>
+        </Box>
+      );
+    }
+
     const fields = formFields[tabValue] || [];
-    
+
     return (
       <Grid container spacing={3}>
         {fields.map((field, idx) => (
@@ -2754,7 +4526,11 @@ const Profile = () => {
       <ProfileHeader>
         <ProfileAvatarContainer>
           <ProfileAvatar
-            src={profilePicture ? `${API_BASE_URL}${profilePicture}?t=${Date.now()}` : undefined}
+            src={
+              profilePicture
+                ? `${API_BASE_URL}${profilePicture}?t=${Date.now()}`
+                : undefined
+            }
             alt="Profile Picture"
             onClick={handleImageZoom}
           >
@@ -2764,7 +4540,11 @@ const Profile = () => {
 
         <ProfileInfo>
           <ProfileName>
-            {person ? `${person.firstName} ${person.middleName} ${person.lastName} ${person.nameExtension || ''}`.trim() : 'Employee Profile'}
+            {person
+              ? `${person.firstName} ${person.middleName} ${person.lastName} ${
+                  person.nameExtension || ''
+                }`.trim()
+              : 'Employee Profile'}
           </ProfileName>
           <ProfileSubtitle>
             Employee No.: <b>{person?.agencyEmployeeNum || '—'}</b>
@@ -2773,14 +4553,14 @@ const Profile = () => {
 
         <ProfileActions>
           <Tooltip title="Refresh profile">
-            <IconButton 
+            <IconButton
               onClick={handleRefresh}
               sx={{
                 backgroundColor: alpha(colors.primary, 0.1),
                 color: colors.primary,
                 '&:hover': {
-                  backgroundColor: alpha(colors.primary, 0.2)
-                }
+                  backgroundColor: alpha(colors.primary, 0.2),
+                },
               }}
             >
               <RefreshIcon />
@@ -2798,7 +4578,12 @@ const Profile = () => {
       </ProfileHeader>
 
       <SectionPaper>
-        <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
+        <Box
+          display="flex"
+          justifyContent="space-between"
+          alignItems="center"
+          mb={3}
+        >
           <SectionTitle>
             <PersonIcon />
             Employee Details
@@ -2828,8 +4613,8 @@ const Profile = () => {
           <CustomTabs
             value={tabValue}
             onChange={handleTabChange}
-            variant={isMobile ? "scrollable" : "standard"}
-            scrollButtons={isMobile ? "auto" : false}
+            variant={isMobile ? 'scrollable' : 'standard'}
+            scrollButtons={isMobile ? 'auto' : false}
           >
             {tabs.map((tab) => (
               <CustomTab
@@ -2859,53 +4644,68 @@ const Profile = () => {
         closeAfterTransition
         BackdropComponent={Backdrop}
         BackdropProps={{
-          timeout: 500
+          timeout: 500,
         }}
       >
         <Backdrop open={editOpen} onClick={handleEditClose}>
           <ModalContainer onClick={(e) => e.stopPropagation()}>
             <ModalHeader>
               <ModalTitle>Edit Profile</ModalTitle>
-              <IconButton onClick={handleEditClose} sx={{ color: colors.textLight }}>
+              <IconButton
+                onClick={handleEditClose}
+                sx={{ color: colors.textLight }}
+              >
                 <CloseIcon />
               </IconButton>
             </ModalHeader>
 
             <EditModalPictureSection>
               <EditModalAvatar
-                src={profilePicture ? `${API_BASE_URL}${profilePicture}?t=${Date.now()}` : undefined}
+                src={
+                  profilePicture
+                    ? `${API_BASE_URL}${profilePicture}?t=${Date.now()}`
+                    : undefined
+                }
                 alt="Profile Picture"
                 onClick={handleEditImageZoom}
               >
                 {!profilePicture && <PersonIcon sx={{ fontSize: 60 }} />}
               </EditModalAvatar>
               <EditModalPictureInfo>
-                <Typography variant="h6" sx={{ fontWeight: 600, color: colors.primary, mb: 1 }}>
+                <Typography
+                  variant="h6"
+                  sx={{ fontWeight: 600, color: colors.primary, mb: 1 }}
+                >
                   Profile Picture
                 </Typography>
-                <Typography variant="body2" color={colors.textSecondary} sx={{ mb: 2 }}>
-                  Click on the image to preview. Upload a professional headshot (max 5MB, JPEG/PNG)
+                <Typography
+                  variant="body2"
+                  color={colors.textSecondary}
+                  sx={{ mb: 2 }}
+                >
+                  Click on image to preview. Upload a professional headshot (max
+                  5MB, JPEG/PNG)
                 </Typography>
                 <Box display="flex" gap={1} flexWrap="wrap">
-                  <Chip 
+                  <Chip
                     icon={<PhotoSizeSelectActualIcon fontSize="small" />}
-                    label="High Quality" 
-                    size="small" 
-                    sx={{ 
+                    label="High Quality"
+                    size="small"
+                    sx={{
                       backgroundColor: alpha(colors.primary, 0.1),
                       color: colors.primary,
-                      fontWeight: 600
-                    }} 
+                      fontWeight: 600,
+                    }}
                   />
-                  <Chip 
+                  <Chip
                     icon={<CropOriginalIcon fontSize="small" />}
-                    label="Recommended: 400x400px" 
-                    size="small" 
-                    sx={{ 
+                    label="Recommended: 400x400px"
+                    size="small"
+                    sx={{
                       backgroundColor: alpha(colors.secondary, 0.5),
                       color: colors.textSecondary,
-                      fontWeight: 600
-                    }} 
+                      fontWeight: 600,
+                    }}
                   />
                 </Box>
               </EditModalPictureInfo>
@@ -2958,23 +4758,33 @@ const Profile = () => {
               </Box>
 
               {renderFormFields()}
-
-              <Box sx={{ mt: 4, display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
-                <ActionButton
-                  variant="outlined"
-                  onClick={handleEditClose}
-                >
-                  Cancel
-                </ActionButton>
-                <ActionButton
-                  variant="contained"
-                  onClick={handleSave}
-                  startIcon={<SaveIcon />}
-                >
-                  Save Changes
-                </ActionButton>
-              </Box>
             </ModalBody>
+
+            {/* Fixed Bottom Action Bar - Right Aligned */}
+            <Box
+              sx={{
+                position: 'sticky',
+                bottom: 0,
+                backgroundColor: colors.surface,
+                padding: theme.spacing(2),
+                borderTop: `1px solid ${colors.border}`,
+                display: 'flex',
+                justifyContent: 'flex-end',
+                gap: theme.spacing(2),
+                boxShadow: '0 -2px 8px rgba(0,0,0,0.08)',
+              }}
+            >
+              <ActionButton variant="outlined" onClick={handleEditClose}>
+                Cancel
+              </ActionButton>
+              <ActionButton
+                variant="contained"
+                onClick={handleSave}
+                startIcon={<SaveIcon />}
+              >
+                Save Changes
+              </ActionButton>
+            </Box>
           </ModalContainer>
         </Backdrop>
       </Modal>
@@ -2986,21 +4796,27 @@ const Profile = () => {
         closeAfterTransition
         BackdropComponent={Backdrop}
         BackdropProps={{
-          timeout: 500
+          timeout: 500,
         }}
       >
         <Backdrop open={imageZoomOpen} onClick={handleImageZoomClose}>
           <ImagePreviewContainer onClick={(e) => e.stopPropagation()}>
             <ImagePreviewContent>
               <PreviewImage
-                src={profilePicture ? `${API_BASE_URL}${profilePicture}?t=${Date.now()}` : undefined}
+                src={
+                  profilePicture
+                    ? `${API_BASE_URL}${profilePicture}?t=${Date.now()}`
+                    : undefined
+                }
                 alt="Profile Picture Preview"
               />
               <ImagePreviewActions>
                 <ImagePreviewButton
                   onClick={() => {
                     const link = document.createElement('a');
-                    link.href = profilePicture ? `${API_BASE_URL}${profilePicture}?t=${Date.now()}` : '';
+                    link.href = profilePicture
+                      ? `${API_BASE_URL}${profilePicture}?t=${Date.now()}`
+                      : '';
                     link.download = 'profile-picture.jpg';
                     link.click();
                   }}
@@ -3013,7 +4829,9 @@ const Profile = () => {
                     if (navigator.share) {
                       navigator.share({
                         title: 'Profile Picture',
-                        url: profilePicture ? `${API_BASE_URL}${profilePicture}?t=${Date.now()}` : ''
+                        url: profilePicture
+                          ? `${API_BASE_URL}${profilePicture}?t=${Date.now()}`
+                          : '',
                       });
                     }
                   }}
@@ -3039,21 +4857,27 @@ const Profile = () => {
         closeAfterTransition
         BackdropComponent={Backdrop}
         BackdropProps={{
-          timeout: 500
+          timeout: 500,
         }}
       >
         <Backdrop open={editImageZoomOpen} onClick={handleEditImageZoomClose}>
           <ImagePreviewContainer onClick={(e) => e.stopPropagation()}>
             <ImagePreviewContent>
               <PreviewImage
-                src={profilePicture ? `${API_BASE_URL}${profilePicture}?t=${Date.now()}` : undefined}
+                src={
+                  profilePicture
+                    ? `${API_BASE_URL}${profilePicture}?t=${Date.now()}`
+                    : undefined
+                }
                 alt="Profile Picture Preview"
               />
               <ImagePreviewActions>
                 <ImagePreviewButton
                   onClick={() => {
                     const link = document.createElement('a');
-                    link.href = profilePicture ? `${API_BASE_URL}${profilePicture}?t=${Date.now()}` : '';
+                    link.href = profilePicture
+                      ? `${API_BASE_URL}${profilePicture}?t=${Date.now()}`
+                      : '';
                     link.download = 'profile-picture.jpg';
                     link.click();
                   }}
@@ -3066,7 +4890,9 @@ const Profile = () => {
                     if (navigator.share) {
                       navigator.share({
                         title: 'Profile Picture',
-                        url: profilePicture ? `${API_BASE_URL}${profilePicture}?t=${Date.now()}` : ''
+                        url: profilePicture
+                          ? `${API_BASE_URL}${profilePicture}?t=${Date.now()}`
+                          : '',
                       });
                     }
                   }}
@@ -3096,7 +4922,11 @@ const Profile = () => {
           variant={uploadStatus.type}
           message={uploadStatus.message}
           action={
-            <IconButton size="small" color="inherit" onClick={handleNotificationClose}>
+            <IconButton
+              size="small"
+              color="inherit"
+              onClick={handleNotificationClose}
+            >
               <CloseIcon fontSize="small" />
             </IconButton>
           }
@@ -3113,3 +4943,5 @@ const Profile = () => {
 };
 
 export default Profile;
+
+

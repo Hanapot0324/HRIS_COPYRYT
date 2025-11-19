@@ -35,6 +35,7 @@ import {
   Zoom,
   alpha,
   styled,
+  CardHeader,
 } from '@mui/material';
 import {
   EventNote,
@@ -52,9 +53,19 @@ import {
   Clear,
   KeyboardArrowUp,
   KeyboardArrowDown,
+  FilterList,
 } from '@mui/icons-material';
 
-// Styled components to match AttendanceState.jsx look-and-feel
+// Color scheme
+const primaryColor = '#FEF9E1'; // Cream
+const secondaryColor = '#FFF8E7'; // Light cream
+const accentColor = '#6D2323'; // Burgundy
+const accentDark = '#8B3333'; // Darker burgundy
+const blackColor = '#1a1a1a';
+const whiteColor = '#FFFFFF';
+const grayColor = '#6c757d';
+
+// Styled components
 const GlassCard = styled(Card)(({ theme }) => ({
   borderRadius: 20,
   background: 'rgba(254, 249, 225, 0.95)',
@@ -109,9 +120,25 @@ const ModernTextField = styled(TextField)(({ theme }) => ({
 
 const PremiumTableContainer = styled(TableContainer)(({ theme }) => ({
   borderRadius: 16,
-  overflow: 'hidden',
+  overflow: 'auto', // Enable both horizontal and vertical scrolling
   boxShadow: '0 4px 24px rgba(109, 35, 35, 0.06)',
   border: '1px solid rgba(109, 35, 35, 0.08)',
+  maxHeight: '600px', // Set max height for vertical scrolling
+  '&::-webkit-scrollbar': {
+    width: '8px',
+    height: '8px',
+  },
+  '&::-webkit-scrollbar-track': {
+    background: 'rgba(254, 249, 225, 0.3)',
+    borderRadius: '4px',
+  },
+  '&::-webkit-scrollbar-thumb': {
+    background: 'rgba(109, 35, 35, 0.4)',
+    borderRadius: '4px',
+    '&:hover': {
+      background: 'rgba(109, 35, 35, 0.6)',
+    },
+  },
 }));
 
 const PremiumTableCell = styled(TableCell)(({ theme, isHeader = false }) => ({
@@ -120,6 +147,8 @@ const PremiumTableCell = styled(TableCell)(({ theme, isHeader = false }) => ({
   borderBottom: isHeader ? '2px solid rgba(254, 249, 225, 0.5)' : '1px solid rgba(109, 35, 35, 0.06)',
   fontSize: '0.95rem',
   letterSpacing: '0.025em',
+  minWidth: '120px', // Ensure minimum width for cells
+  whiteSpace: 'nowrap', // Prevent text wrapping
 }));
 
 const AttendanceUserState = () => {
@@ -144,15 +173,6 @@ const AttendanceUserState = () => {
   const [sortOrder, setSortOrder] = useState('desc');
   const [showScrollTop, setShowScrollTop] = useState(false);
 
-  // Color scheme aligned with AttendanceState.jsx
-  const primaryColor = '#FEF9E1';
-  const secondaryColor = '#FFF8E7';
-  const accentColor = '#6d2323';
-  const accentDark = '#8B3333';
-  const creamColor = '#FEF9E1';
-  const blackColor = '#1a1a1a';
-  const whiteColor = '#FFFFFF';
-
   const getAuthHeaders = () => {
     const token = localStorage.getItem('token');
     return {
@@ -164,8 +184,8 @@ const AttendanceUserState = () => {
   };
 
   const months = [
-    'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+   "JAN", "FEB", "MAR", "APR", "MAY", "JUN",
+    "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"
   ];
 
   const handleMonthClick = (monthIndex) => {
@@ -343,17 +363,17 @@ const AttendanceUserState = () => {
 
   return (
     <Box sx={{ 
-      background: `linear-gradient(135deg, ${accentColor} 0%, ${accentDark} 50%, ${accentColor} 100%)`,
       py: 4,
       borderRadius: '14px',
-      width: '100vw',
-      mx: 'auto',
-      maxWidth: '100%',
-      overflow: 'hidden',
+      width: '100vw', // Full viewport width
+      mx: 'auto', // Center horizontally
+      maxWidth: '100%', // Ensure it doesn't exceed viewport
+      overflow: 'hidden', // Prevent horizontal scroll
       position: 'relative',
       left: '50%',
-      transform: 'translateX(-50%)',
+      transform: 'translateX(-50%)', // Center the element
     }}>
+      {/* Wider Container */}
       <Box sx={{ px: 6, mx: 'auto', maxWidth: '1600px' }}>
         {/* Header */}
         <Fade in timeout={500}>
@@ -368,6 +388,7 @@ const AttendanceUserState = () => {
                   overflow: 'hidden',
                 }}
               >
+                {/* Decorative elements */}
                 <Box
                   sx={{
                     position: 'absolute',
@@ -388,19 +409,19 @@ const AttendanceUserState = () => {
                     background: 'radial-gradient(circle, rgba(109,35,35,0.08) 0%, rgba(109,35,35,0) 70%)',
                   }}
                 />
-
+                
                 <Box display="flex" alignItems="center" justifyContent="space-between" position="relative" zIndex={1}>
                   <Box display="flex" alignItems="center">
                     <Avatar 
                       sx={{ 
                         bgcolor: 'rgba(109,35,35,0.15)', 
                         mr: 4, 
-                        width: 64,
+                        width: 64, 
                         height: 64,
                         boxShadow: '0 8px 24px rgba(109,35,35,0.15)'
                       }}
                     >
-                      <EventNote sx={{ fontSize: 32 }} />
+                      <EventNote sx={{ color: accentColor, fontSize: 32 }} />
                     </Avatar>
                     <Box>
                       <Typography variant="h4" component="h1" sx={{ fontWeight: 700, mb: 1, lineHeight: 1.2, color: accentColor }}>
@@ -412,7 +433,17 @@ const AttendanceUserState = () => {
                     </Box>
                   </Box>
                   <Box display="flex" alignItems="center" gap={2}>
-                    <Tooltip title="Refresh">
+                    <Chip 
+                      label="System Generated" 
+                      size="small" 
+                      sx={{ 
+                        bgcolor: 'rgba(109,35,35,0.15)', 
+                        color: accentColor,
+                        fontWeight: 500,
+                        '& .MuiChip-label': { px: 1 }
+                      }} 
+                    />
+                    <Tooltip title="Refresh Data">
                       <IconButton 
                         onClick={() => fetchRecords(true)}
                         sx={{ 
@@ -437,7 +468,7 @@ const AttendanceUserState = () => {
         <Fade in timeout={700}>
           <GlassCard sx={{ mb: 4 }}>
             <CardContent sx={{ p: 4 }}>
-              <Grid container spacing={3}>
+              <Grid container spacing={4}>
                 <Grid item xs={12} md={4}>
                   <ModernTextField
                     fullWidth
@@ -490,116 +521,183 @@ const AttendanceUserState = () => {
                 </Grid>
               </Grid>
 
-              <Divider sx={{ my: 4, borderColor: 'rgba(109,35,35,0.1)' }} />
+              <Divider sx={{ my: 3, borderColor: 'rgba(109,35,35,0.1)' }} />
 
               {/* Month Selection */}
-              <Box sx={{ mb: 3 }}>
-                <Typography variant="h6" gutterBottom sx={{ fontWeight: 600, color: accentColor, display: 'flex', alignItems: 'center', mb: 3 }}>
-                  Select Month:
-                </Typography>
-                <Box sx={{ 
-                  display: 'grid', 
-                  gridTemplateColumns: { xs: 'repeat(3, 1fr)', sm: 'repeat(6, 1fr)', md: 'repeat(12, 1fr)' },
-                  gap: 1.5 
-                }}>
-                  {months.map((month, index) => (
-                    <ProfessionalButton
-                      key={month}
-                      variant="outlined"
-                      size="small"
-                      onClick={() => handleMonthClick(index)}
-                      sx={{
-                        borderColor: accentColor,
-                        color: accentColor,
-                        minWidth: 'auto',
-                        fontSize: '0.875rem',
-                        fontWeight: 500,
-                        py: 1,
-                        '&:hover': {
-                          backgroundColor: alpha(accentColor, 0.1),
-                        }
-                      }}
-                    >
-                      {month}
-                    </ProfessionalButton>
-                  ))}
-                </Box>
-              </Box>
-
-              {/* Quick Select */}
-              <Box>
-                <Typography variant="h6" gutterBottom sx={{ fontWeight: 600, color: accentColor, display: 'flex', alignItems: 'center', mb: 3 }}>
-                  Preset Date Ranges
-                </Typography>
-                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1.5, mb: 2 }}>
-                  <ProfessionalButton
-                    variant="outlined"
-                    startIcon={<Today />}
-                    onClick={() => {
-                      setStartDate(formattedToday);
-                      setEndDate(formattedToday);
-                    }}
-                    sx={{ 
-                      borderColor: accentColor,
-                      color: accentColor,
-                      '&:hover': {
-                        backgroundColor: alpha(accentColor, 0.1),
-                      }
-                    }}
-                  >
-                    Today
-                  </ProfessionalButton>
-                  <ProfessionalButton
-                    variant="outlined"
-                    startIcon={<ArrowBackIos />}
-                    onClick={() => {
-                      const yesterday = new Date(today);
-                      yesterday.setDate(yesterday.getDate() - 1);
-                      const yesterdayFormatted = yesterday.toISOString().substring(0, 10);
-                      setStartDate(yesterdayFormatted);
-                      setEndDate(yesterdayFormatted);
-                    }}
-                    sx={{ borderColor: accentColor, color: accentColor, '&:hover': { backgroundColor: alpha(accentColor, 0.1) } }}
-                  >
-                    Yesterday
-                  </ProfessionalButton>
-                  <ProfessionalButton
-                    variant="outlined"
-                    startIcon={<ArrowForwardIos />}
-                    onClick={() => {
-                      const lastWeek = new Date(today);
-                      lastWeek.setDate(lastWeek.getDate() - 7);
-                      const lastWeekFormatted = lastWeek.toISOString().substring(0, 10);
-                      setStartDate(lastWeekFormatted);
-                      setEndDate(formattedToday);
-                    }}
-                    sx={{ borderColor: accentColor, color: accentColor, '&:hover': { backgroundColor: alpha(accentColor, 0.1) } }}
-                  >
-                    Last 7 Days
-                  </ProfessionalButton>
-                  <ProfessionalButton
-                    variant="outlined"
-                    onClick={() => {
-                      const fifteenDaysAgo = new Date(today);
-                      fifteenDaysAgo.setDate(fifteenDaysAgo.getDate() - 15);
-                      const fifteenDaysAgoFormatted = fifteenDaysAgo.toISOString().substring(0, 10);
-                      setStartDate(fifteenDaysAgoFormatted);
-                      setEndDate(formattedToday);
-                    }}
-                    sx={{ borderColor: accentColor, color: accentColor, '&:hover': { backgroundColor: alpha(accentColor, 0.1) } }}
-                  >
-                    Last 15 Days
-                  </ProfessionalButton>
-                  <ProfessionalButton
-                    variant="text"
-                    startIcon={<Clear />}
-                    onClick={handleClearFilters}
-                    sx={{ color: '#6c757d' }}
-                  >
-                    Clear All
-                  </ProfessionalButton>
-                </Box>
-              </Box>
+                 <Box sx={{ mb: 2 }}>
+                               <Typography
+                               variant="h6"
+                               gutterBottom
+                               sx={{
+                                 color: accentColor,
+                                 display: "flex",
+                                 alignItems: "center",
+                                 mb: 2,
+                               }}
+                             >
+                               <CalendarToday sx={{ mr: 2, fontSize: 24 }} />
+                               <b>Month:</b> <i>(select month to search employee records)</i>
+                             </Typography>
+                             <Box
+                               sx={{
+                                 display: "grid",
+                                 gridTemplateColumns: {
+                                   xs: "repeat(3, 1fr)",
+                                   sm: "repeat(6, 1fr)",
+                                   md: "repeat(12, 1fr)",
+                                 },
+                                 gap: 1.5,
+                               }}
+                             >
+                               {months.map((month, index) => (
+                                 <ProfessionalButton
+                                   key={month}
+                                   variant="outlined"
+                                   size="small"
+                                   onClick={() => handleMonthClick(index)}
+                                   sx={{
+                                     borderColor: accentColor,
+                                     color: accentColor,
+                                     minWidth: "auto",
+                                     fontSize: "0.875rem",
+                                     fontWeight: 500,
+                                     py: 1,
+                                     "&:hover": {
+                                       backgroundColor: alpha(accentColor, 0.1),
+                                     },
+                                   }}
+                                 >
+                                   {month}
+                                 </ProfessionalButton>
+                               ))}
+                             </Box>
+                           </Box>
+           
+                           {/* Quick Select */}
+                           <Box>
+                             <Typography
+                               variant="h6"
+                               gutterBottom
+                               sx={{
+                                 color: accentColor,
+                                 display: "flex",
+                                 alignItems: "center",
+                               }}
+                             >
+                               <FilterList sx={{ mr: 2, fontSize: 24 }} />
+                               <b>Filters:</b>
+                             </Typography>
+                             <Box
+                               sx={{
+                                 display: "flex",
+                                 flexWrap: "wrap",
+                                 gap: 1,
+                               }}
+                             >
+                               <ProfessionalButton
+                                 variant="outlined"
+                                 startIcon={<Today />}
+                                 onClick={() => {
+                                   setStartDate(formattedToday);
+                                   setEndDate(formattedToday);
+                                 }}
+                                 sx={{
+                                   fontWeight: "normal",
+                                   fontSize: "small",
+                                   borderColor: accentColor,
+                                   color: accentColor,
+                                   "&:hover": {
+                                     backgroundColor: alpha(accentColor, 0.1),
+                                   },
+                                 }}
+                               >
+                                 TODAY
+                               </ProfessionalButton>
+                               <ProfessionalButton
+                                 variant="outlined"
+                                 startIcon={<ArrowBackIos />}
+                                 onClick={() => {
+                                   const yesterday = new Date(today);
+                                   yesterday.setDate(yesterday.getDate() - 1);
+                                   const yesterdayFormatted = yesterday
+                                     .toISOString()
+                                     .substring(0, 10);
+                                   setStartDate(yesterdayFormatted);
+                                   setEndDate(yesterdayFormatted);
+                                 }}
+                                 sx={{
+                                   fontWeight: "normal",
+                                   fontSize: "small",
+                                   borderColor: accentColor,
+                                   color: accentColor,
+                                   "&:hover": { backgroundColor: alpha(accentColor, 0.1) },
+                                 }}
+                               >
+                                 YESTERDAY
+                               </ProfessionalButton>
+                               <ProfessionalButton
+                                 variant="outlined"
+                                 onClick={() => {
+                                   const lastWeek = new Date(today);
+                                   lastWeek.setDate(lastWeek.getDate() - 7);
+                                   const lastWeekFormatted = lastWeek
+                                     .toISOString()
+                                     .substring(0, 10);
+                                   setStartDate(lastWeekFormatted);
+                                   setEndDate(formattedToday);
+                                 }}
+                                 sx={{
+                                   fontWeight: "normal",
+                                   fontSize: "small",
+                                   borderColor: accentColor,
+                                   color: accentColor,
+                                   "&:hover": { backgroundColor: alpha(accentColor, 0.1) },
+                                 }}
+                               >
+                                 LAST 7 DAYS
+                                 {
+                                   <ArrowForwardIos
+                                     sx={{ marginLeft: "10px", fontSize: "large" }}
+                                   />
+                                 }
+                               </ProfessionalButton>
+                               <ProfessionalButton
+                                 variant="outlined"
+                                 onClick={() => {
+                                   const fifteenDaysAgo = new Date(today);
+                                   fifteenDaysAgo.setDate(fifteenDaysAgo.getDate() - 15);
+                                   const fifteenDaysAgoFormatted = fifteenDaysAgo
+                                     .toISOString()
+                                     .substring(0, 10);
+                                   setStartDate(fifteenDaysAgoFormatted);
+                                   setEndDate(formattedToday);
+                                 }}
+                                 sx={{
+                                   fontWeight: "normal",
+                                   fontSize: "small",
+                                   borderColor: accentColor,
+                                   color: accentColor,
+                                   "&:hover": { backgroundColor: alpha(accentColor, 0.1) },
+                                 }}
+                               >
+                                 LAST 15 DAYS
+                               </ProfessionalButton>
+                               <ProfessionalButton
+                                 variant="outlined"
+                                 startIcon={<Clear />}
+                                 onClick={handleClearFilters}
+                                 sx={{
+                                   fontWeight: "normal",
+                                   fontSize: "small",
+                                   borderColor: accentColor,
+                                   color: accentColor,
+                                   "&:hover": { backgroundColor: alpha(accentColor, 0.1) },
+                                 }}
+                               >
+                                 CLEAR ALL
+                               </ProfessionalButton>
+                             </Box>
+                           </Box>
             </CardContent>
           </GlassCard>
         </Fade>
@@ -617,7 +715,7 @@ const AttendanceUserState = () => {
         {/* Results */}
         {submittedID && (
           <Fade in={!loading} timeout={500}>
-            <GlassCard>
+            <GlassCard sx={{ mb: 4 }}>
               <Box sx={{ 
                 p: 4, 
                 background: `linear-gradient(135deg, ${primaryColor} 0%, ${secondaryColor} 100%)`, 
@@ -627,10 +725,10 @@ const AttendanceUserState = () => {
                 alignItems: 'center'
               }}>
                 <Box>
-                  <Typography variant="body2" sx={{ opacity: 0.8, mb: 0.5, textTransform: 'uppercase', letterSpacing: '0.1em', color: accentDark }}>
+                  <Typography variant="body2" sx={{ opacity: 0.8, mb: 1, textTransform: 'uppercase', letterSpacing: '0.1em', color: accentDark }}>
                     Employee Number
                   </Typography>
-                  <Typography variant="h4" sx={{ fontWeight: 600, color: accentColor }}>
+                  <Typography variant="h4" sx={{ fontWeight: 600, mb: 1, color: accentColor }}>
                     {submittedID}
                   </Typography>
                 </Box>
@@ -647,9 +745,14 @@ const AttendanceUserState = () => {
               </Box>
 
               <PremiumTableContainer>
-                <Table>
-                  <TableHead sx={{ bgcolor: alpha(primaryColor, 0.7) }}>
-                    <TableRow>
+                <Table 
+                  stickyHeader 
+                  sx={{ 
+                    minWidth: '800px', // Set minimum width to ensure horizontal scrolling
+                  }}
+                >
+                  <TableHead>
+                    <TableRow sx={{ bgcolor: 'rgba(254, 249, 225, 0.7)' }}>
                       <PremiumTableCell isHeader sx={{ color: accentColor, cursor: 'pointer', userSelect: 'none', '&:hover': { bgcolor: alpha(accentColor, 0.05) } }}
                         onClick={handleSort}
                       >
@@ -668,10 +771,10 @@ const AttendanceUserState = () => {
                         <TableCell colSpan={3} align="center" sx={{ py: 6 }}>
                           <Box sx={{ textAlign: 'center' }}>
                             <Info sx={{ fontSize: 64, color: alpha(accentColor, 0.3), mb: 2 }} />
-                            <Typography variant="h6" color={alpha(accentColor, 0.6)} gutterBottom>
+                            <Typography variant="h5" color={alpha(accentColor, 0.6)} gutterBottom sx={{ fontWeight: 600 }}>
                               No records found
                             </Typography>
-                            <Typography variant="body2" color={alpha(accentColor, 0.4)}>
+                            <Typography variant="body1" color={alpha(accentColor, 0.4)}>
                               Try adjusting your date range
                             </Typography>
                           </Box>
@@ -722,7 +825,7 @@ const AttendanceUserState = () => {
                           </TableRow>
                           {expandedRow === idx && (
                             <TableRow>
-                              <TableCell colSpan={3} sx={{ p: 0, bgcolor: alpha(creamColor, 0.5) }}>
+                              <TableCell colSpan={3} sx={{ p: 0, bgcolor: alpha(primaryColor, 0.5) }}>
                                 <Box sx={{ p: 3 }}>
                                   <Typography variant="subtitle2" gutterBottom sx={{ fontWeight: 600, color: blackColor }}>
                                     Record Details
@@ -783,10 +886,10 @@ const AttendanceUserState = () => {
               bottom: 24,
               right: 24,
               zIndex: 1000,
-              bgcolor: primaryColor,
-              color: whiteColor,
+              bgcolor: accentColor,
+              color: primaryColor,
               '&:hover': {
-                bgcolor: alpha(primaryColor, 0.8)
+                bgcolor: accentDark,
               }
             }}
             onClick={scrollToTop}

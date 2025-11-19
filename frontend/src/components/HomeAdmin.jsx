@@ -3,15 +3,83 @@ import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import {
-  Container, Box, Grid, Dialog, Typography, Avatar, Button, IconButton, Tooltip, Modal, Badge, Paper, Card, CardContent, LinearProgress, Chip, Fade, Grow, Skeleton, Menu, MenuItem, Divider, List, ListItem, ListItemText, ListItemIcon, Checkbox, Tab, Tabs, TextField, DialogTitle, DialogContent, DialogActions,
+  Container,
+  Box,
+  Grid,
+  Dialog,
+  Typography,
+  Avatar,
+  Button,
+  IconButton,
+  Tooltip,
+  Modal,
+  Badge,
+  Paper,
+  Card,
+  CardContent,
+  LinearProgress,
+  Chip,
+  Fade,
+  Grow,
+  Skeleton,
+  Menu,
+  MenuItem,
+  Divider,
+  List,
+  ListItem,
+  ListItemText,
+  ListItemIcon,
+  Checkbox,
+  Tab,
+  Tabs,
+  TextField,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
 } from "@mui/material";
 import {
-  Notifications as NotificationsIcon, ArrowDropDown as ArrowDropDownIcon, AccessTime, Receipt, ContactPage, UploadFile, Person, GroupAdd, TransferWithinAStation, Group, Pages, ReceiptLong, AcUnit, TrendingUp, TrendingDown, ArrowForward, PlayArrow, Pause, MoreVert,
-  AccountCircle, Settings, HelpOutline, PrivacyTip, Logout, Event, Schedule, Lock, Star, Upgrade, Add, Close, Money, Work, Assessment, Timeline, Delete, Edit, Build,
-  PersonAdd
+  Notifications as NotificationsIcon,
+  ArrowDropDown as ArrowDropDownIcon,
+  AccessTime,
+  Receipt,
+  ContactPage,
+  UploadFile,
+  Person,
+  GroupAdd,
+  TransferWithinAStation,
+  Group,
+  Pages,
+  ReceiptLong,
+  AcUnit,
+  TrendingUp,
+  TrendingDown,
+  ArrowForward,
+  PlayArrow,
+  Pause,
+  MoreVert,
+  AccountCircle,
+  Settings,
+  HelpOutline,
+  PrivacyTip,
+  Logout,
+  Event,
+  Schedule,
+  Lock,
+  Star,
+  Upgrade,
+  Add,
+  Close,
+  Money,
+  Work,
+  Assessment,
+  Timeline,
+  Delete,
+  Edit,
+  Build,
+  PersonAdd,
 } from "@mui/icons-material";
-import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
-import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
+import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
+import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import PeopleIcon from "@mui/icons-material/People";
 import EventAvailableIcon from "@mui/icons-material/EventAvailable";
 import BeachAccessIcon from "@mui/icons-material/BeachAccess";
@@ -25,54 +93,68 @@ import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import AssignmentTurnedInIcon from "@mui/icons-material/AssignmentTurnedIn";
 import CloseIcon from "@mui/icons-material/Close";
 import AutorenewIcon from "@mui/icons-material/Autorenew";
-import { 
+import {
   WorkHistory as WorkHistoryIcon,
   ReceiptLong as ReceiptLongIcon,
-  HourglassBottom as HourglassBottomIcon,  
-  History
+  HourglassBottom as HourglassBottomIcon,
+  History,
 } from "@mui/icons-material";
 import {
-  BarChart, Bar, XAxis, YAxis, Tooltip as RechartTooltip, ResponsiveContainer, CartesianGrid, Cell, PieChart, Pie, Legend, LineChart, Line, Area, AreaChart, RadialBarChart, RadialBar,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip as RechartTooltip,
+  ResponsiveContainer,
+  CartesianGrid,
+  Cell,
+  PieChart,
+  Pie,
+  Legend,
+  LineChart,
+  Line,
+  Area,
+  AreaChart,
+  RadialBarChart,
+  RadialBar,
 } from "recharts";
 import logo from "../assets/logo.PNG";
 import SuccessfulOverlay from "./SuccessfulOverlay";
 
 const useSystemSettings = () => {
   const [settings, setSettings] = useState({
-    primaryColor: '#894444',
-    secondaryColor: '#6d2323',
-    accentColor: '#FEF9E1',
-    textColor: '#FFFFFF',
-    textPrimaryColor: '#6D2323', 
-    textSecondaryColor: '#FEF9E1', 
-    hoverColor: '#6D2323',
-    backgroundColor: '#FFFFFF',
+    primaryColor: "#894444",
+    secondaryColor: "#6d2323",
+    accentColor: "#FEF9E1",
+    textColor: "#FFFFFF",
+    textPrimaryColor: "#6D2323",
+    textSecondaryColor: "#FEF9E1",
+    hoverColor: "#6D2323",
+    backgroundColor: "#FFFFFF",
   });
 
   useEffect(() => {
-    
-    const storedSettings = localStorage.getItem('systemSettings');
+    const storedSettings = localStorage.getItem("systemSettings");
     if (storedSettings) {
       try {
         const parsedSettings = JSON.parse(storedSettings);
         setSettings(parsedSettings);
       } catch (error) {
-        console.error('Error parsing stored settings:', error);
+        console.error("Error parsing stored settings:", error);
       }
     }
 
-    
     const fetchSettings = async () => {
       try {
-        const url = API_BASE_URL.includes('/api') 
+        const url = API_BASE_URL.includes("/api")
           ? `${API_BASE_URL}/system-settings`
           : `${API_BASE_URL}/api/system-settings`;
-        
+
         const response = await axios.get(url);
         setSettings(response.data);
-        localStorage.setItem('systemSettings', JSON.stringify(response.data));
+        localStorage.setItem("systemSettings", JSON.stringify(response.data));
       } catch (error) {
-        console.error('Error fetching system settings:', error);
+        console.error("Error fetching system settings:", error);
       }
     };
 
@@ -81,7 +163,6 @@ const useSystemSettings = () => {
 
   return settings;
 };
-
 
 const STAT_CARDS = (settings) => [
   {
@@ -92,7 +173,6 @@ const STAT_CARDS = (settings) => [
     icon: <PeopleIcon />,
     gradient: `linear-gradient(135deg, ${settings.primaryColor}, ${settings.secondaryColor})`,
     shadow: `0 15px 40px ${settings.primaryColor}33`,
-   
   },
   {
     label: "Present Today",
@@ -141,19 +221,69 @@ const STAT_CARDS = (settings) => [
 ];
 
 const QUICK_ACTIONS = (settings) => [
-  { label: "Users", link: "/users-list", icon: <Group />, gradient: `linear-gradient(135deg, ${settings.primaryColor}, ${settings.secondaryColor})` },
-  { label: "Payroll", link: "/payroll-table", icon: <PaymentsIcon />, gradient: `linear-gradient(135deg, ${settings.secondaryColor}, ${settings.primaryColor})` },
-  { label: "Leaves", link: "/leave-request", icon: <TransferWithinAStation />, gradient: `linear-gradient(135deg, ${settings.primaryColor}, ${settings.secondaryColor})` },
-  { label: "DTRs", link: "/daily_time_record_faculty", icon: <AccessTimeIcon />, gradient: `linear-gradient(135deg, ${settings.secondaryColor}, ${settings.primaryColor})` },
-  { label: "Announcements", link: "/announcement", icon: <CampaignIcon />, gradient: `linear-gradient(135deg, ${settings.primaryColor}, ${settings.secondaryColor})` },
-  { label: "Holidays", link: "/holiday", icon: <AcUnit />, gradient: `linear-gradient(135deg, ${settings.secondaryColor}, ${settings.primaryColor})` },
-  { label: "Audit Logs", link: "/audit-logs", icon: <History />, gradient: `linear-gradient(135deg, ${settings.secondaryColor}, ${settings.primaryColor})` },
-  { label: "Registration", link: "/registration", icon: <PersonAdd />, gradient: `linear-gradient(135deg, ${settings.secondaryColor}, ${settings.primaryColor})` },
-  { label: "Payslip", link: "/distribution-payslip", icon: <PersonAdd />, gradient: `linear-gradient(135deg, ${settings.secondaryColor}, ${settings.primaryColor})` },
+  {
+    label: "Users",
+    link: "/users-list",
+    icon: <Group />,
+    gradient: `linear-gradient(135deg, ${settings.primaryColor}, ${settings.secondaryColor})`,
+  },
+  {
+    label: "Payroll",
+    link: "/payroll-table",
+    icon: <PaymentsIcon />,
+    gradient: `linear-gradient(135deg, ${settings.secondaryColor}, ${settings.primaryColor})`,
+  },
+  {
+    label: "Leaves",
+    link: "/leave-request",
+    icon: <TransferWithinAStation />,
+    gradient: `linear-gradient(135deg, ${settings.primaryColor}, ${settings.secondaryColor})`,
+  },
+  {
+    label: "DTRs",
+    link: "/daily_time_record_faculty",
+    icon: <AccessTimeIcon />,
+    gradient: `linear-gradient(135deg, ${settings.secondaryColor}, ${settings.primaryColor})`,
+  },
+  {
+    label: "Announcements",
+    link: "/announcement",
+    icon: <CampaignIcon />,
+    gradient: `linear-gradient(135deg, ${settings.primaryColor}, ${settings.secondaryColor})`,
+  },
+  {
+    label: "Holidays",
+    link: "/holiday",
+    icon: <AcUnit />,
+    gradient: `linear-gradient(135deg, ${settings.secondaryColor}, ${settings.primaryColor})`,
+  },
+  {
+    label: "Audit Logs",
+    link: "/audit-logs",
+    icon: <History />,
+    gradient: `linear-gradient(135deg, ${settings.secondaryColor}, ${settings.primaryColor})`,
+  },
+  {
+    label: "Registration",
+    link: "/registration",
+    icon: <PersonAdd />,
+    gradient: `linear-gradient(135deg, ${settings.secondaryColor}, ${settings.primaryColor})`,
+  },
+  {
+    label: "Payslip",
+    link: "/distribution-payslip",
+    icon: <PersonAdd />,
+    gradient: `linear-gradient(135deg, ${settings.secondaryColor}, ${settings.primaryColor})`,
+  },
 ];
 
-const COLORS = (settings) => [settings.primaryColor, settings.secondaryColor, settings.hoverColor, settings.primaryColor, settings.secondaryColor];
-
+const COLORS = (settings) => [
+  settings.primaryColor,
+  settings.secondaryColor,
+  settings.hoverColor,
+  settings.primaryColor,
+  settings.secondaryColor,
+];
 
 const useAuth = () => {
   const [username, setUsername] = useState("");
@@ -166,7 +296,11 @@ const useAuth = () => {
     if (!token) return {};
     try {
       const decoded = JSON.parse(atob(token.split(".")[1]));
-      return { role: decoded.role, employeeNumber: decoded.employeeNumber, username: decoded.username };
+      return {
+        role: decoded.role,
+        employeeNumber: decoded.employeeNumber,
+        username: decoded.username,
+      };
     } catch (err) {
       return {};
     }
@@ -181,16 +315,22 @@ const useAuth = () => {
   useEffect(() => {
     const fetchProfilePicture = async () => {
       try {
-        const res = await axios.get(`${API_BASE_URL}/personalinfo/person_table`);
+        const res = await axios.get(
+          `${API_BASE_URL}/personalinfo/person_table`
+        );
         const list = Array.isArray(res.data) ? res.data : [];
-        const match = list.find((p) => String(p.agencyEmployeeNum) === String(employeeNumber));
+        const match = list.find(
+          (p) => String(p.agencyEmployeeNum) === String(employeeNumber)
+        );
         if (match) {
           if (match.profile_picture) setProfilePicture(match.profile_picture);
-          const fullNameFromPerson = `${match.firstName || ''} ${match.middleName || ''} ${match.lastName || ''} ${match.nameExtension || ''}`.trim();
+          const fullNameFromPerson = `${match.firstName || ""} ${
+            match.middleName || ""
+          } ${match.lastName || ""} ${match.nameExtension || ""}`.trim();
           if (fullNameFromPerson) setFullName(fullNameFromPerson);
         }
       } catch (err) {
-        console.error('Error loading profile picture:', err);
+        console.error("Error loading profile picture:", err);
       }
     };
     if (employeeNumber) fetchProfilePicture();
@@ -198,8 +338,6 @@ const useAuth = () => {
 
   return { username, fullName, employeeNumber, profilePicture };
 };
-
-
 
 const useDashboardData = (settings) => {
   const [stats, setStats] = useState({
@@ -210,19 +348,17 @@ const useDashboardData = (settings) => {
     todayAttendance: 0,
     pendingPayroll: 0,
     processedPayroll: 0,
-    payslipCount: 0
+    payslipCount: 0,
   });
-  
-  
+
   const [weeklyAttendanceData, setWeeklyAttendanceData] = useState([]);
   const [departmentAttendanceData, setDepartmentAttendanceData] = useState([]);
   const [payrollStatusData, setPayrollStatusData] = useState([
-    { status: "Processed", value: 0, fill: '#800020' },
-    { status: "Pending", value: 0, fill: '#A52A2A' },
-    { status: "Failed", value: 0, fill: '#f44336' },
+    { status: "Processed", value: 0, fill: "#800020" },
+    { status: "Pending", value: 0, fill: "#A52A2A" },
+    { status: "Failed", value: 0, fill: "#f44336" },
   ]);
-  
-  
+
   const [monthlyAttendanceTrend, setMonthlyAttendanceTrend] = useState([
     { month: "Jan", attendance: 94.2, leaves: 8.5, overtime: 12.3 },
     { month: "Feb", attendance: 93.8, leaves: 9.2, overtime: 11.8 },
@@ -231,7 +367,7 @@ const useDashboardData = (settings) => {
     { month: "May", attendance: 93.5, leaves: 10.2, overtime: 10.8 },
     { month: "Jun", attendance: 94.0, leaves: 9.1, overtime: 11.5 },
   ]);
-  
+
   const [payrollTrendData, setPayrollTrendData] = useState([
     { month: "Jan", grossPay: 2450000, netPay: 1980000, deductions: 470000 },
     { month: "Feb", grossPay: 2480000, netPay: 2005000, deductions: 475000 },
@@ -240,31 +376,44 @@ const useDashboardData = (settings) => {
     { month: "May", grossPay: 2550000, netPay: 2050000, deductions: 500000 },
     { month: "Jun", grossPay: 2580000, netPay: 2075000, deductions: 505000 },
   ]);
-  
+
   const [attendanceChartData, setAttendanceChartData] = useState([
-    { name: "Present", value: 0, fill: '#800020' },
-    { name: "Absent", value: 0, fill: '#A52A2A' },
-    { name: "Late", value: 0, fill: '#8B0000' },
+    { name: "Present", value: 0, fill: "#800020" },
+    { name: "Absent", value: 0, fill: "#A52A2A" },
+    { name: "Late", value: 0, fill: "#8B0000" },
   ]);
-  
+
   const [announcements, setAnnouncements] = useState([]);
   const [holidays, setHolidays] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  
   useEffect(() => {
     if (attendanceChartData.length > 0) {
-      setAttendanceChartData(prev => prev.map((item, idx) => ({
-        ...item,
-        fill: idx === 0 ? settings.primaryColor : idx === 1 ? settings.secondaryColor : settings.hoverColor
-      })));
+      setAttendanceChartData((prev) =>
+        prev.map((item, idx) => ({
+          ...item,
+          fill:
+            idx === 0
+              ? settings.primaryColor
+              : idx === 1
+              ? settings.secondaryColor
+              : settings.hoverColor,
+        }))
+      );
     }
 
     if (payrollStatusData.length > 0) {
-      setPayrollStatusData(prev => prev.map((item, idx) => ({
-        ...item,
-        fill: idx === 0 ? settings.primaryColor : idx === 1 ? settings.secondaryColor : settings.hoverColor
-      })));
+      setPayrollStatusData((prev) =>
+        prev.map((item, idx) => ({
+          ...item,
+          fill:
+            idx === 0
+              ? settings.primaryColor
+              : idx === 1
+              ? settings.secondaryColor
+              : settings.hoverColor,
+        }))
+      );
     }
   }, [settings]);
 
@@ -275,124 +424,149 @@ const useDashboardData = (settings) => {
       const headers = token ? { Authorization: `Bearer ${token}` } : {};
 
       try {
-        console.log(' Starting data fetch...');
+        console.log(" Starting data fetch...");
 
-        
         try {
-          console.log(' Fetching dashboard stats...');
-          const dashboardStatsRes = await axios.get(`${API_BASE_URL}/api/dashboard/stats`, { headers });
+          console.log(" Fetching dashboard stats...");
+          const dashboardStatsRes = await axios.get(
+            `${API_BASE_URL}/api/dashboard/stats`,
+            { headers }
+          );
           const dashStats = dashboardStatsRes.data;
-          
-          console.log(' Dashboard stats received:', dashStats);
-          
-          setStats(prev => ({
+
+          console.log(" Dashboard stats received:", dashStats);
+
+          setStats((prev) => ({
             ...prev,
             employees: dashStats.totalEmployees || 0,
             todayAttendance: dashStats.presentToday || 0,
           }));
 
-          
           const totalEmp = dashStats.totalEmployees || 0;
           const presentToday = dashStats.presentToday || 0;
           const absentToday = totalEmp - presentToday;
-          
+
           setAttendanceChartData([
-            { name: "Present", value: presentToday, fill: settings.primaryColor },
-            { name: "Absent", value: absentToday, fill: settings.secondaryColor },
+            {
+              name: "Present",
+              value: presentToday,
+              fill: settings.primaryColor,
+            },
+            {
+              name: "Absent",
+              value: absentToday,
+              fill: settings.secondaryColor,
+            },
             { name: "Late", value: 0, fill: settings.hoverColor },
           ]);
 
-          console.log(' Attendance chart data updated:', { present: presentToday, absent: absentToday });
-
+          console.log(" Attendance chart data updated:", {
+            present: presentToday,
+            absent: absentToday,
+          });
         } catch (err) {
           console.error(" Failed to fetch dashboard stats:", err?.message);
         }
 
-        
         try {
-          console.log(' Fetching weekly attendance...');
+          console.log(" Fetching weekly attendance...");
           const weeklyAttendanceRes = await axios.get(
-            `${API_BASE_URL}/api/dashboard/attendance-overview?days=5`, 
+            `${API_BASE_URL}/api/dashboard/attendance-overview?days=5`,
             { headers }
           );
           const weeklyData = weeklyAttendanceRes.data;
-          
-          console.log(' Weekly attendance received:', weeklyData);
-          
-          
-          const transformedWeekly = Array.isArray(weeklyData) ? weeklyData.map(item => ({
-            day: item.day,
-            present: item.present,
-            absent: 0,
-            late: 0
-          })) : [];
-          
-          setWeeklyAttendanceData(transformedWeekly);
-          console.log('Weekly chart updated with', transformedWeekly.length, 'days');
 
+          console.log(" Weekly attendance received:", weeklyData);
+
+          const transformedWeekly = Array.isArray(weeklyData)
+            ? weeklyData.map((item) => ({
+                day: item.day,
+                present: item.present,
+                absent: 0,
+                late: 0,
+              }))
+            : [];
+
+          setWeeklyAttendanceData(transformedWeekly);
+          console.log(
+            "Weekly chart updated with",
+            transformedWeekly.length,
+            "days"
+          );
         } catch (err) {
           console.error(" Failed to fetch weekly attendance:", err?.message);
-          
+
           setWeeklyAttendanceData([]);
         }
 
-        
         try {
-          console.log('Fetching department distribution...');
+          console.log("Fetching department distribution...");
           const deptDistRes = await axios.get(
-            `${API_BASE_URL}/api/dashboard/department-distribution`, 
+            `${API_BASE_URL}/api/dashboard/department-distribution`,
             { headers }
           );
           const deptData = deptDistRes.data;
-          
-          console.log(' Department data received:', deptData);
-          
-          
-          const transformedDept = Array.isArray(deptData) ? deptData.map(item => ({
-            department: item.department,
-            present: item.employeeCount,
-            absent: 0,
-            rate: item.employeeCount > 0 ? 100 : 0
-          })) : [];
-          
-          setDepartmentAttendanceData(transformedDept);
-          console.log('Department chart updated with', transformedDept.length, 'departments');
 
+          console.log(" Department data received:", deptData);
+
+          const transformedDept = Array.isArray(deptData)
+            ? deptData.map((item) => ({
+                department: item.department,
+                present: item.employeeCount,
+                absent: 0,
+                rate: item.employeeCount > 0 ? 100 : 0,
+              }))
+            : [];
+
+          setDepartmentAttendanceData(transformedDept);
+          console.log(
+            "Department chart updated with",
+            transformedDept.length,
+            "departments"
+          );
         } catch (err) {
-          console.error("Failed to fetch department distribution:", err?.message);
+          console.error(
+            "Failed to fetch department distribution:",
+            err?.message
+          );
           setDepartmentAttendanceData([]);
         }
 
-        
         try {
-          console.log('Fetching payroll summary...');
+          console.log("Fetching payroll summary...");
           const payrollSummaryRes = await axios.get(
-            `${API_BASE_URL}/api/dashboard/payroll-summary`, 
+            `${API_BASE_URL}/api/dashboard/payroll-summary`,
             { headers }
           );
           const payrollSummary = payrollSummaryRes.data;
-          
-          console.log('Payroll summary received:', payrollSummary);
-          
-          setStats(prev => ({
+
+          console.log("Payroll summary received:", payrollSummary);
+
+          setStats((prev) => ({
             ...prev,
             pendingPayroll: payrollSummary.pending || 0,
             processedPayroll: payrollSummary.processed || 0,
           }));
 
-          
           const newPayrollStatus = [
-            { status: "Processed", value: payrollSummary.processed || 0, fill: settings.primaryColor },
-            { status: "Pending", value: payrollSummary.pending || 0, fill: settings.secondaryColor },
+            {
+              status: "Processed",
+              value: payrollSummary.processed || 0,
+              fill: settings.primaryColor,
+            },
+            {
+              status: "Pending",
+              value: payrollSummary.pending || 0,
+              fill: settings.secondaryColor,
+            },
             { status: "Failed", value: 0, fill: settings.hoverColor },
           ];
           setPayrollStatusData(newPayrollStatus);
-          
-          console.log(' Payroll charts updated');
 
+          console.log(" Payroll charts updated");
         } catch (err) {
           console.error(" Failed to fetch payroll summary:", err?.message);
-          
+
           setPayrollStatusData([
             { status: "Processed", value: 0, fill: settings.primaryColor },
             { status: "Pending", value: 0, fill: settings.secondaryColor },
@@ -400,106 +574,112 @@ const useDashboardData = (settings) => {
           ]);
         }
 
-        
         try {
-          console.log('Fetching monthly attendance trend...');
+          console.log("Fetching monthly attendance trend...");
           const monthlyAttendanceRes = await axios.get(
-            `${API_BASE_URL}/api/dashboard/monthly-attendance`, 
+            `${API_BASE_URL}/api/dashboard/monthly-attendance`,
             { headers }
           );
           const monthlyData = monthlyAttendanceRes.data;
-          
-          console.log(' Monthly attendance received:', monthlyData.length, 'days');
-          
-          
+
+          console.log(
+            " Monthly attendance received:",
+            monthlyData.length,
+            "days"
+          );
+
           const weeklyAverages = [];
           let weekData = [];
-          
+
           if (Array.isArray(monthlyData)) {
             monthlyData.forEach((day, index) => {
               weekData.push(day.present);
-              
-              
+
               if ((index + 1) % 7 === 0 || index === monthlyData.length - 1) {
-                const avg = weekData.reduce((a, b) => a + b, 0) / weekData.length;
+                const avg =
+                  weekData.reduce((a, b) => a + b, 0) / weekData.length;
                 weeklyAverages.push({
                   week: `Week ${weeklyAverages.length + 1}`,
                   attendance: avg.toFixed(1),
                   leaves: 0,
-                  overtime: 0
+                  overtime: 0,
                 });
                 weekData = [];
               }
             });
           }
-          
+
           if (weeklyAverages.length > 0) {
             setMonthlyAttendanceTrend(weeklyAverages);
-            console.log('Monthly trend updated with', weeklyAverages.length, 'weeks');
+            console.log(
+              "Monthly trend updated with",
+              weeklyAverages.length,
+              "weeks"
+            );
           }
-
         } catch (err) {
           console.error("Failed to fetch monthly attendance:", err?.message);
         }
 
-        
         try {
-          console.log(' Fetching payslip count...');
+          console.log(" Fetching payslip count...");
           const finalizedPayrollRes = await axios.get(
-            `${API_BASE_URL}/PayrollRoute/finalized-payroll`, 
+            `${API_BASE_URL}/PayrollRoute/finalized-payroll`,
             { headers }
           );
-          const payslipCount = Array.isArray(finalizedPayrollRes.data) 
-            ? finalizedPayrollRes.data.length 
+          const payslipCount = Array.isArray(finalizedPayrollRes.data)
+            ? finalizedPayrollRes.data.length
             : 0;
-          
-          setStats(prev => ({ ...prev, payslipCount }));
-          console.log(' Payslip count:', payslipCount);
 
+          setStats((prev) => ({ ...prev, payslipCount }));
+          console.log(" Payslip count:", payslipCount);
         } catch (err) {
           console.error(" Failed to fetch payslip count:", err?.message);
-          
-          setStats(prev => ({ ...prev, payslipCount: 0 }));
+
+          setStats((prev) => ({ ...prev, payslipCount: 0 }));
         }
 
-        
         try {
-          console.log(' Fetching announcements...');
-          const annRes = await axios.get(`${API_BASE_URL}/api/announcements`, { headers });
-          const announcementData = Array.isArray(annRes.data) ? annRes.data : [];
+          console.log(" Fetching announcements...");
+          const annRes = await axios.get(`${API_BASE_URL}/api/announcements`, {
+            headers,
+          });
+          const announcementData = Array.isArray(annRes.data)
+            ? annRes.data
+            : [];
           setAnnouncements(announcementData);
-          console.log('Announcements loaded:', announcementData.length);
-
+          console.log("Announcements loaded:", announcementData.length);
         } catch (err) {
           console.error(" Failed to fetch announcements:", err?.message);
           setAnnouncements([]);
         }
 
-        
         try {
-          console.log(' Fetching holidays...');
+          console.log(" Fetching holidays...");
           const res = await axios.get(`${API_BASE_URL}/holiday`, { headers });
           if (Array.isArray(res.data)) {
-            const transformedHolidays = res.data.map(item => {
+            const transformedHolidays = res.data.map((item) => {
               const d = new Date(item.date);
-              const normalizedDate = !isNaN(d) 
-                ? `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}` 
+              const normalizedDate = !isNaN(d)
+                ? `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(
+                    2,
+                    "0"
+                  )}-${String(d.getDate()).padStart(2, "0")}`
                 : item.date;
-              return { 
-                date: normalizedDate, 
-                name: item.description, 
-                status: item.status 
+              return {
+                date: normalizedDate,
+                name: item.description,
+                status: item.status,
               };
             });
             setHolidays(transformedHolidays);
-            console.log(' Holidays loaded:', transformedHolidays.length);
+            console.log(" Holidays loaded:", transformedHolidays.length);
           }
         } catch (err) {
           console.error(" Error fetching holidays:", err);
         }
 
-        console.log(' All data fetch completed!');
-
+        console.log(" All data fetch completed!");
       } catch (err) {
         console.error(" Critical error fetching admin data:", err);
       } finally {
@@ -509,26 +689,25 @@ const useDashboardData = (settings) => {
 
     fetchAllData();
 
-    
-    console.log(' Setting up auto-refresh (5 minutes)');
+    console.log(" Setting up auto-refresh (5 minutes)");
     const interval = setInterval(fetchAllData, 5 * 60 * 1000);
     return () => {
-      console.log(' Clearing auto-refresh interval');
+      console.log(" Clearing auto-refresh interval");
       clearInterval(interval);
     };
-  }, [settings]); 
+  }, [settings]);
 
-  return { 
-    stats, 
-    weeklyAttendanceData, 
-    departmentAttendanceData, 
+  return {
+    stats,
+    weeklyAttendanceData,
+    departmentAttendanceData,
     payrollStatusData,
     monthlyAttendanceTrend,
     payrollTrendData,
-    attendanceChartData, 
-    announcements, 
-    holidays, 
-    loading 
+    attendanceChartData,
+    announcements,
+    holidays,
+    loading,
   };
 };
 
@@ -554,13 +733,16 @@ const useCarousel = (items, autoPlay = true, interval = 5000) => {
     setCurrentSlide((s) => (s + 1) % items.length);
   }, [items]);
 
-  const handleSlideSelect = useCallback((index) => {
-    if (!Array.isArray(items)) return;
-    setCurrentSlide(index);
-  }, [items]);
+  const handleSlideSelect = useCallback(
+    (index) => {
+      if (!Array.isArray(items)) return;
+      setCurrentSlide(index);
+    },
+    [items]
+  );
 
   const togglePlayPause = useCallback(() => {
-    setIsPlaying(prev => !prev);
+    setIsPlaying((prev) => !prev);
   }, []);
 
   return {
@@ -569,7 +751,7 @@ const useCarousel = (items, autoPlay = true, interval = 5000) => {
     handlePrevSlide,
     handleNextSlide,
     handleSlideSelect,
-    togglePlayPause
+    togglePlayPause,
   };
 };
 
@@ -586,167 +768,305 @@ const useTime = () => {
   return currentTime;
 };
 
-
-const StatCard = ({ card, index, stats, loading, hoveredCard, setHoveredCard, settings }) => (
+const StatCard = ({
+  card,
+  index,
+  stats,
+  loading,
+  hoveredCard,
+  setHoveredCard,
+  settings,
+}) => (
   <Grow in timeout={500 + index * 100}>
-    <Card 
-      onMouseEnter={() => setHoveredCard(index)} 
-      onMouseLeave={() => setHoveredCard(null)} 
-      sx={{ 
-        background: hoveredCard === index ? card.gradient : settings.accentColor, 
-        backdropFilter: 'blur(15px)', 
-        border: hoveredCard === index ? 'none' : `1px solid ${settings.primaryColor}26`, 
-        borderRadius: 4, 
-        transition: 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)', 
-        transform: hoveredCard === index ? 'translateY(-12px) scale(1.02)' : 'translateY(0)', 
-        boxShadow: hoveredCard === index ? card.shadow : '0 4px 12px rgba(0,0,0,0.1)', 
-        position: 'relative', 
-        overflow: 'hidden', 
-        '&::before': { 
-          content: '""', 
-          position: 'absolute', 
-          top: 0, 
-          left: 0, 
-          right: 0, 
-          bottom: 0, 
-          background: hoveredCard === index ? 'none' : card.gradient, 
-          opacity: 0.1, 
-          transition: 'opacity 0.5s'
-        }, 
-        '&::after': { 
-          content: '""', 
-          position: 'absolute', 
-          top: -50, 
-          right: -50, 
-          width: 150, 
-          height: 150, 
-          background: 'radial-gradient(circle, rgba(254,249,225,0.2) 0%, transparent 70%)', 
-          borderRadius: '50%', 
-          transform: hoveredCard === index ? 'scale(2)' : 'scale(0)', 
-          transition: 'transform 0.6s ease-out' 
-        } 
+    <Card
+      onMouseEnter={() => setHoveredCard(index)}
+      onMouseLeave={() => setHoveredCard(null)}
+      sx={{
+        background:
+          hoveredCard === index ? card.gradient : settings.accentColor,
+        backdropFilter: "blur(15px)",
+        border:
+          hoveredCard === index
+            ? "none"
+            : `1px solid ${settings.primaryColor}26`,
+        borderRadius: 4,
+        transition: "all 0.5s cubic-bezier(0.4, 0, 0.2, 1)",
+        transform:
+          hoveredCard === index
+            ? "translateY(-12px) scale(1.02)"
+            : "translateY(0)",
+        boxShadow:
+          hoveredCard === index ? card.shadow : "0 4px 12px rgba(0,0,0,0.1)",
+        position: "relative",
+        overflow: "hidden",
+        "&::before": {
+          content: '""',
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: hoveredCard === index ? "none" : card.gradient,
+          opacity: 0.1,
+          transition: "opacity 0.5s",
+        },
+        "&::after": {
+          content: '""',
+          position: "absolute",
+          top: -50,
+          right: -50,
+          width: 150,
+          height: 150,
+          background:
+            "radial-gradient(circle, rgba(254,249,225,0.2) 0%, transparent 70%)",
+          borderRadius: "50%",
+          transform: hoveredCard === index ? "scale(2)" : "scale(0)",
+          transition: "transform 0.6s ease-out",
+        },
       }}
     >
-      <CardContent sx={{ p: 3, position: 'relative', zIndex: 1 }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
-          <Box sx={{ 
-            width: 64, 
-            height: 64, 
-            borderRadius: 3, 
-            display: 'flex', 
-            alignItems: 'center', 
-            justifyContent: 'center', 
-            background: hoveredCard === index ? 'rgba(254, 249, 225, 0.2)' : `${settings.primaryColor}1A`, 
-            backdropFilter: 'blur(10px)', 
-            color: hoveredCard === index ? '#ffffff' : settings.textPrimaryColor, 
-            transition: 'all 0.5s', 
-            transform: hoveredCard === index ? 'rotate(360deg) scale(1.1)' : 'rotate(0) scale(1)', 
-            boxShadow: hoveredCard === index ? '0 8px 24px rgba(0,0,0,0.2)' : 'none' 
-          }}>
-            {React.cloneElement(card.icon, { sx: { fontSize: 36 } })}
-          </Box>
-          <Chip 
-            icon={card.trendUp ? <TrendingUp /> : <TrendingDown />} 
-            label={card.trend} 
-            size="small" 
-            sx={{ 
-              bgcolor: hoveredCard === index ? 'rgba(254,249,225,0.15)' : `${settings.primaryColor}1A`, 
-              backdropFilter: 'blur(10px)', 
-              color: hoveredCard === index ? '#ffffff' : settings.textPrimaryColor, 
-              fontWeight: 700, 
-              border: hoveredCard === index ? '1px solid rgba(254,249,225,0.2)' : `1px solid ${settings.primaryColor}26`, 
-              '& .MuiChip-icon': { color: hoveredCard === index ? '#ffffff' : settings.textPrimaryColor } 
-            }} 
-          />
-        </Box>
-        <Typography 
-          variant="h2" 
-          sx={{ 
-            fontWeight: 800, 
-            mb: 0.5, 
-            color: hoveredCard === index ? '#ffffff' : settings.textPrimaryColor, 
-            textShadow: hoveredCard === index ? '0 2px 10px rgba(0,0,0,0.3)' : 'none' 
+      <CardContent sx={{ p: 3, position: "relative", zIndex: 1 }}>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "flex-start",
+            mb: 2,
           }}
         >
-          {loading ? <Skeleton variant="text" width={80} sx={{ bgcolor: 'rgba(128, 0, 32, 0.1)' }} /> : 
-           (stats[card.valueKey] !== undefined ? stats[card.valueKey] : card.defaultValue)}
+          <Box
+            sx={{
+              width: 64,
+              height: 64,
+              borderRadius: 3,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              background:
+                hoveredCard === index
+                  ? "rgba(254, 249, 225, 0.2)"
+                  : `${settings.primaryColor}1A`,
+              backdropFilter: "blur(10px)",
+              color:
+                hoveredCard === index ? "#ffffff" : settings.textPrimaryColor,
+              transition: "all 0.5s",
+              transform:
+                hoveredCard === index
+                  ? "rotate(360deg) scale(1.1)"
+                  : "rotate(0) scale(1)",
+              boxShadow:
+                hoveredCard === index ? "0 8px 24px rgba(0,0,0,0.2)" : "none",
+            }}
+          >
+            {React.cloneElement(card.icon, { sx: { fontSize: 36 } })}
+          </Box>
+          <Chip
+            icon={card.trendUp ? <TrendingUp /> : <TrendingDown />}
+            label={card.trend}
+            size="small"
+            sx={{
+              bgcolor:
+                hoveredCard === index
+                  ? "rgba(254,249,225,0.15)"
+                  : `${settings.primaryColor}1A`,
+              backdropFilter: "blur(10px)",
+              color:
+                hoveredCard === index ? "#ffffff" : settings.textPrimaryColor,
+              fontWeight: 700,
+              border:
+                hoveredCard === index
+                  ? "1px solid rgba(254,249,225,0.2)"
+                  : `1px solid ${settings.primaryColor}26`,
+              "& .MuiChip-icon": {
+                color:
+                  hoveredCard === index ? "#ffffff" : settings.textPrimaryColor,
+              },
+            }}
+          />
+        </Box>
+        <Typography
+          variant="h2"
+          sx={{
+            fontWeight: 800,
+            mb: 0.5,
+            color:
+              hoveredCard === index ? "#ffffff" : settings.textPrimaryColor,
+            textShadow:
+              hoveredCard === index ? "0 2px 10px rgba(0,0,0,0.3)" : "none",
+          }}
+        >
+          {loading ? (
+            <Skeleton
+              variant="text"
+              width={80}
+              sx={{ bgcolor: "rgba(128, 0, 32, 0.1)" }}
+            />
+          ) : stats[card.valueKey] !== undefined ? (
+            stats[card.valueKey]
+          ) : (
+            card.defaultValue
+          )}
         </Typography>
-        <Typography 
-          variant="h6" 
-          sx={{ 
-            fontWeight: 600, 
-            mb: 0.5, 
-            color: hoveredCard === index ? 'rgba(254,249,225,0.9)' : settings.textPrimaryColor, 
-            textShadow: hoveredCard === index ? '0 1px 5px rgba(0,0,0,0.3)' : 'none' 
+        <Typography
+          variant="h6"
+          sx={{
+            fontWeight: 600,
+            mb: 0.5,
+            color:
+              hoveredCard === index
+                ? "rgba(254,249,225,0.9)"
+                : settings.textPrimaryColor,
+            textShadow:
+              hoveredCard === index ? "0 1px 5px rgba(0,0,0,0.3)" : "none",
           }}
         >
           {card.textValue}
         </Typography>
-        <Typography sx={{ color: hoveredCard === index ? 'rgba(254,249,225,0.9)' : settings.textSecondaryColor, fontSize: '1rem', fontWeight: 600, mb: 0.5 }}>
+        <Typography
+          sx={{
+            color:
+              hoveredCard === index
+                ? "rgba(254,249,225,0.9)"
+                : settings.textSecondaryColor,
+            fontSize: "1rem",
+            fontWeight: 600,
+            mb: 0.5,
+          }}
+        >
           {card.label}
         </Typography>
-        <Typography sx={{ color: hoveredCard === index ? 'rgba(254,249,225,0.6)' : settings.textSecondaryColor, fontSize: '0.85rem' }}>
+        <Typography
+          sx={{
+            color:
+              hoveredCard === index
+                ? "rgba(254,249,225,0.6)"
+                : settings.textSecondaryColor,
+            fontSize: "0.85rem",
+          }}
+        >
           {card.subtitle}
         </Typography>
-        {loading && <LinearProgress sx={{ mt: 2, borderRadius: 1, height: 4, bgcolor: 'rgba(128, 0, 32, 0.1)', '& .MuiLinearProgress-bar': { bgcolor: hoveredCard === index ? '#ffffff' : settings.primaryColor, borderRadius: 1 } }} />}
+        {loading && (
+          <LinearProgress
+            sx={{
+              mt: 2,
+              borderRadius: 1,
+              height: 4,
+              bgcolor: "rgba(128, 0, 32, 0.1)",
+              "& .MuiLinearProgress-bar": {
+                bgcolor:
+                  hoveredCard === index ? "#ffffff" : settings.primaryColor,
+                borderRadius: 1,
+              },
+            }}
+          />
+        )}
       </CardContent>
     </Card>
   </Grow>
 );
 
-
-const CompactStatCard = ({ card, index, stats, loading, hoveredCard, setHoveredCard, settings }) => (
+const CompactStatCard = ({
+  card,
+  index,
+  stats,
+  loading,
+  hoveredCard,
+  setHoveredCard,
+  settings,
+}) => (
   <Grow in timeout={300 + index * 50}>
-    <Card 
-      onMouseEnter={() => setHoveredCard(index)} 
-      onMouseLeave={() => setHoveredCard(null)} 
-      sx={{ 
+    <Card
+      onMouseEnter={() => setHoveredCard(index)}
+      onMouseLeave={() => setHoveredCard(null)}
+      sx={{
         height: 120,
-        background: settings.accentColor, 
-        border: `1px solid ${hoveredCard === index ? settings.primaryColor : settings.primaryColor}26`, 
-        borderRadius: 4, 
-        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)', 
-        transform: hoveredCard === index ? 'translateY(-4px) scale(1.02)' : 'translateY(0)', 
-        boxShadow: hoveredCard === index ? card.shadow : '0 2px 8px rgba(0,0,0,0.08)', 
-        cursor: 'pointer',
-        position: 'relative',
-        overflow: 'hidden'
+        background: settings.accentColor,
+        border: `1px solid ${
+          hoveredCard === index ? settings.primaryColor : settings.primaryColor
+        }26`,
+        borderRadius: 4,
+        transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+        transform:
+          hoveredCard === index
+            ? "translateY(-4px) scale(1.02)"
+            : "translateY(0)",
+        boxShadow:
+          hoveredCard === index ? card.shadow : "0 2px 8px rgba(0,0,0,0.08)",
+        cursor: "pointer",
+        position: "relative",
+        overflow: "hidden",
       }}
     >
-      <CardContent sx={{ p: 2, height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-          <Box sx={{ 
-            width: 40, 
-            height: 30, 
-            borderRadius: 1, 
-            display: 'flex', 
-            alignItems: 'center', 
-            justifyContent: 'center', 
-            background: `${settings.primaryColor}1A`, 
-            color: settings.textPrimaryColor, 
-            transition: 'all 0.3s', 
-            transform: hoveredCard === index ? 'rotate(360deg) scale(1.1)' : 'rotate(0) scale(1)', 
-          }}>
-            {React.cloneElement(card.icon, { sx: { fontSize: 24 } })}
-          </Box>
-
-        </Box>
-        <Box>
-          <Typography 
-            variant="h4" 
-            sx={{ 
-              fontWeight: 700, 
-              color: settings.textPrimaryColor, 
-              lineHeight: 1
+      <CardContent
+        sx={{
+          p: 2,
+          height: "100%",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "space-between",
+        }}
+      >
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "flex-start",
+          }}
+        >
+          <Box
+            sx={{
+              width: 40,
+              height: 30,
+              borderRadius: 1,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              background: `${settings.primaryColor}1A`,
+              color: settings.textPrimaryColor,
+              transition: "all 0.3s",
+              transform:
+                hoveredCard === index
+                  ? "rotate(360deg) scale(1.1)"
+                  : "rotate(0) scale(1)",
             }}
           >
-            {loading ? <Skeleton variant="text" width={60} height={32} /> : 
-             (stats[card.valueKey] !== undefined ? stats[card.valueKey] : card.defaultValue)}
+            {React.cloneElement(card.icon, { sx: { fontSize: 24 } })}
+          </Box>
+        </Box>
+        <Box>
+          <Typography
+            variant="h4"
+            sx={{
+              fontWeight: 700,
+              color: settings.textPrimaryColor,
+              lineHeight: 1,
+            }}
+          >
+            {loading ? (
+              <Skeleton variant="text" width={60} height={32} />
+            ) : stats[card.valueKey] !== undefined ? (
+              stats[card.valueKey]
+            ) : (
+              card.defaultValue
+            )}
           </Typography>
-          <Typography sx={{ color: settings.textPrimaryColor, fontSize: '0.75rem', fontWeight: 500 }}>
+          <Typography
+            sx={{
+              color: settings.textPrimaryColor,
+              fontSize: "0.75rem",
+              fontWeight: 500,
+            }}
+          >
             {card.textValue}
           </Typography>
-          <Typography sx={{ color: settings.textSecondaryColor, fontSize: '0.7rem', fontWeight: 500 }}>
+          <Typography
+            sx={{
+              color: settings.textSecondaryColor,
+              fontSize: "0.7rem",
+              fontWeight: 500,
+            }}
+          >
             {card.label}
           </Typography>
         </Box>
@@ -755,182 +1075,231 @@ const CompactStatCard = ({ card, index, stats, loading, hoveredCard, setHoveredC
   </Grow>
 );
 
-const AnnouncementCarousel = ({ announcements, currentSlide, isPlaying, handlePrevSlide, handleNextSlide, handleSlideSelect, togglePlayPause, handleOpenModal, settings }) => (
+const AnnouncementCarousel = ({
+  announcements,
+  currentSlide,
+  isPlaying,
+  handlePrevSlide,
+  handleNextSlide,
+  handleSlideSelect,
+  togglePlayPause,
+  handleOpenModal,
+  settings,
+}) => (
   <Fade in timeout={600}>
-    <Card sx={{ 
-      background: settings.accentColor, 
-      backdropFilter: 'blur(15px)', 
-      border: `1px solid ${settings.primaryColor}26`, 
-      borderRadius: 4, 
-      mb: 3, 
-      overflow: 'hidden', 
-      boxShadow: `0 15px 40px ${settings.primaryColor}33`, 
-      position: 'relative' 
-    }}>
-      <Box sx={{ position: 'relative', height: 550 }}>
+    <Card
+      sx={{
+        background: settings.accentColor,
+        backdropFilter: "blur(15px)",
+        border: `1px solid ${settings.primaryColor}26`,
+        borderRadius: 4,
+        mb: 3,
+        overflow: "hidden",
+        boxShadow: `0 15px 40px ${settings.primaryColor}33`,
+        position: "relative",
+      }}
+    >
+      <Box sx={{ position: "relative", height: 550 }}>
         {Array.isArray(announcements) && announcements.length > 0 ? (
           <>
-            <Box 
-              component="img" 
-              src={announcements[currentSlide]?.image ? `${API_BASE_URL}${announcements[currentSlide].image}` : "/api/placeholder/800/400"} 
-              alt={announcements[currentSlide]?.title || "Announcement"} 
-              sx={{ 
-                width: '100%', 
-                height: '100%', 
-                objectFit: 'cover', 
-                transition: 'transform 0.7s ease', 
-                transform: 'scale(1)' 
-              }} 
+            <Box
+              component="img"
+              src={
+                announcements[currentSlide]?.image
+                  ? `${API_BASE_URL}${announcements[currentSlide].image}`
+                  : "/api/placeholder/800/400"
+              }
+              alt={announcements[currentSlide]?.title || "Announcement"}
+              sx={{
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+                transition: "transform 0.7s ease",
+                transform: "scale(1)",
+              }}
             />
-            <Box sx={{ 
-              position: 'absolute', 
-              inset: 0, 
-              background: 'linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.3) 50%, rgba(0,0,0,0) 70%)' 
-            }} />
-            <IconButton 
-              onClick={(e) => { e.stopPropagation(); handlePrevSlide(); }} 
-              sx={{ 
-                position: 'absolute', 
-                left: 24, 
-                top: '50%', 
-                transform: 'translateY(-50%)', 
-                bgcolor: `${settings.primaryColor}4D`, 
-                backdropFilter: 'blur(10px)', 
-                border: `1px solid ${settings.primaryColor}26`, 
-                '&:hover': { bgcolor: `${settings.primaryColor}80`, transform: 'translateY(-50%) scale(1.1)' }, 
-                color: '#ffffff', 
-                boxShadow: '0 4px 24px rgba(0,0,0,0.2)', 
-                transition: 'all 0.3s' 
+            <Box
+              sx={{
+                position: "absolute",
+                inset: 0,
+                background:
+                  "linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.3) 50%, rgba(0,0,0,0) 70%)",
+              }}
+            />
+            <IconButton
+              onClick={(e) => {
+                e.stopPropagation();
+                handlePrevSlide();
+              }}
+              sx={{
+                position: "absolute",
+                left: 24,
+                top: "50%",
+                transform: "translateY(-50%)",
+                bgcolor: `${settings.primaryColor}4D`,
+                backdropFilter: "blur(10px)",
+                border: `1px solid ${settings.primaryColor}26`,
+                "&:hover": {
+                  bgcolor: `${settings.primaryColor}80`,
+                  transform: "translateY(-50%) scale(1.1)",
+                },
+                color: "#ffffff",
+                boxShadow: "0 4px 24px rgba(0,0,0,0.2)",
+                transition: "all 0.3s",
               }}
             >
               <ArrowBackIosNewIcon />
             </IconButton>
-            <IconButton 
-              onClick={(e) => { e.stopPropagation(); handleNextSlide(); }} 
-              sx={{ 
-                position: 'absolute', 
-                right: 24, 
-                top: '50%', 
-                transform: 'translateY(-50%)', 
-                bgcolor: `${settings.primaryColor}4D`, 
-                backdropFilter: 'blur(10px)', 
-                border: `1px solid ${settings.primaryColor}26`, 
-                '&:hover': { bgcolor: `${settings.primaryColor}80`, transform: 'translateY(-50%) scale(1.1)' }, 
-                color: '#ffffff', 
-                boxShadow: '0 4px 24px rgba(0,0,0,0.2)', 
-                transition: 'all 0.3s' 
+            <IconButton
+              onClick={(e) => {
+                e.stopPropagation();
+                handleNextSlide();
+              }}
+              sx={{
+                position: "absolute",
+                right: 24,
+                top: "50%",
+                transform: "translateY(-50%)",
+                bgcolor: `${settings.primaryColor}4D`,
+                backdropFilter: "blur(10px)",
+                border: `1px solid ${settings.primaryColor}26`,
+                "&:hover": {
+                  bgcolor: `${settings.primaryColor}80`,
+                  transform: "translateY(-50%) scale(1.1)",
+                },
+                color: "#ffffff",
+                boxShadow: "0 4px 24px rgba(0,0,0,0.2)",
+                transition: "all 0.3s",
               }}
             >
               <ArrowForwardIosIcon />
             </IconButton>
-            <IconButton 
-              onClick={(e) => { e.stopPropagation(); togglePlayPause(); }} 
-              sx={{ 
-                position: 'absolute', 
-                top: 24, 
-                right: 24, 
-                bgcolor: `${settings.primaryColor}4D`, 
-                backdropFilter: 'blur(10px)', 
-                border: `1px solid ${settings.primaryColor}26`, 
-                '&:hover': { bgcolor: `${settings.primaryColor}80`, transform: 'scale(1.1)' }, 
-                color: '#ffffff', 
-                boxShadow: '0 4px 24px rgba(0,0,0,0.2)', 
-                transition: 'all 0.3s' 
+            <IconButton
+              onClick={(e) => {
+                e.stopPropagation();
+                togglePlayPause();
+              }}
+              sx={{
+                position: "absolute",
+                top: 24,
+                right: 24,
+                bgcolor: `${settings.primaryColor}4D`,
+                backdropFilter: "blur(10px)",
+                border: `1px solid ${settings.primaryColor}26`,
+                "&:hover": {
+                  bgcolor: `${settings.primaryColor}80`,
+                  transform: "scale(1.1)",
+                },
+                color: "#ffffff",
+                boxShadow: "0 4px 24px rgba(0,0,0,0.2)",
+                transition: "all 0.3s",
               }}
             >
               {isPlaying ? <Pause /> : <PlayArrow />}
             </IconButton>
-            <Box 
-              onClick={() => handleOpenModal(announcements[currentSlide])} 
-              sx={{ 
-                position: 'absolute', 
-                bottom: 0, 
-                left: 0, 
-                right: 0, 
-                p: 4, 
-                color: '#ffffff', 
-                cursor: 'pointer', 
-                transition: 'transform 0.3s', 
-                '&:hover': { transform: 'translateY(-4px)' } 
+            <Box
+              onClick={() => handleOpenModal(announcements[currentSlide])}
+              sx={{
+                position: "absolute",
+                bottom: 0,
+                left: 0,
+                right: 0,
+                p: 4,
+                color: "#ffffff",
+                cursor: "pointer",
+                transition: "transform 0.3s",
+                "&:hover": { transform: "translateY(-4px)" },
               }}
             >
-              <Chip 
-                label="ANNOUNCEMENT" 
-                size="small" 
-                sx={{ 
-                  mb: 2, 
-                  bgcolor: `${settings.primaryColor}80`, 
-                  backdropFilter: 'blur(10px)', 
-                  color: '#ffffff', 
-                  fontWeight: 700, 
-                  fontSize: '0.7rem', 
-                  border: '1px solid rgba(254, 249, 225, 0.3)' 
-                }} 
+              <Chip
+                label="ANNOUNCEMENT"
+                size="small"
+                sx={{
+                  mb: 2,
+                  bgcolor: `${settings.primaryColor}80`,
+                  backdropFilter: "blur(10px)",
+                  color: "#ffffff",
+                  fontWeight: 700,
+                  fontSize: "0.7rem",
+                  border: "1px solid rgba(254, 249, 225, 0.3)",
+                }}
               />
-              <Typography 
-                variant="h3" 
-                sx={{ 
-                  fontWeight: 800, 
-                  mb: 1, 
-                  textShadow: '0 4px 12px rgba(0,0,0,0.5)', 
-                  lineHeight: 1.2 
+              <Typography
+                variant="h3"
+                sx={{
+                  fontWeight: 800,
+                  mb: 1,
+                  textShadow: "0 4px 12px rgba(0,0,0,0.5)",
+                  lineHeight: 1.2,
                 }}
               >
                 {announcements[currentSlide]?.title}
               </Typography>
-              <Typography 
-                sx={{ 
-                  opacity: 0.95, 
-                  fontSize: '1rem', 
-                  textShadow: '0 2px 8px rgba(0,0,0,0.5)', 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  gap: 1 
+              <Typography
+                sx={{
+                  opacity: 0.95,
+                  fontSize: "1rem",
+                  textShadow: "0 2px 8px rgba(0,0,0,0.5)",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 1,
                 }}
               >
                 <AccessTimeIcon sx={{ fontSize: 18 }} />
                 {new Date(announcements[currentSlide]?.date).toDateString()}
               </Typography>
             </Box>
-            <Box sx={{ 
-              position: 'absolute', 
-              bottom: 24, 
-              right: 24, 
-              display: 'flex', 
-              gap: 1.5, 
-              alignItems: 'center' 
-            }}>
+            <Box
+              sx={{
+                position: "absolute",
+                bottom: 24,
+                right: 24,
+                display: "flex",
+                gap: 1.5,
+                alignItems: "center",
+              }}
+            >
               {announcements.map((_, idx) => (
-                <Box 
-                  key={idx} 
-                  sx={{ 
-                    width: currentSlide === idx ? 32 : 10, 
-                    height: 10, 
-                    borderRadius: 5, 
-                    bgcolor: currentSlide === idx ? '#ffffff' : 'rgba(254,249,225,0.4)', 
-                    transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)', 
-                    cursor: 'pointer', 
-                    border: '1px solid rgba(254,249,225,0.3)', 
-                    '&:hover': { 
-                      bgcolor: 'rgba(254,249,225,0.7)', 
-                      transform: 'scale(1.2)' 
-                    } 
-                  }} 
-                  onClick={(e) => { e.stopPropagation(); handleSlideSelect(idx); }} 
+                <Box
+                  key={idx}
+                  sx={{
+                    width: currentSlide === idx ? 32 : 10,
+                    height: 10,
+                    borderRadius: 5,
+                    bgcolor:
+                      currentSlide === idx
+                        ? "#ffffff"
+                        : "rgba(254,249,225,0.4)",
+                    transition: "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
+                    cursor: "pointer",
+                    border: "1px solid rgba(254,249,225,0.3)",
+                    "&:hover": {
+                      bgcolor: "rgba(254,249,225,0.7)",
+                      transform: "scale(1.2)",
+                    },
+                  }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleSlideSelect(idx);
+                  }}
                 />
               ))}
             </Box>
           </>
         ) : (
-          <Box sx={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            justifyContent: 'center', 
-            height: '100%', 
-            flexDirection: 'column', 
-            gap: 2 
-          }}>
-            <CampaignIcon sx={{ fontSize: 80, color: `${settings.primaryColor}4D` }} />
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              height: "100%",
+              flexDirection: "column",
+              gap: 2,
+            }}
+          >
+            <CampaignIcon
+              sx={{ fontSize: 80, color: `${settings.primaryColor}4D` }}
+            />
             <Typography variant="h5" sx={{ color: settings.textPrimaryColor }}>
               No announcements available
             </Typography>
@@ -942,28 +1311,44 @@ const AnnouncementCarousel = ({ announcements, currentSlide, isPlaying, handlePr
 );
 
 const CompactChart = ({ title, children, height = 200, settings }) => (
-  <Card sx={{ 
-    background: settings.accentColor, 
-    backdropFilter: 'blur(15px)', 
-    border: `1px solid ${settings.primaryColor}26`, 
-    borderRadius: 4, 
-    height: height + 80, 
-    boxShadow: `0 15px 40px ${settings.primaryColor}33`, 
-    transition: 'all 0.3s', 
-    '&:hover': { transform: 'translateY(-2px)', boxShadow: `0 20px 50px ${settings.primaryColor}4D` } 
-  }}>
+  <Card
+    sx={{
+      background: settings.accentColor,
+      backdropFilter: "blur(15px)",
+      border: `1px solid ${settings.primaryColor}26`,
+      borderRadius: 4,
+      height: height + 80,
+      boxShadow: `0 15px 40px ${settings.primaryColor}33`,
+      transition: "all 0.3s",
+      "&:hover": {
+        transform: "translateY(-2px)",
+        boxShadow: `0 20px 50px ${settings.primaryColor}4D`,
+      },
+    }}
+  >
     <CardContent sx={{ p: 2 }}>
-      <Typography variant="h6" sx={{ fontWeight: 600, mb: 1, color: settings.textPrimaryColor, fontSize: '0.95rem' }}>
+      <Typography
+        variant="h6"
+        sx={{
+          fontWeight: 600,
+          mb: 1,
+          color: settings.textPrimaryColor,
+          fontSize: "0.95rem",
+        }}
+      >
         {title}
       </Typography>
-      <Box sx={{ height }}>
-        {children}
-      </Box>
+      <Box sx={{ height }}>{children}</Box>
     </CardContent>
   </Card>
 );
 
-const CompactCalendar = ({ calendarDate, setCalendarDate, holidays, settings }) => {
+const CompactCalendar = ({
+  calendarDate,
+  setCalendarDate,
+  holidays,
+  settings,
+}) => {
   const month = calendarDate.getMonth();
   const year = calendarDate.getFullYear();
 
@@ -978,50 +1363,76 @@ const CompactCalendar = ({ calendarDate, setCalendarDate, holidays, settings }) 
     return days;
   };
 
-  const calendarDays = useMemo(() => generateCalendar(month, year), [month, year]);
+  const calendarDays = useMemo(
+    () => generateCalendar(month, year),
+    [month, year]
+  );
 
   return (
-    <Card sx={{ 
-      background: settings.accentColor, 
-      backdropFilter: 'blur(15px)', 
-      border: `1px solid ${settings.primaryColor}26`, 
-      borderRadius: 4, 
-      boxShadow: `0 15px 40px ${settings.primaryColor}33`,
-      height: 260
-    }}>
-      <CardContent sx={{ p: 1.5, height: '100%', display: 'flex', flexDirection: 'column' }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
-          <IconButton 
-            size="small" 
-            onClick={() => setCalendarDate(new Date(year, month - 1, 1))} 
+    <Card
+      sx={{
+        background: settings.accentColor,
+        backdropFilter: "blur(15px)",
+        border: `1px solid ${settings.primaryColor}26`,
+        borderRadius: 4,
+        boxShadow: `0 15px 40px ${settings.primaryColor}33`,
+        height: 260,
+      }}
+    >
+      <CardContent
+        sx={{
+          p: 1.5,
+          height: "100%",
+          display: "flex",
+          flexDirection: "column",
+        }}
+      >
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            mb: 1,
+          }}
+        >
+          <IconButton
+            size="small"
+            onClick={() => setCalendarDate(new Date(year, month - 1, 1))}
             sx={{ color: settings.textPrimaryColor, p: 0.5 }}
           >
             <ArrowBackIosNewIcon fontSize="small" />
           </IconButton>
-          <Typography sx={{ 
-            fontWeight: 600, 
-            fontSize: '0.8rem', 
-            color: settings.textPrimaryColor 
-          }}>
-            {new Date(year, month).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
+          <Typography
+            sx={{
+              fontWeight: 600,
+              fontSize: "0.8rem",
+              color: settings.textPrimaryColor,
+            }}
+          >
+            {new Date(year, month).toLocaleDateString("en-US", {
+              month: "short",
+              year: "numeric",
+            })}
           </Typography>
-          <IconButton 
-            size="small" 
-            onClick={() => setCalendarDate(new Date(year, month + 1, 1))} 
+          <IconButton
+            size="small"
+            onClick={() => setCalendarDate(new Date(year, month + 1, 1))}
             sx={{ color: settings.textPrimaryColor, p: 0.5 }}
           >
             <ArrowForwardIosIcon fontSize="small" />
           </IconButton>
         </Box>
         <Grid container spacing={0.3} sx={{ mb: 0.3 }}>
-          {['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'].map((day) => (
+          {["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"].map((day) => (
             <Grid item xs={12 / 7} key={day}>
-              <Typography sx={{ 
-                textAlign: 'center', 
-                fontWeight: 600, 
-                fontSize: '0.55rem', 
-                color: settings.textPrimaryColor 
-              }}>
+              <Typography
+                sx={{
+                  textAlign: "center",
+                  fontWeight: 600,
+                  fontSize: "0.55rem",
+                  color: settings.textPrimaryColor,
+                }}
+              >
                 {day}
               </Typography>
             </Grid>
@@ -1029,26 +1440,47 @@ const CompactCalendar = ({ calendarDate, setCalendarDate, holidays, settings }) 
         </Grid>
         <Grid container spacing={0.3} sx={{ flex: 1 }}>
           {calendarDays.map((day, index) => {
-            const currentDate = `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
-            const holidayData = Array.isArray(holidays) ? holidays.find(h => h.date === currentDate && h.status === "Active") : null;
-            const isToday = new Date().toDateString() === new Date(year, month, day).toDateString();
+            const currentDate = `${year}-${String(month + 1).padStart(
+              2,
+              "0"
+            )}-${String(day).padStart(2, "0")}`;
+            const holidayData = Array.isArray(holidays)
+              ? holidays.find(
+                  (h) => h.date === currentDate && h.status === "Active"
+                )
+              : null;
+            const isToday =
+              new Date().toDateString() ===
+              new Date(year, month, day).toDateString();
             return (
               <Grid item xs={12 / 7} key={index}>
-                <Box sx={{ 
-                  textAlign: 'center', 
-                  py: 0.3, 
-                  fontSize: '0.65rem', 
-                  borderRadius: 0.5, 
-                  color: holidayData ? '#ffffff' : day ? settings.textPrimaryColor : 'transparent', 
-                  background: holidayData ? `linear-gradient(135deg, ${settings.primaryColor}, ${settings.secondaryColor})` : isToday ? '#c4c4c4ff' : 'transparent', 
-                  fontWeight: holidayData || isToday ? 600 : 400, 
-                  cursor: 'pointer', 
-                  transition: 'all 0.2s', 
-                  '&:hover': { 
-                    background: holidayData ? `linear-gradient(135deg, ${settings.secondaryColor}, ${settings.primaryColor})` : '#e0e0e0', 
-                    transform: 'scale(1.1)' 
-                  } 
-                }}>
+                <Box
+                  sx={{
+                    textAlign: "center",
+                    py: 0.3,
+                    fontSize: "0.65rem",
+                    borderRadius: 0.5,
+                    color: holidayData
+                      ? "#ffffff"
+                      : day
+                      ? settings.textPrimaryColor
+                      : "transparent",
+                    background: holidayData
+                      ? `linear-gradient(135deg, ${settings.primaryColor}, ${settings.secondaryColor})`
+                      : isToday
+                      ? "#c4c4c4ff"
+                      : "transparent",
+                    fontWeight: holidayData || isToday ? 600 : 400,
+                    cursor: "pointer",
+                    transition: "all 0.2s",
+                    "&:hover": {
+                      background: holidayData
+                        ? `linear-gradient(135deg, ${settings.secondaryColor}, ${settings.primaryColor})`
+                        : "#e0e0e0",
+                      transform: "scale(1.1)",
+                    },
+                  }}
+                >
                   {day || ""}
                 </Box>
               </Grid>
@@ -1068,7 +1500,7 @@ const RecentActivity = ({ settings }) => {
       action: "Processed payroll for June 2024",
       time: "2 minutes ago",
       icon: <PaymentsIcon />,
-      color: settings.textPrimaryColor
+      color: settings.textPrimaryColor,
     },
     {
       id: 2,
@@ -1076,7 +1508,7 @@ const RecentActivity = ({ settings }) => {
       action: "Updated employee records",
       time: "15 minutes ago",
       icon: <Person />,
-      color: settings.textPrimaryColor
+      color: settings.textPrimaryColor,
     },
     {
       id: 3,
@@ -1084,7 +1516,7 @@ const RecentActivity = ({ settings }) => {
       action: "Generated monthly attendance report",
       time: "1 hour ago",
       icon: <Assessment />,
-      color: settings.textPrimaryColor
+      color: settings.textPrimaryColor,
     },
     {
       id: 4,
@@ -1092,7 +1524,7 @@ const RecentActivity = ({ settings }) => {
       action: "New announcement posted: Company Holiday Schedule",
       time: "2 hours ago",
       icon: <CampaignIcon />,
-      color: settings.textPrimaryColor
+      color: settings.textPrimaryColor,
     },
     {
       id: 5,
@@ -1100,71 +1532,96 @@ const RecentActivity = ({ settings }) => {
       action: "Database backup completed successfully",
       time: "3 hours ago",
       icon: <CheckCircleIcon />,
-      color: settings.textPrimaryColor
-    }
+      color: settings.textPrimaryColor,
+    },
   ];
 
   return (
-    <Card sx={{ 
-      background: settings.accentColor, 
-      backdropFilter: 'blur(15px)', 
-      border: `1px solid ${settings.primaryColor}26`, 
-      borderRadius: 4, 
-      boxShadow: `0 15px 40px ${settings.primaryColor}33`,
-      height: 320
-    }}>
-      <CardContent sx={{ p: 1.5, height: '100%', display: 'flex', flexDirection: 'column' }}>
-        <Typography variant="h6" sx={{ fontWeight: 600, mb: 1.5, color: settings.textPrimaryColor, fontSize: '0.85rem' }}>
+    <Card
+      sx={{
+        background: settings.accentColor,
+        backdropFilter: "blur(15px)",
+        border: `1px solid ${settings.primaryColor}26`,
+        borderRadius: 4,
+        boxShadow: `0 15px 40px ${settings.primaryColor}33`,
+        height: 320,
+      }}
+    >
+      <CardContent
+        sx={{
+          p: 1.5,
+          height: "100%",
+          display: "flex",
+          flexDirection: "column",
+        }}
+      >
+        <Typography
+          variant="h6"
+          sx={{
+            fontWeight: 600,
+            mb: 1.5,
+            color: settings.textPrimaryColor,
+            fontSize: "0.85rem",
+          }}
+        >
           Recent Activity
         </Typography>
-        <Box sx={{ flex: 1, overflowY: 'auto' }}>
+        <Box sx={{ flex: 1, overflowY: "auto" }}>
           {activities.map((activity, index) => (
             <Grow in timeout={300 + index * 50} key={activity.id}>
-              <Box sx={{ 
-                display: 'flex', 
-                alignItems: 'flex-start', 
-                gap: 1, 
-                mb: 1.5,
-                p: 0.5,
-                borderRadius: 1,
-                transition: 'all 0.2s',
-                '&:hover': {
-                  background: `${settings.primaryColor}0A`,
-                  transform: 'translateX(2px)'
-                }
-              }}>
-                <Box sx={{ 
-                  width: 28, 
-                  height: 28, 
-                  borderRadius: 1, 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  justifyContent: 'center', 
-                  background: `${activity.color}1A`, 
-                  color: activity.color,
-                  flexShrink: 0
-                }}>
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "flex-start",
+                  gap: 1,
+                  mb: 1.5,
+                  p: 0.5,
+                  borderRadius: 1,
+                  transition: "all 0.2s",
+                  "&:hover": {
+                    background: `${settings.primaryColor}0A`,
+                    transform: "translateX(2px)",
+                  },
+                }}
+              >
+                <Box
+                  sx={{
+                    width: 28,
+                    height: 28,
+                    borderRadius: 1,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    background: `${activity.color}1A`,
+                    color: activity.color,
+                    flexShrink: 0,
+                  }}
+                >
                   {React.cloneElement(activity.icon, { sx: { fontSize: 16 } })}
                 </Box>
                 <Box sx={{ flex: 1, minWidth: 0 }}>
-                  <Typography sx={{ 
-                    fontSize: '0.7rem', 
-                    fontWeight: 600, 
-                    color: settings.textPrimaryColor,
-                    lineHeight: 1.3,
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    display: '-webkit-box',
-                    WebkitLineClamp: 2,
-                    WebkitBoxOrient: 'vertical'
-                  }}>
+                  <Typography
+                    sx={{
+                      fontSize: "0.7rem",
+                      fontWeight: 600,
+                      color: settings.textPrimaryColor,
+                      lineHeight: 1.3,
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      display: "-webkit-box",
+                      WebkitLineClamp: 2,
+                      WebkitBoxOrient: "vertical",
+                    }}
+                  >
                     {activity.action}
                   </Typography>
-                  <Typography sx={{ 
-                    fontSize: '0.6rem', 
-                    color: settings.textSecondaryColor,
-                    mt: 0.25
-                  }}>
+                  <Typography
+                    sx={{
+                      fontSize: "0.6rem",
+                      color: settings.textSecondaryColor,
+                      mt: 0.25,
+                    }}
+                  >
                     {activity.user} • {activity.time}
                   </Typography>
                 </Box>
@@ -1183,26 +1640,30 @@ const TaskList = ({ settings }) => {
   const [newTask, setNewTask] = useState({ title: "", priority: "medium" });
   const [showSuccess, setShowSuccess] = useState(false);
 
-  
   useEffect(() => {
-    axios.get(`${API_BASE_URL}/tasks`).then((res) => {
-      if (Array.isArray(res.data)) {
-        setTasks(res.data);
-      }
-    }).catch(err => {
-      console.error('Error fetching tasks:', err);
-      setTasks([]);
-    });
+    axios
+      .get(`${API_BASE_URL}/tasks`)
+      .then((res) => {
+        if (Array.isArray(res.data)) {
+          setTasks(res.data);
+        }
+      })
+      .catch((err) => {
+        console.error("Error fetching tasks:", err);
+        setTasks([]);
+      });
   }, []);
 
   const handleToggle = async (id) => {
     try {
       await axios.put(`${API_BASE_URL}/tasks/${id}/toggle`);
-      setTasks(tasks.map(task =>
-        task.id === id ? { ...task, completed: !task.completed } : task
-      ));
+      setTasks(
+        tasks.map((task) =>
+          task.id === id ? { ...task, completed: !task.completed } : task
+        )
+      );
     } catch (err) {
-      console.error('Error toggling task:', err);
+      console.error("Error toggling task:", err);
     }
   };
 
@@ -1213,29 +1674,32 @@ const TaskList = ({ settings }) => {
       setTasks([res.data, ...tasks]);
       setNewTask({ title: "", priority: "medium" });
       setAddTaskOpen(false);
-      setShowSuccess(true); 
+      setShowSuccess(true);
       setTimeout(() => setShowSuccess(false), 2000);
     } catch (err) {
-      console.error('Error adding task:', err);
+      console.error("Error adding task:", err);
     }
   };
 
   const handleDelete = async (id) => {
     try {
       await axios.delete(`${API_BASE_URL}/tasks/${id}`);
-      setTasks(tasks.filter(task => task.id !== id));
+      setTasks(tasks.filter((task) => task.id !== id));
     } catch (err) {
-      console.error('Error deleting task:', err);
+      console.error("Error deleting task:", err);
     }
   };
 
-  
   const getPriorityLabel = (priority) => {
-    switch(priority) {
-      case "high": return "Urgent";
-      case "medium": return "Soon";
-      case "low": return "Later";
-      default: return priority;
+    switch (priority) {
+      case "high":
+        return "Urgent";
+      case "medium":
+        return "Soon";
+      case "low":
+        return "Later";
+      default:
+        return priority;
     }
   };
 
@@ -1249,16 +1713,39 @@ const TaskList = ({ settings }) => {
           borderRadius: 4,
           mb: 2,
           boxShadow: `0 15px 40px ${settings.primaryColor}33`,
-          height: 270, 
+          height: 270,
           display: "flex",
           flexDirection: "column",
         }}
       >
-        {showSuccess && <SuccessfulOverlay message="Task added successfully!" />}
-        <CardContent sx={{ p: 2, display: "flex", flexDirection: "column", height: "100%" }}>
+        {showSuccess && (
+          <SuccessfulOverlay message="Task added successfully!" />
+        )}
+        <CardContent
+          sx={{
+            p: 2,
+            display: "flex",
+            flexDirection: "column",
+            height: "100%",
+          }}
+        >
           {}
-          <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
-            <Typography variant="h6" sx={{ fontWeight: 600, color: settings.textPrimaryColor, fontSize: "0.95rem" }}>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              mb: 2,
+            }}
+          >
+            <Typography
+              variant="h6"
+              sx={{
+                fontWeight: 600,
+                color: settings.textPrimaryColor,
+                fontSize: "0.95rem",
+              }}
+            >
               Tasks
             </Typography>
             <IconButton
@@ -1277,82 +1764,89 @@ const TaskList = ({ settings }) => {
           </Box>
 
           {}
-          <Box sx={{ 
-            flex: 1, 
-            overflowY: "auto", 
-            overflowX: "hidden",
-            pr: 1,
-            "&::-webkit-scrollbar": {
-              width: "6px",
-            },
-            "&::-webkit-scrollbar-track": {
-              background: `${settings.primaryColor}1A`,
-              borderRadius: "3px",
-            },
-            "&::-webkit-scrollbar-thumb": {
-              background: `${settings.primaryColor}4D`,
-              borderRadius: "3px",
-              "&:hover": {
-                background: `${settings.primaryColor}80`,
+          <Box
+            sx={{
+              flex: 1,
+              overflowY: "auto",
+              overflowX: "hidden",
+              pr: 1,
+              "&::-webkit-scrollbar": {
+                width: "6px",
               },
-            },
-          }}>
+              "&::-webkit-scrollbar-track": {
+                background: `${settings.primaryColor}1A`,
+                borderRadius: "3px",
+              },
+              "&::-webkit-scrollbar-thumb": {
+                background: `${settings.primaryColor}4D`,
+                borderRadius: "3px",
+                "&:hover": {
+                  background: `${settings.primaryColor}80`,
+                },
+              },
+            }}
+          >
             <List dense sx={{ p: 0 }}>
-              {Array.isArray(tasks) && tasks.map((task) => (
-                <ListItem
-                  key={task.id}
-                  sx={{ p: 0, mb: 1, display: "flex", alignItems: "center" }}
-                >
-                  <Checkbox
-                    checked={task.completed}
-                    onChange={() => handleToggle(task.id)}
-                    size="small"
-                    sx={{
-                      color: settings.textPrimaryColor,
-                      "&.Mui-checked": { color: settings.textPrimaryColor },
-                    }}
-                  />
-                  <ListItemText
-                    primary={task.title}
-                    primaryTypographyProps={{
-                      sx: {
-                        fontSize: "0.85rem",
-                        color: task.completed ? settings.textSecondaryColor : settings.textPrimaryColor,
-                        textDecoration: task.completed ? "line-through" : "none",
-                      },
-                    }}
-                  />
-                  <Chip
-                    label={getPriorityLabel(task.priority)}
-                    size="small"
-                    sx={{
-                      fontSize: "0.65rem",
-                      height: 20,
-                      bgcolor:
-                        task.priority === "high"
-                          ? "#f4433610"
-                          : task.priority === "medium"
-                          ? "#ff980010"
-                          : "#4caf5010",
-                      color:
-                        task.priority === "high"
-                          ? "#f44336"
-                          : task.priority === "medium"
-                          ? "#ff9800"
-                          : "#4caf50",
-                      mr: 1,
-                    }}
-                  />
-                  {}
-                  <IconButton
-                    size="small"
-                    onClick={() => handleDelete(task.id)}
-                    sx={{ color: settings.textPrimaryColor }}
+              {Array.isArray(tasks) &&
+                tasks.map((task) => (
+                  <ListItem
+                    key={task.id}
+                    sx={{ p: 0, mb: 1, display: "flex", alignItems: "center" }}
                   >
-                    <Delete fontSize="small" />
-                  </IconButton>
-                </ListItem>
-              ))}
+                    <Checkbox
+                      checked={task.completed}
+                      onChange={() => handleToggle(task.id)}
+                      size="small"
+                      sx={{
+                        color: settings.textPrimaryColor,
+                        "&.Mui-checked": { color: settings.textPrimaryColor },
+                      }}
+                    />
+                    <ListItemText
+                      primary={task.title}
+                      primaryTypographyProps={{
+                        sx: {
+                          fontSize: "0.85rem",
+                          color: task.completed
+                            ? settings.textSecondaryColor
+                            : settings.textPrimaryColor,
+                          textDecoration: task.completed
+                            ? "line-through"
+                            : "none",
+                        },
+                      }}
+                    />
+                    <Chip
+                      label={getPriorityLabel(task.priority)}
+                      size="small"
+                      sx={{
+                        fontSize: "0.65rem",
+                        height: 20,
+                        bgcolor:
+                          task.priority === "high"
+                            ? "#f4433610"
+                            : task.priority === "medium"
+                            ? "#ff980010"
+                            : "#4caf5010",
+                        color:
+                          task.priority === "high"
+                            ? "#f44336"
+                            : task.priority === "medium"
+                            ? "#ff9800"
+                            : "#4caf50",
+                        mr: 1,
+                      }}
+                    />
+                    {}
+                    <IconButton
+                      size="small"
+                      onClick={() => handleDelete(task.id)}
+                      sx={{ color: settings.textPrimaryColor }}
+                    >
+                      <Delete fontSize="small" />
+                    </IconButton>
+                  </ListItem>
+                ))}
             </List>
           </Box>
         </CardContent>
@@ -1401,14 +1895,19 @@ const TaskList = ({ settings }) => {
               },
             }}
           />
-          <Typography variant="body2" sx={{ mb: 1, color: settings.textSecondaryColor, fontWeight: 500 }}>
+          <Typography
+            variant="body2"
+            sx={{ mb: 1, color: settings.textSecondaryColor, fontWeight: 500 }}
+          >
             Priority
           </Typography>
           <Box sx={{ display: "flex", gap: 1 }}>
             {["low", "medium", "high"].map((priority) => (
               <Button
                 key={priority}
-                variant={newTask.priority === priority ? "contained" : "outlined"}
+                variant={
+                  newTask.priority === priority ? "contained" : "outlined"
+                }
                 size="small"
                 onClick={() => setNewTask({ ...newTask, priority })}
                 sx={{
@@ -1454,7 +1953,7 @@ const TaskList = ({ settings }) => {
               textTransform: "none",
               fontWeight: 500,
               color: "#FFFFFF",
-              bgcolor: settings.primaryColor
+              bgcolor: settings.primaryColor,
             }}
           >
             Cancel
@@ -1479,50 +1978,66 @@ const TaskList = ({ settings }) => {
 };
 
 const QuickActions = ({ settings }) => (
-  <Card sx={{ 
-    background: settings.accentColor, 
-    backdropFilter: 'blur(15px)', 
-    border: `1px solid ${settings.primaryColor}26`, 
-    borderRadius: 4, 
-    boxShadow: `0 15px 40px ${settings.primaryColor}33`,
-    height: 260
-  }}>
-    <CardContent sx={{ p: 1.5, height: '100%', display: 'flex', flexDirection: 'column' }}>
-      <Typography variant="h6" sx={{ fontWeight: 600, mb: 1.5, color: settings.textPrimaryColor, fontSize: '0.85rem' }}>
-       Admin Panel
+  <Card
+    sx={{
+      background: settings.accentColor,
+      backdropFilter: "blur(15px)",
+      border: `1px solid ${settings.primaryColor}26`,
+      borderRadius: 4,
+      boxShadow: `0 15px 40px ${settings.primaryColor}33`,
+      height: 260,
+    }}
+  >
+    <CardContent
+      sx={{ p: 1.5, height: "100%", display: "flex", flexDirection: "column" }}
+    >
+      <Typography
+        variant="h6"
+        sx={{
+          fontWeight: 600,
+          mb: 1.5,
+          color: settings.textPrimaryColor,
+          fontSize: "0.85rem",
+        }}
+      >
+        Admin Panel
       </Typography>
       <Grid container spacing={1}>
         {QUICK_ACTIONS(settings).map((item, i) => (
           <Grid item xs={4} key={i}>
             <Grow in timeout={400 + i * 50}>
               <Link to={item.link} style={{ textDecoration: "none" }}>
-                <Box sx={{ 
-                  p: 1, 
-                  borderRadius: 1.5, 
-                  background: `${settings.primaryColor}0A`, 
-                  border: `1px solid ${settings.primaryColor}26`, 
-                  display: 'flex', 
-                  flexDirection: 'column', 
-                  alignItems: 'center', 
-                  gap: 0.5, 
-                  transition: 'all 0.3s', 
-                  cursor: 'pointer',
-                  height: 43,
-                  '&:hover': { 
-                    background: `${settings.primaryColor}1A`, 
-                    transform: 'translateY(-2px)', 
-                    boxShadow: `0 4px 12px ${settings.primaryColor}33` 
-                  } 
-                }}>
+                <Box
+                  sx={{
+                    p: 1,
+                    borderRadius: 1.5,
+                    background: `${settings.primaryColor}0A`,
+                    border: `1px solid ${settings.primaryColor}26`,
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    gap: 0.5,
+                    transition: "all 0.3s",
+                    cursor: "pointer",
+                    height: 43,
+                    "&:hover": {
+                      background: `${settings.primaryColor}1A`,
+                      transform: "translateY(-2px)",
+                      boxShadow: `0 4px 12px ${settings.primaryColor}33`,
+                    },
+                  }}
+                >
                   <Box sx={{ color: settings.textPrimaryColor }}>
                     {React.cloneElement(item.icon, { sx: { fontSize: 20 } })}
                   </Box>
-                  <Typography sx={{ 
-                    fontSize: '0.6rem', 
-                    fontWeight: 600, 
-                    color: settings.textPrimaryColor, 
-                    textAlign: 'center' 
-                  }}>
+                  <Typography
+                    sx={{
+                      fontSize: "0.6rem",
+                      fontWeight: 600,
+                      color: settings.textPrimaryColor,
+                      textAlign: "center",
+                    }}
+                  >
                     {item.label}
                   </Typography>
                 </Box>
@@ -1536,40 +2051,48 @@ const QuickActions = ({ settings }) => (
 );
 
 const UpgradeCard = ({ settings }) => (
-  <Card sx={{ 
-    background: `linear-gradient(135deg, ${settings.primaryColor}, ${settings.secondaryColor})`, 
-    borderRadius: 4, 
-    p: 2, 
-    mt: 2, 
-    color: '#ffffff',
-    position: 'relative',
-    overflow: 'hidden'
-  }}>
-    <Box sx={{ position: 'absolute', top: -20, right: -20, opacity: 0.1 }}>
+  <Card
+    sx={{
+      background: `linear-gradient(135deg, ${settings.primaryColor}, ${settings.secondaryColor})`,
+      borderRadius: 4,
+      p: 2,
+      mt: 2,
+      color: "#ffffff",
+      position: "relative",
+      overflow: "hidden",
+    }}
+  >
+    <Box sx={{ position: "absolute", top: -20, right: -20, opacity: 0.1 }}>
       <Lock sx={{ fontSize: 120 }} />
     </Box>
-    <Box sx={{ position: 'relative', zIndex: 1 }}>
-      <Typography variant="h6" sx={{ fontWeight: 700, mb: 1, fontSize: '0.95rem' }}>
+    <Box sx={{ position: "relative", zIndex: 1 }}>
+      <Typography
+        variant="h6"
+        sx={{ fontWeight: 700, mb: 1, fontSize: "0.95rem" }}
+      >
         HR Analytics Pro
       </Typography>
-      <Typography variant="body2" sx={{ mb: 2, fontSize: '0.75rem', opacity: 0.9 }}>
+      <Typography
+        variant="body2"
+        sx={{ mb: 2, fontSize: "0.75rem", opacity: 0.9 }}
+      >
         Unlock advanced payroll analytics and reporting
       </Typography>
-      <Button 
-        variant="contained" 
+      <Button
+        variant="contained"
         size="small"
         endIcon={<Upgrade />}
-        sx={{ 
-          background: '#ffffff', 
-          color: settings.textPrimaryColor, 
+        sx={{
+          background: "#ffffff",
+          color: settings.textPrimaryColor,
           fontWeight: 600,
-          fontSize: '0.75rem',
+          fontSize: "0.75rem",
           px: 2,
           py: 0.5,
-          '&:hover': { 
-            background: '#f5f5f5', 
-            transform: 'translateY(-1px)' 
-          } 
+          "&:hover": {
+            background: "#f5f5f5",
+            transform: "translateY(-1px)",
+          },
         }}
       >
         Upgrade Now
@@ -1611,7 +2134,8 @@ const LogoutDialog = ({ open, settings }) => (
             width: 20,
             height: 20,
             borderRadius: "50%",
-            background: i % 2 === 0 ? settings.primaryColor : settings.accentColor,
+            background:
+              i % 2 === 0 ? settings.primaryColor : settings.accentColor,
             position: "absolute",
             top: "50%",
             left: "50%",
@@ -1668,7 +2192,9 @@ const LogoutDialog = ({ open, settings }) => (
         Signing out...
       </Typography>
 
-      <Box component="style" children={`
+      <Box
+        component="style"
+        children={`
         @keyframes heartbeat {
           0%,100% { transform: scale(1); }
           25%,75% { transform: scale(1.15); }
@@ -1688,54 +2214,61 @@ const LogoutDialog = ({ open, settings }) => (
         @keyframes orbit1 { 0% { transform: rotate(90deg) translateX(60px); } 100% { transform: rotate(450deg) translateX(60px); } }
         @keyframes orbit2 { 0% { transform: rotate(180deg) translateX(60px); } 100% { transform: rotate(540deg) translateX(60px); } }
         @keyframes orbit3 { 0% { transform: rotate(270deg) translateX(60px); } 100% { transform: rotate(630deg) translateX(60px); } }
-      `}/>
+      `}
+      />
     </Box>
   </Dialog>
 );
 
-
 const AdminHome = () => {
   const { username, fullName, employeeNumber, profilePicture } = useAuth();
   const settings = useSystemSettings();
-  const { 
-    stats, 
-    weeklyAttendanceData, 
-    departmentAttendanceData, 
+  const {
+    stats,
+    weeklyAttendanceData,
+    departmentAttendanceData,
     payrollStatusData,
     monthlyAttendanceTrend,
     payrollTrendData,
-    attendanceChartData, 
-    announcements, 
-    holidays, 
-    loading 
+    attendanceChartData,
+    announcements,
+    holidays,
+    loading,
   } = useDashboardData(settings);
-  const { currentSlide, isPlaying, handlePrevSlide, handleNextSlide, handleSlideSelect, togglePlayPause } = useCarousel(announcements);
+  const {
+    currentSlide,
+    isPlaying,
+    handlePrevSlide,
+    handleNextSlide,
+    handleSlideSelect,
+    togglePlayPause,
+  } = useCarousel(announcements);
   const currentTime = useTime();
-  
+
   const [calendarDate, setCalendarDate] = useState(new Date());
   const [openModal, setOpenModal] = useState(false);
   const [selectedAnnouncement, setSelectedAnnouncement] = useState(null);
   const [notifModalOpen, setNotifModalOpen] = useState(false);
   const [hoveredCard, setHoveredCard] = useState(null);
-  const [chartView, setChartView] = useState('pie');
+  const [chartView, setChartView] = useState("pie");
   const [anchorEl, setAnchorEl] = useState(null);
   const [logoutOpen, setLogoutOpen] = useState(false);
   const [tabValue, setTabValue] = useState(0);
-  
+
   const openMenu = Boolean(anchorEl);
   const navigate = useNavigate();
 
   const handleMenuOpen = (event) => setAnchorEl(event.currentTarget);
   const handleMenuClose = () => setAnchorEl(null);
-  
-  const handleOpenModal = (announcement) => { 
-    setSelectedAnnouncement(announcement); 
-    setOpenModal(true); 
+
+  const handleOpenModal = (announcement) => {
+    setSelectedAnnouncement(announcement);
+    setOpenModal(true);
   };
-  
-  const handleCloseModal = () => { 
-    setOpenModal(false); 
-    setSelectedAnnouncement(null); 
+
+  const handleCloseModal = () => {
+    setOpenModal(false);
+    setSelectedAnnouncement(null);
   };
 
   const handleLogout = () => {
@@ -1743,43 +2276,47 @@ const AdminHome = () => {
     setTimeout(() => {
       localStorage.removeItem("token");
       window.location.href = "/";
-    }, 500); 
+    }, 500);
   };
 
-  const radialAttendanceData = Array.isArray(attendanceChartData) ? attendanceChartData.map((item, idx) => ({ 
-    ...item, 
-    fill: COLORS(settings)[idx % COLORS(settings).length] 
-  })) : [];
+  const radialAttendanceData = Array.isArray(attendanceChartData)
+    ? attendanceChartData.map((item, idx) => ({
+        ...item,
+        fill: COLORS(settings)[idx % COLORS(settings).length],
+      }))
+    : [];
 
   return (
-    <Box sx={{ 
-      minHeight: '100vh', 
-      py: 2, 
-      borderRadius: '14px',
-      mt: -2,
-      width: '100vw',
-      mx: 'auto',
-      maxWidth: '100%', 
-      overflow: 'hidden',
-      position: 'relative',
-      left: '50%',
-      transform: 'translateX(-50%)', 
-    }}>
-      <Box sx={{ pt: 4, px: 6, mx: 'auto', maxWidth: '1600px' }}>
+    <Box
+      sx={{
+        minHeight: "100vh",
+        py: 2,
+        borderRadius: "14px",
+        mt: -2,
+        width: "100vw",
+        mx: "auto",
+        maxWidth: "100%",
+        overflow: "hidden",
+        position: "relative",
+        left: "50%",
+        transform: "translateX(-50%)",
+      }}
+    >
+      <Box sx={{ pt: 4, px: 6, mx: "auto", maxWidth: "1600px" }}>
         <Grow in timeout={300}>
           <Box
             sx={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
               mb: 3,
               background: settings.accentColor,
-              backdropFilter: 'blur(15px)',
+              backdropFilter: "blur(15px)",
               borderRadius: 4,
               p: 2,
               border: `1px solid ${settings.secondaryColor}`,
               boxShadow: `0 15px 40px ${settings.primaryColor}33`,
-              mt: -5
+              mt: -5,
             }}
           >
             <Box>
@@ -1797,26 +2334,34 @@ const AdminHome = () => {
                 sx={{
                   color: settings.textPrimaryColor,
                   mt: 0.25,
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 0.5
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 0.5,
                 }}
               >
                 <AccessTimeIcon sx={{ fontSize: 14 }} />
-                {currentTime.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}
-                <span style={{ marginLeft: '8px' }}>
-                  {currentTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
+                {currentTime.toLocaleDateString("en-US", {
+                  weekday: "long",
+                  month: "long",
+                  day: "numeric",
+                  year: "numeric",
+                })}
+                <span style={{ marginLeft: "8px" }}>
+                  {currentTime.toLocaleTimeString("en-US", {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
                 </span>
               </Typography>
             </Box>
 
-            <Box sx={{ display: 'flex', gap: 1.5, alignItems: 'center' }}>
+            <Box sx={{ display: "flex", gap: 1.5, alignItems: "center" }}>
               <Tooltip title="Refresh">
                 <IconButton
                   size="small"
                   sx={{
                     bgcolor: `${settings.primaryColor}1A`,
-                    '&:hover': { bgcolor: `${settings.primaryColor}33` },
+                    "&:hover": { bgcolor: `${settings.primaryColor}33` },
                     color: settings.textPrimaryColor,
                   }}
                   onClick={() => window.location.reload()}
@@ -1830,12 +2375,18 @@ const AdminHome = () => {
                   size="small"
                   sx={{
                     bgcolor: `${settings.primaryColor}1A`,
-                    '&:hover': { bgcolor: `${settings.primaryColor}33` },
+                    "&:hover": { bgcolor: `${settings.primaryColor}33` },
                     color: settings.textPrimaryColor,
                   }}
                   onClick={() => setNotifModalOpen(true)}
                 >
-                  <Badge badgeContent={Array.isArray(announcements) ? announcements.length : 0} color="error" max={9}>
+                  <Badge
+                    badgeContent={
+                      Array.isArray(announcements) ? announcements.length : 0
+                    }
+                    color="error"
+                    max={9}
+                  >
                     <NotificationsIcon fontSize="small" />
                   </Badge>
                 </IconButton>
@@ -1843,67 +2394,132 @@ const AdminHome = () => {
 
               <Box
                 sx={{
-                  position: 'relative',
-                  '&::before': {
+                  position: "relative",
+                  "&::before": {
                     content: '""',
-                    position: 'absolute',
+                    position: "absolute",
                     inset: -2,
-                    borderRadius: '50%',
-                    padding: '2px',
+                    borderRadius: "50%",
+                    padding: "2px",
                     background: `linear-gradient(135deg, ${settings.primaryColor}, ${settings.secondaryColor})`,
-                    WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
-                    WebkitMaskComposite: 'xor',
-                    maskComposite: 'exclude',
+                    WebkitMask:
+                      "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
+                    WebkitMaskComposite: "xor",
+                    maskComposite: "exclude",
                   },
                 }}
               >
                 <IconButton onClick={handleMenuOpen} sx={{ p: 0.5 }}>
                   <Avatar
                     alt={username}
-                    src={profilePicture ? `${API_BASE_URL}${profilePicture}` : undefined}
+                    src={
+                      profilePicture
+                        ? `${API_BASE_URL}${profilePicture}`
+                        : undefined
+                    }
                     sx={{ width: 36, height: 36 }}
                   />
                 </IconButton>
               </Box>
-              
-              <Menu 
-                anchorEl={anchorEl} 
-                open={openMenu} 
-                onClose={handleMenuClose} 
-                anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }} 
-                transformOrigin={{ vertical: 'top', horizontal: 'right' }} 
-                PaperProps={{ 
-                  sx: { 
-                    borderRadius: 2, 
-                    minWidth: 180, 
+
+              <Menu
+                anchorEl={anchorEl}
+                open={openMenu}
+                onClose={handleMenuClose}
+                anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+                transformOrigin={{ vertical: "top", horizontal: "right" }}
+                PaperProps={{
+                  sx: {
+                    borderRadius: 2,
+                    minWidth: 180,
                     backgroundColor: settings.accentColor,
                     border: `1px solid ${settings.primaryColor}26`,
                     boxShadow: `0 15px 40px ${settings.primaryColor}33`,
-                    '& .MuiMenuItem-root': { 
-                      fontSize: '0.875rem',
+                    "& .MuiMenuItem-root": {
+                      fontSize: "0.875rem",
                       color: settings.textPrimaryColor,
-                      '&:hover': { 
-                        background: `${settings.primaryColor}0A` 
-                      }, 
-                    }, 
-                  }, 
-                }} 
-              > 
-                <MenuItem onClick={() => { handleMenuClose(); navigate("/profile"); }}>
-                  <AccountCircle sx={{ mr: 1, fontSize: 20, color: settings.textPrimaryColor }} /> Profile
-                </MenuItem> 
-                <MenuItem onClick={() => { handleMenuClose(); navigate("/settings"); }}>
-                  <Settings sx={{ mr: 1, fontSize: 20, color: settings.textPrimaryColor }} /> Settings
-                </MenuItem> 
-                <MenuItem onClick={() => { handleMenuClose(); navigate("/faqs"); }}>
-                  <HelpOutline sx={{ mr: 1, fontSize: 20, color: settings.textPrimaryColor }} /> FAQs
-                </MenuItem> 
-                <MenuItem onClick={() => { handleMenuClose(); navigate("/privacy-policy"); }}>
-                  <PrivacyTip sx={{ mr: 1, fontSize: 20, color: settings.textPrimaryColor }} /> Privacy Policy
-                </MenuItem> 
-                <Divider sx={{ borderColor: `${settings.primaryColor}26` }} /> 
-                <MenuItem onClick={() => { handleMenuClose(); handleLogout(); }}>
-                  <Logout sx={{ mr: 1, fontSize: 20, color: settings.textPrimaryColor }} /> Sign Out
+                      "&:hover": {
+                        background: `${settings.primaryColor}0A`,
+                      },
+                    },
+                  },
+                }}
+              >
+                <MenuItem
+                  onClick={() => {
+                    handleMenuClose();
+                    navigate("/profile");
+                  }}
+                >
+                  <AccountCircle
+                    sx={{
+                      mr: 1,
+                      fontSize: 20,
+                      color: settings.textPrimaryColor,
+                    }}
+                  />{" "}
+                  Profile
+                </MenuItem>
+                <MenuItem
+                  onClick={() => {
+                    handleMenuClose();
+                    navigate("/settings");
+                  }}
+                >
+                  <Settings
+                    sx={{
+                      mr: 1,
+                      fontSize: 20,
+                      color: settings.textPrimaryColor,
+                    }}
+                  />{" "}
+                  Settings
+                </MenuItem>
+                <MenuItem
+                  onClick={() => {
+                    handleMenuClose();
+                    navigate("/faqs");
+                  }}
+                >
+                  <HelpOutline
+                    sx={{
+                      mr: 1,
+                      fontSize: 20,
+                      color: settings.textPrimaryColor,
+                    }}
+                  />{" "}
+                  FAQs
+                </MenuItem>
+                <MenuItem
+                  onClick={() => {
+                    handleMenuClose();
+                    navigate("/privacy-policy");
+                  }}
+                >
+                  <PrivacyTip
+                    sx={{
+                      mr: 1,
+                      fontSize: 20,
+                      color: settings.textPrimaryColor,
+                    }}
+                  />{" "}
+                  Privacy Policy
+                </MenuItem>
+                <Divider sx={{ borderColor: `${settings.primaryColor}26` }} />
+                <MenuItem
+                  onClick={() => {
+                    handleMenuClose();
+                    handleLogout();
+                  }}
+                >
+                  <Logout
+                    sx={{
+                      mr: 1,
+                      fontSize: 20,
+                      color: settings.textPrimaryColor,
+                    }}
+                  />{" "}
+                  Sign Out
                 </MenuItem>
               </Menu>
             </Box>
@@ -1917,7 +2533,7 @@ const AdminHome = () => {
             justifyContent: "space-between",
             flexWrap: "nowrap",
             gap: 1,
-            pb: 3
+            pb: 3,
           }}
         >
           {STAT_CARDS(settings).map((card, index) => (
@@ -1925,8 +2541,8 @@ const AdminHome = () => {
               key={card.label}
               sx={{
                 flex: "1 1 0",
-                maxWidth: "19%", 
-                minWidth: "140px", 
+                maxWidth: "19%",
+                minWidth: "140px",
               }}
             >
               <CompactStatCard
@@ -1943,7 +2559,7 @@ const AdminHome = () => {
         {}
         <Grid container spacing={2} sx={{ mb: 3 }}>
           <Grid item xs={12} md={7}>
-            <AnnouncementCarousel 
+            <AnnouncementCarousel
               announcements={announcements}
               currentSlide={currentSlide}
               isPlaying={isPlaying}
@@ -1959,10 +2575,10 @@ const AdminHome = () => {
             {}
             <Grid container spacing={2} sx={{ mb: 2 }}>
               <Grid item xs={6}>
-                <CompactCalendar 
-                  calendarDate={calendarDate} 
-                  setCalendarDate={setCalendarDate} 
-                  holidays={holidays} 
+                <CompactCalendar
+                  calendarDate={calendarDate}
+                  setCalendarDate={setCalendarDate}
+                  holidays={holidays}
                   settings={settings}
                 />
               </Grid>
@@ -1976,31 +2592,48 @@ const AdminHome = () => {
 
         <Grid container spacing={2}>
           <Grid item xs={12}>
-            <Tabs 
-              value={tabValue} 
-              onChange={(e, v) => setTabValue(v)} 
-              sx={{ 
+            <Tabs
+              value={tabValue}
+              onChange={(e, v) => setTabValue(v)}
+              sx={{
                 mb: 2,
-                '& .MuiTab-root': {
+                "& .MuiTab-root": {
                   color: settings.textPrimaryColor,
-                  '&.Mui-selected': {
+                  "&.Mui-selected": {
                     color: settings.textPrimaryColor,
-                  }
+                  },
                 },
-                '& .MuiTabs-indicator': {
+                "& .MuiTabs-indicator": {
                   backgroundColor: settings.textPrimaryColor,
-                }
+                },
               }}
             >
-              <Tab label="Overview" sx={{ fontSize: '0.875rem', fontWeight: 600, textTransform: 'none' }} />
-              <Tab label="Analytics" sx={{ fontSize: '0.875rem', fontWeight: 600, textTransform: 'none' }} />
+              <Tab
+                label="Overview"
+                sx={{
+                  fontSize: "0.875rem",
+                  fontWeight: 600,
+                  textTransform: "none",
+                }}
+              />
+              <Tab
+                label="Analytics"
+                sx={{
+                  fontSize: "0.875rem",
+                  fontWeight: 600,
+                  textTransform: "none",
+                }}
+              />
             </Tabs>
 
-            
             {tabValue === 0 && (
               <Grid container spacing={2}>
                 <Grid item xs={12} md={6}>
-                  <CompactChart title="Weekly Attendance" height={200} settings={settings}>
+                  <CompactChart
+                    title="Weekly Attendance"
+                    height={200}
+                    settings={settings}
+                  >
                     <ResponsiveContainer width="100%" height="100%">
                       <BarChart data={weeklyAttendanceData}>
                         <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
@@ -2016,12 +2649,25 @@ const AdminHome = () => {
                 </Grid>
 
                 <Grid item xs={12} md={6}>
-                  <CompactChart title="Department Attendance Rate" height={200} settings={settings}>
+                  <CompactChart
+                    title="Department Attendance Rate"
+                    height={200}
+                    settings={settings}
+                  >
                     <ResponsiveContainer width="100%" height="100%">
-                      <BarChart data={departmentAttendanceData} layout="horizontal">
+                      <BarChart
+                        data={departmentAttendanceData}
+                        layout="horizontal"
+                      >
                         <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
                         <XAxis type="number" stroke="#666" fontSize={12} />
-                        <YAxis dataKey="department" type="category" stroke="#666" fontSize={12} width={60} />
+                        <YAxis
+                          dataKey="department"
+                          type="category"
+                          stroke="#666"
+                          fontSize={12}
+                          width={60}
+                        />
                         <RechartTooltip />
                         <Bar dataKey="rate" fill={settings.primaryColor} />
                       </BarChart>
@@ -2030,21 +2676,26 @@ const AdminHome = () => {
                 </Grid>
 
                 <Grid item xs={12} md={6}>
-                  <CompactChart title="Payroll Status" height={200} settings={settings}>
+                  <CompactChart
+                    title="Payroll Status"
+                    height={200}
+                    settings={settings}
+                  >
                     <ResponsiveContainer width="100%" height="100%">
                       <PieChart>
-                        <Pie 
-                          data={payrollStatusData} 
-                          cx="50%" 
-                          cy="50%" 
+                        <Pie
+                          data={payrollStatusData}
+                          cx="50%"
+                          cy="50%"
                           innerRadius={40}
                           outerRadius={70}
                           paddingAngle={2}
                           dataKey="value"
                         >
-                          {Array.isArray(payrollStatusData) && payrollStatusData.map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill={entry.fill} />
-                          ))}
+                          {Array.isArray(payrollStatusData) &&
+                            payrollStatusData.map((entry, index) => (
+                              <Cell key={`cell-${index}`} fill={entry.fill} />
+                            ))}
                         </Pie>
                         <RechartTooltip />
                         <Legend />
@@ -2054,9 +2705,22 @@ const AdminHome = () => {
                 </Grid>
 
                 <Grid item xs={12} md={6}>
-                  <CompactChart title="Today's Attendance Summary" height={200} settings={settings}>
-                    <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
-                      <Box sx={{ position: 'relative', width: 140, height: 140 }}>
+                  <CompactChart
+                    title="Today's Attendance Summary"
+                    height={200}
+                    settings={settings}
+                  >
+                    <Box
+                      sx={{
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        height: "100%",
+                      }}
+                    >
+                      <Box
+                        sx={{ position: "relative", width: 140, height: 140 }}
+                      >
                         <svg width="140" height="140" viewBox="0 0 140 140">
                           <circle
                             cx="70"
@@ -2073,17 +2737,37 @@ const AdminHome = () => {
                             fill="none"
                             stroke={settings.primaryColor}
                             strokeWidth="12"
-                            strokeDasharray={`${2 * Math.PI * 60 * 0.877} ${2 * Math.PI * 60}`}
+                            strokeDasharray={`${2 * Math.PI * 60 * 0.877} ${
+                              2 * Math.PI * 60
+                            }`}
                             strokeDashoffset="0"
                             strokeLinecap="round"
                             transform="rotate(-90 70 70)"
                           />
                         </svg>
-                        <Box sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', textAlign: 'center' }}>
-                          <Typography variant="h3" sx={{ fontWeight: 700, color: settings.textPrimaryColor, lineHeight: 1 }}>
+                        <Box
+                          sx={{
+                            position: "absolute",
+                            top: "50%",
+                            left: "50%",
+                            transform: "translate(-50%, -50%)",
+                            textAlign: "center",
+                          }}
+                        >
+                          <Typography
+                            variant="h3"
+                            sx={{
+                              fontWeight: 700,
+                              color: settings.textPrimaryColor,
+                              lineHeight: 1,
+                            }}
+                          >
                             87.7
                           </Typography>
-                          <Typography variant="caption" sx={{ color: settings.textSecondaryColor }}>
+                          <Typography
+                            variant="caption"
+                            sx={{ color: settings.textSecondaryColor }}
+                          >
                             % Present
                           </Typography>
                         </Box>
@@ -2097,7 +2781,11 @@ const AdminHome = () => {
             {tabValue === 1 && (
               <Grid container spacing={2}>
                 <Grid item xs={12}>
-                  <CompactChart title="Monthly Attendance Trend" height={250} settings={settings}>
+                  <CompactChart
+                    title="Monthly Attendance Trend"
+                    height={250}
+                    settings={settings}
+                  >
                     <ResponsiveContainer width="100%" height="100%">
                       <LineChart data={monthlyAttendanceTrend}>
                         <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
@@ -2105,26 +2793,26 @@ const AdminHome = () => {
                         <YAxis stroke="#666" fontSize={12} />
                         <RechartTooltip />
                         <Legend />
-                        <Line 
-                          type="monotone" 
-                          dataKey="attendance" 
-                          stroke={settings.primaryColor} 
+                        <Line
+                          type="monotone"
+                          dataKey="attendance"
+                          stroke={settings.primaryColor}
                           strokeWidth={2}
                           dot={{ fill: settings.primaryColor, r: 4 }}
                           name="Attendance %"
                         />
-                        <Line 
-                          type="monotone" 
-                          dataKey="leaves" 
-                          stroke={settings.secondaryColor} 
+                        <Line
+                          type="monotone"
+                          dataKey="leaves"
+                          stroke={settings.secondaryColor}
                           strokeWidth={2}
                           dot={{ fill: settings.secondaryColor, r: 4 }}
                           name="Leaves %"
                         />
-                        <Line 
-                          type="monotone" 
-                          dataKey="overtime" 
-                          stroke={settings.hoverColor} 
+                        <Line
+                          type="monotone"
+                          dataKey="overtime"
+                          stroke={settings.hoverColor}
                           strokeWidth={2}
                           dot={{ fill: settings.hoverColor, r: 4 }}
                           name="Overtime %"
@@ -2135,39 +2823,76 @@ const AdminHome = () => {
                 </Grid>
 
                 <Grid item xs={12}>
-                  <CompactChart title="Payroll Trend (₱)" height={200} settings={settings}>
+                  <CompactChart
+                    title="Payroll Trend (₱)"
+                    height={200}
+                    settings={settings}
+                  >
                     <ResponsiveContainer width="100%" height="100%">
                       <AreaChart data={payrollTrendData}>
                         <defs>
-                          <linearGradient id="colorGross" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="5%" stopColor={settings.primaryColor} stopOpacity={0.8}/>
-                            <stop offset="95%" stopColor={settings.primaryColor} stopOpacity={0}/>
+                          <linearGradient
+                            id="colorGross"
+                            x1="0"
+                            y1="0"
+                            x2="0"
+                            y2="1"
+                          >
+                            <stop
+                              offset="5%"
+                              stopColor={settings.primaryColor}
+                              stopOpacity={0.8}
+                            />
+                            <stop
+                              offset="95%"
+                              stopColor={settings.primaryColor}
+                              stopOpacity={0}
+                            />
                           </linearGradient>
-                          <linearGradient id="colorNet" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="5%" stopColor={settings.secondaryColor} stopOpacity={0.8}/>
-                            <stop offset="95%" stopColor={settings.secondaryColor} stopOpacity={0}/>
+                          <linearGradient
+                            id="colorNet"
+                            x1="0"
+                            y1="0"
+                            x2="0"
+                            y2="1"
+                          >
+                            <stop
+                              offset="5%"
+                              stopColor={settings.secondaryColor}
+                              stopOpacity={0.8}
+                            />
+                            <stop
+                              offset="95%"
+                              stopColor={settings.secondaryColor}
+                              stopOpacity={0}
+                            />
                           </linearGradient>
                         </defs>
                         <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
                         <XAxis dataKey="month" stroke="#666" fontSize={12} />
                         <YAxis stroke="#666" fontSize={12} />
-                        <RechartTooltip formatter={(value) => [`₱${value.toLocaleString()}`, '']} />
+                        <RechartTooltip
+                          formatter={(value) => [
+                            `₱${value.toLocaleString()}`,
+                            "",
+                          ]}
+                        />
                         <Legend />
-                        <Area 
-                          type="monotone" 
-                          dataKey="grossPay" 
-                          stroke={settings.primaryColor} 
-                          strokeWidth={2} 
-                          fillOpacity={1} 
+                        <Area
+                          type="monotone"
+                          dataKey="grossPay"
+                          stroke={settings.primaryColor}
+                          strokeWidth={2}
+                          fillOpacity={1}
                           fill="url(#colorGross)"
                           name="Gross Pay"
                         />
-                        <Area 
-                          type="monotone" 
-                          dataKey="netPay" 
-                          stroke={settings.secondaryColor} 
-                          strokeWidth={2} 
-                          fillOpacity={1} 
+                        <Area
+                          type="monotone"
+                          dataKey="netPay"
+                          stroke={settings.secondaryColor}
+                          strokeWidth={2}
+                          fillOpacity={1}
                           fill="url(#colorNet)"
                           name="Net Pay"
                         />
@@ -2183,84 +2908,98 @@ const AdminHome = () => {
 
       <Modal open={openModal} onClose={handleCloseModal}>
         <Fade in={openModal}>
-          <Box sx={{ 
-            position: 'absolute', 
-            top: '50%', 
-            left: '50%', 
-            transform: 'translate(-50%, -50%)', 
-            width: '90%', 
-            maxWidth: 800, 
-            bgcolor: settings.accentColor, 
-            backdropFilter: 'blur(40px)', 
-            border: `1px solid ${settings.primaryColor}26`, 
-            boxShadow: `0 24px 64px ${settings.primaryColor}4D`, 
-            borderRadius: 4, 
-            overflow: 'hidden', 
-            maxHeight: '90vh', 
-            display: 'flex', 
-            flexDirection: 'column' 
-          }}>
+          <Box
+            sx={{
+              position: "absolute",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              width: "90%",
+              maxWidth: 800,
+              bgcolor: settings.accentColor,
+              backdropFilter: "blur(40px)",
+              border: `1px solid ${settings.primaryColor}26`,
+              boxShadow: `0 24px 64px ${settings.primaryColor}4D`,
+              borderRadius: 4,
+              overflow: "hidden",
+              maxHeight: "90vh",
+              display: "flex",
+              flexDirection: "column",
+            }}
+          >
             {selectedAnnouncement && (
               <>
-                <Box sx={{ position: 'relative' }}>
+                <Box sx={{ position: "relative" }}>
                   {selectedAnnouncement.image && (
-                    <Box 
-                      component="img" 
-                      src={`${API_BASE_URL}${selectedAnnouncement.image}`} 
-                      alt={selectedAnnouncement.title} 
-                      sx={{ width: '100%', height: 350, objectFit: 'cover' }} 
+                    <Box
+                      component="img"
+                      src={`${API_BASE_URL}${selectedAnnouncement.image}`}
+                      alt={selectedAnnouncement.title}
+                      sx={{ width: "100%", height: 350, objectFit: "cover" }}
                     />
                   )}
-                  <Box sx={{ 
-                    position: 'absolute', 
-                    inset: 0, 
-                    background: 'linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0, 0, 0, 0.7) 100%)' 
-                  }} />
-                  <IconButton 
-                    onClick={handleCloseModal} 
-                    sx={{ 
-                      position: 'absolute', 
-                      top: 20, 
-                      right: 20, 
-                      bgcolor: `${settings.primaryColor}4D`, 
-                      backdropFilter: 'blur(10px)', 
-                      border: `1px solid ${settings.primaryColor}26`, 
-                      color: '#ffffff', 
-                      '&:hover': { bgcolor: `${settings.primaryColor}80`, transform: 'rotate(90deg)' }, 
-                      transition: 'all 0.3s' 
+                  <Box
+                    sx={{
+                      position: "absolute",
+                      inset: 0,
+                      background:
+                        "linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0, 0, 0, 0.7) 100%)",
+                    }}
+                  />
+                  <IconButton
+                    onClick={handleCloseModal}
+                    sx={{
+                      position: "absolute",
+                      top: 20,
+                      right: 20,
+                      bgcolor: `${settings.primaryColor}4D`,
+                      backdropFilter: "blur(10px)",
+                      border: `1px solid ${settings.primaryColor}26`,
+                      color: "#ffffff",
+                      "&:hover": {
+                        bgcolor: `${settings.primaryColor}80`,
+                        transform: "rotate(90deg)",
+                      },
+                      transition: "all 0.3s",
                     }}
                   >
                     <CloseIcon />
                   </IconButton>
                 </Box>
-                <Box sx={{ p: 4, overflowY: 'auto' }}>
-                  <Typography 
-                    variant="h3" 
-                    sx={{ 
-                      fontWeight: 800, 
-                      mb: 2, 
-                      color: settings.textPrimaryColor, 
+                <Box sx={{ p: 4, overflowY: "auto" }}>
+                  <Typography
+                    variant="h3"
+                    sx={{
+                      fontWeight: 800,
+                      mb: 2,
+                      color: settings.textPrimaryColor,
                     }}
                   >
                     {selectedAnnouncement.title}
                   </Typography>
-                  <Chip 
-                    icon={<AccessTimeIcon style={{color: settings.textPrimaryColor}}/>} 
-                    label={new Date(selectedAnnouncement.date).toLocaleDateString()} 
-                    sx={{ 
-                      mb: 3, 
-                      bgcolor: `${settings.primaryColor}4D`, 
-                      backdropFilter: 'blur(10px)', 
-                      color: settings.textPrimaryColor, 
-                      border: `1px solid ${settings.primaryColor}26` 
-                    }} 
+                  <Chip
+                    icon={
+                      <AccessTimeIcon
+                        style={{ color: settings.textPrimaryColor }}
+                      />
+                    }
+                    label={new Date(
+                      selectedAnnouncement.date
+                    ).toLocaleDateString()}
+                    sx={{
+                      mb: 3,
+                      bgcolor: `${settings.primaryColor}4D`,
+                      backdropFilter: "blur(10px)",
+                      color: settings.textPrimaryColor,
+                      border: `1px solid ${settings.primaryColor}26`,
+                    }}
                   />
-                  <Typography 
-                    variant="body1" 
-                    sx={{ 
-                      color: settings.textPrimaryColor, 
-                      lineHeight: 1.8, 
-                      fontSize: '1.05rem' 
+                  <Typography
+                    variant="body1"
+                    sx={{
+                      color: settings.textPrimaryColor,
+                      lineHeight: 1.8,
+                      fontSize: "1.05rem",
                     }}
                   >
                     {selectedAnnouncement.about}
@@ -2274,133 +3013,176 @@ const AdminHome = () => {
 
       <Modal open={notifModalOpen} onClose={() => setNotifModalOpen(false)}>
         <Fade in={notifModalOpen}>
-          <Box sx={{ 
-            position: 'absolute', 
-            top: 100, 
-            right: 24, 
-            width: 420, 
-            maxWidth: '90vw', 
-            bgcolor: settings.accentColor, 
-            backdropFilter: 'blur(40px)', 
-            border: `1px solid ${settings.primaryColor}26`, 
-            boxShadow: `0 24px 64px ${settings.primaryColor}4D`, 
-            borderRadius: 4, 
-            overflow: 'hidden', 
-            maxHeight: 'calc(100vh - 140px)' 
-          }}>
-            <Box sx={{ 
-              p: 3, 
-              borderBottom: `1px solid ${settings.primaryColor}26`, 
-              display: 'flex', 
-              justifyContent: 'space-between', 
-              alignItems: 'center', 
-              background: `linear-gradient(135deg, ${settings.primaryColor}1A 0%, ${settings.secondaryColor}0D 100%)` 
-            }}>
-              <Typography variant="h6" sx={{ fontWeight: 700, color: settings.textPrimaryColor }}>
+          <Box
+            sx={{
+              position: "absolute",
+              top: 100,
+              right: 24,
+              width: 420,
+              maxWidth: "90vw",
+              bgcolor: settings.accentColor,
+              backdropFilter: "blur(40px)",
+              border: `1px solid ${settings.primaryColor}26`,
+              boxShadow: `0 24px 64px ${settings.primaryColor}4D`,
+              borderRadius: 4,
+              overflow: "hidden",
+              maxHeight: "calc(100vh - 140px)",
+            }}
+          >
+            <Box
+              sx={{
+                p: 3,
+                borderBottom: `1px solid ${settings.primaryColor}26`,
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                background: `linear-gradient(135deg, ${settings.primaryColor}1A 0%, ${settings.secondaryColor}0D 100%)`,
+              }}
+            >
+              <Typography
+                variant="h6"
+                sx={{ fontWeight: 700, color: settings.textPrimaryColor }}
+              >
                 Notifications
               </Typography>
-              <IconButton 
-                size="small" 
-                onClick={() => setNotifModalOpen(false)} 
-                sx={{ 
+              <IconButton
+                size="small"
+                onClick={() => setNotifModalOpen(false)}
+                sx={{
                   color: settings.textPrimaryColor,
-                  '&:hover': { bgcolor: `${settings.primaryColor}1A`, transform: 'rotate(90deg)' }, 
-                  transition: 'all 0.3s' 
+                  "&:hover": {
+                    bgcolor: `${settings.primaryColor}1A`,
+                    transform: "rotate(90deg)",
+                  },
+                  transition: "all 0.3s",
                 }}
               >
                 <CloseIcon />
               </IconButton>
             </Box>
-            <Box sx={{ maxHeight: 'calc(100vh - 250px)', overflowY: 'auto', p: 2 }}>
-              {Array.isArray(announcements) && announcements.slice(0, 8).map((item, idx) => (
-                <Grow in timeout={300 + idx * 50} key={idx}>
-                  <Box 
-                    sx={{ 
-                      mb: 2, 
-                      p: 2.5, 
-                      borderRadius: 3, 
-                      background: `${settings.primaryColor}0A`, 
-                      border: `1px solid ${settings.primaryColor}26`, 
-                      cursor: 'pointer', 
-                      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)', 
-                      position: 'relative', 
-                      overflow: 'hidden', 
-                      '&::before': { 
-                        content: '""', 
-                        position: 'absolute', 
-                        left: 0, 
-                        top: 0, 
-                        bottom: 0, 
-                        width: 4, 
-                        background: `linear-gradient(135deg, ${settings.primaryColor}, ${settings.secondaryColor})`, 
-                        transform: 'scaleY(0)', 
-                        transition: 'transform 0.3s' 
-                      }, 
-                      '&:hover': { 
-                        background: `${settings.primaryColor}1A`, 
-                        transform: 'translateX(8px)', 
-                        boxShadow: `0 8px 24px ${settings.primaryColor}33` 
-                      }, 
-                      '&:hover::before': { transform: 'scaleY(1)' } 
-                    }} 
-                    onClick={() => { 
-                      setSelectedAnnouncement(item); 
-                      setNotifModalOpen(false); 
-                      setOpenModal(true); 
+            <Box
+              sx={{ maxHeight: "calc(100vh - 250px)", overflowY: "auto", p: 2 }}
+            >
+              {Array.isArray(announcements) &&
+                announcements.slice(0, 8).map((item, idx) => (
+                  <Grow in timeout={300 + idx * 50} key={idx}>
+                    <Box
+                      sx={{
+                        mb: 2,
+                        p: 2.5,
+                        borderRadius: 3,
+                        background: `${settings.primaryColor}0A`,
+                        border: `1px solid ${settings.primaryColor}26`,
+                        cursor: "pointer",
+                        transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+                        position: "relative",
+                        overflow: "hidden",
+                        "&::before": {
+                          content: '""',
+                          position: "absolute",
+                          left: 0,
+                          top: 0,
+                          bottom: 0,
+                          width: 4,
+                          background: `linear-gradient(135deg, ${settings.primaryColor}, ${settings.secondaryColor})`,
+                          transform: "scaleY(0)",
+                          transition: "transform 0.3s",
+                        },
+                        "&:hover": {
+                          background: `${settings.primaryColor}1A`,
+                          transform: "translateX(8px)",
+                          boxShadow: `0 8px 24px ${settings.primaryColor}33`,
+                        },
+                        "&:hover::before": { transform: "scaleY(1)" },
+                      }}
+                      onClick={() => {
+                        setSelectedAnnouncement(item);
+                        setNotifModalOpen(false);
+                        setOpenModal(true);
+                      }}
+                    >
+                      <Box
+                        sx={{
+                          display: "flex",
+                          alignItems: "flex-start",
+                          gap: 2,
+                        }}
+                      >
+                        <Box
+                          sx={{
+                            width: 12,
+                            height: 12,
+                            borderRadius: "50%",
+                            background: `linear-gradient(135deg, ${settings.primaryColor}, ${settings.secondaryColor})`,
+                            mt: 0.5,
+                            flexShrink: 0,
+                            boxShadow: `0 0 12px ${settings.primaryColor}99`,
+                            animation: "pulse 2s infinite",
+                            "@keyframes pulse": {
+                              "0%, 100%": { opacity: 1 },
+                              "50%": { opacity: 0.5 },
+                            },
+                          }}
+                        />
+                        <Box sx={{ flex: 1 }}>
+                          <Typography
+                            sx={{
+                              fontWeight: 700,
+                              fontSize: "1rem",
+                              color: settings.textPrimaryColor,
+                              mb: 0.5,
+                              lineHeight: 1.4,
+                            }}
+                          >
+                            {item.title}
+                          </Typography>
+                          <Typography
+                            sx={{
+                              fontSize: "0.8rem",
+                              color: settings.textPrimaryColor,
+                              display: "flex",
+                              alignItems: "center",
+                              gap: 0.5,
+                            }}
+                          >
+                            <AccessTimeIcon sx={{ fontSize: 14 }} />
+                            {item.date
+                              ? new Date(item.date).toLocaleDateString()
+                              : ""}
+                          </Typography>
+                        </Box>
+                        <ArrowForward
+                          sx={{
+                            color: settings.textPrimaryColor,
+                            fontSize: 20,
+                            transition: "transform 0.3s",
+                          }}
+                        />
+                      </Box>
+                    </Box>
+                  </Grow>
+                ))}
+              {(!Array.isArray(announcements) ||
+                announcements.length === 0) && (
+                <Box sx={{ textAlign: "center", py: 8 }}>
+                  <NotificationsIcon
+                    sx={{ fontSize: 80, color: `${settings.primaryColor}33` }}
+                  />
+                  <Typography
+                    sx={{
+                      color: settings.textSecondaryColor,
+                      fontSize: "1rem",
                     }}
                   >
-                    <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 2 }}>
-                      <Box sx={{ 
-                        width: 12, 
-                        height: 12, 
-                        borderRadius: '50%', 
-                        background: `linear-gradient(135deg, ${settings.primaryColor}, ${settings.secondaryColor})`, 
-                        mt: 0.5, 
-                        flexShrink: 0, 
-                        boxShadow: `0 0 12px ${settings.primaryColor}99`, 
-                        animation: 'pulse 2s infinite', 
-                        '@keyframes pulse': { 
-                          '0%, 100%': { opacity: 1 }, 
-                          '50%': { opacity: 0.5 } 
-                        } 
-                      }} />
-                      <Box sx={{ flex: 1 }}>
-                        <Typography sx={{ 
-                          fontWeight: 700, 
-                          fontSize: '1rem', 
-                          color: settings.textPrimaryColor, 
-                          mb: 0.5, 
-                          lineHeight: 1.4 
-                        }}>
-                          {item.title}
-                        </Typography>
-                        <Typography sx={{ 
-                          fontSize: '0.8rem', 
-                          color: settings.textPrimaryColor, 
-                          display: 'flex', 
-                          alignItems: 'center', 
-                          gap: 0.5 
-                        }}>
-                          <AccessTimeIcon sx={{ fontSize: 14 }} />
-                          {item.date ? new Date(item.date).toLocaleDateString() : ""}
-                        </Typography>
-                      </Box>
-                      <ArrowForward sx={{ 
-                        color: settings.textPrimaryColor, 
-                        fontSize: 20, 
-                        transition: 'transform 0.3s' 
-                      }} />
-                    </Box>
-                  </Box>
-                </Grow>
-              ))}
-              {(!Array.isArray(announcements) || announcements.length === 0) && (
-                <Box sx={{ textAlign: 'center', py: 8 }}>
-                  <NotificationsIcon sx={{ fontSize: 80, color: `${settings.primaryColor}33` }} />
-                  <Typography sx={{ color: settings.textSecondaryColor, fontSize: '1rem' }}>
                     No notifications at the moment
                   </Typography>
-                  <Typography sx={{ color: settings.textSecondaryColor, fontSize: '0.85rem', mt: 1 }}>
+                  <Typography
+                    sx={{
+                      color: settings.textSecondaryColor,
+                      fontSize: "0.85rem",
+                      mt: 1,
+                    }}
+                  >
                     You're all caught up!
                   </Typography>
                 </Box>
@@ -2415,4 +3197,4 @@ const AdminHome = () => {
   );
 };
 
-export default AdminHome;                                                                                                       
+export default AdminHome;

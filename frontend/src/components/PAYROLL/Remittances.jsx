@@ -21,7 +21,14 @@ import {
   ListItem,
   ListItemText,
   Card,
-  CardContent
+  CardContent,
+  Fade,
+  Divider,
+  Backdrop,
+  styled,
+  alpha,
+  Avatar,
+  Tooltip,
 } from "@mui/material";
 import {
   Add as AddIcon,
@@ -37,6 +44,7 @@ import {
   Person as PersonIcon,
   ExpandMore as ExpandMoreIcon,
   ExpandLess as ExpandLessIcon,
+  Refresh,
 } from "@mui/icons-material";
 
 import ReorderIcon from '@mui/icons-material/Reorder';
@@ -44,6 +52,59 @@ import LoadingOverlay from '../LoadingOverlay';
 import SuccessfullOverlay from '../SuccessfulOverlay';
 import AccessDenied from '../AccessDenied';
 import { useNavigate } from "react-router-dom";
+
+// Professional styled components matching PayslipOverall
+const GlassCard = styled(Card)(({ theme }) => ({
+  borderRadius: 20,
+  background: 'rgba(254, 249, 225, 0.95)',
+  backdropFilter: 'blur(10px)',
+  boxShadow: '0 8px 40px rgba(109, 35, 35, 0.08)',
+  border: '1px solid rgba(109, 35, 35, 0.1)',
+  overflow: 'hidden',
+  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+  '&:hover': {
+    boxShadow: '0 12px 48px rgba(109, 35, 35, 0.15)',
+    transform: 'translateY(-4px)',
+  },
+}));
+
+const ProfessionalButton = styled(Button)(({ theme, variant, color = 'primary' }) => ({
+  borderRadius: 12,
+  fontWeight: 600,
+  padding: '12px 24px',
+  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+  textTransform: 'none',
+  fontSize: '0.95rem',
+  letterSpacing: '0.025em',
+  boxShadow: variant === 'contained' ? '0 4px 14px rgba(254, 249, 225, 0.25)' : 'none',
+  '&:hover': {
+    transform: 'translateY(-2px)',
+    boxShadow: variant === 'contained' ? '0 6px 20px rgba(254, 249, 225, 0.35)' : 'none',
+  },
+  '&:active': {
+    transform: 'translateY(0)',
+  },
+}));
+
+const ModernTextField = styled(TextField)(({ theme }) => ({
+  '& .MuiOutlinedInput-root': {
+    borderRadius: 12,
+    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+    backgroundColor: 'rgba(255, 255, 255, 0.8)',
+    '&:hover': {
+      transform: 'translateY(-1px)',
+      backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    },
+    '&.Mui-focused': {
+      transform: 'translateY(-1px)',
+      boxShadow: '0 4px 20px rgba(254, 249, 225, 0.25)',
+      backgroundColor: 'rgba(255, 255, 255, 1)',
+    },
+  },
+  '& .MuiInputLabel-root': {
+    fontWeight: 500,
+  },
+}));
 
 // Auth header helper
 const getAuthHeaders = () => {
@@ -209,7 +270,7 @@ const EmployeeAutocomplete = ({
 
   return (
     <Box sx={{ position: 'relative', width: '100%' }} ref={dropdownRef}>
-      <TextField
+      <ModernTextField
         ref={inputRef}
         value={query}
         onChange={handleInputChange}
@@ -236,21 +297,6 @@ const EmployeeAutocomplete = ({
             </IconButton>
           ),
         }}
-        sx={{
-          '& .MuiOutlinedInput-root': {
-            height: '40px',
-            '& fieldset': {
-              borderColor: error ? 'red' : '#6D2323',
-              borderWidth: '1.5px'
-            },
-            '&:hover fieldset': {
-              borderColor: error ? 'red' : '#6D2323',
-            },
-            '&.Mui-focused fieldset': {
-              borderColor: error ? 'red' : '#6D2323',
-            },
-          },
-        }}
       />
 
       {showDropdown && (
@@ -265,6 +311,7 @@ const EmployeeAutocomplete = ({
             maxHeight: 300,
             overflow: 'auto',
             mt: 1,
+            borderRadius: 2,
           }}
         >
           {isLoading ? (
@@ -366,6 +413,15 @@ const EmployeeRemittance = () => {
 
   const [hasAccess, setHasAccess] = useState(null);
   const navigate = useNavigate();
+  
+  // Color scheme matching PayslipOverall
+  const primaryColor = '#FEF9E1'; // Cream is primary
+  const secondaryColor = '#FFF8E7'; // Light cream
+  const accentColor = '#6d2323'; // Burgundy is accent
+  const accentDark = '#8B3333'; // Darker burgundy
+  const blackColor = '#1a1a1a';
+  const whiteColor = '#FFFFFF';
+  const grayColor = '#6c757d';
   
   useEffect(() => {
     const userId = localStorage.getItem('employeeNumber');
@@ -685,8 +741,8 @@ const EmployeeRemittance = () => {
     return (
       <Container maxWidth="md" sx={{ py: 8 }}>
         <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-          <CircularProgress sx={{ color: "#6d2323", mb: 2 }} />
-          <Typography variant="h6" sx={{ color: "#6d2323" }}>
+          <CircularProgress sx={{ color: accentColor, mb: 2 }} />
+          <Typography variant="h6" sx={{ color: accentColor }}>
             Loading access information...
           </Typography>
         </Box>
@@ -714,76 +770,159 @@ const EmployeeRemittance = () => {
 
   return (
     <Box sx={{ 
-      minHeight: '100vh', 
-      display: 'flex', 
-      flexDirection: 'column',
-      pt: 2,
-      mt: -5
+      py: 4,
+      mt: -5,
+      width: '1600px', // Fixed width
+      mx: 'auto', // Center horizontally
+      overflow: 'hidden', // Prevent horizontal scroll
     }}>
-      <LoadingOverlay open={loading} message="Adding remittance record..." />
-      <SuccessfullOverlay open={successOpen} action={successAction} />
-      
-      <Box sx={{ textAlign: 'center', mb: 3, px: 2 }}>
-        <Typography variant="h4" sx={{ color: "#6D2323", fontWeight: 'bold', mb: 0.5 }}>
-          Employee Remittance Management
-        </Typography>
-        <Typography variant="body2" sx={{ color: "#666" }}>
-          Add and manage remittance records for employees
-        </Typography>
-      </Box>
-
-      <Container maxWidth="xl" sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
-        <Grid container spacing={3} sx={{ flexGrow: 1 }}>
-          <Grid item xs={12} lg={6} sx={{ display: 'flex', flexDirection: 'column' }}>
-            <Paper 
-              elevation={4}
-              sx={{
-                display: 'flex',
-                flexDirection: 'column',
-                borderRadius: 2,
-                overflow: 'hidden',
-                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-                border: '1px solid rgba(109, 35, 35, 0.1)',
-                height: { xs: 'auto', lg: 'calc(100vh - 200px)' },
-                maxHeight: { xs: 'none', lg: 'calc(100vh - 200px)' }
-              }}
-            >
+      {/* Container with fixed width */}
+      <Box sx={{ px: 6 }}>
+        {/* Header */}
+        <Fade in timeout={500}>
+          <Box sx={{ mb: 4 }}>
+            <GlassCard>
               <Box
                 sx={{
-                  backgroundColor: "#6D2323",
-                  color: "#ffffff",
-                  p: 2,
-                  display: "flex",
-                  alignItems: "center",
-                  boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                  p: 5,
+                  background: `linear-gradient(135deg, ${primaryColor} 0%, ${secondaryColor} 100%)`,
+                  color: accentColor,
+                  position: 'relative',
+                  overflow: 'hidden',
                 }}
               >
-                <FactCheckIcon sx={{ fontSize: "1.8rem", mr: 2 }} />
-                <Box>
-                  <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
-                    Add New Remittance
-                  </Typography>
-                  <Typography variant="caption" sx={{ opacity: 0.9 }}>
-                    Fill in the remittance information
-                  </Typography>
+                {/* Decorative elements */}
+                <Box
+                  sx={{
+                    position: 'absolute',
+                    top: -50,
+                    right: -50,
+                    width: 200,
+                    height: 200,
+                    background: 'radial-gradient(circle, rgba(109,35,35,0.1) 0%, rgba(109,35,35,0) 70%)',
+                  }}
+                />
+                <Box
+                  sx={{
+                    position: 'absolute',
+                    bottom: -30,
+                    left: '30%',
+                    width: 150,
+                    height: 150,
+                    background: 'radial-gradient(circle, rgba(109,35,35,0.08) 0%, rgba(109,35,35,0) 70%)',
+                  }}
+                />
+                
+                <Box display="flex" alignItems="center" justifyContent="space-between" position="relative" zIndex={1}>
+                  <Box display="flex" alignItems="center">
+                    <Avatar 
+                      sx={{ 
+                        bgcolor: 'rgba(109,35,35,0.15)', 
+                        mr: 4, 
+                        width: 64,
+                        height: 64,
+                        boxShadow: '0 8px 24px rgba(109,35,35,0.15)'
+                      }}
+                    >
+                      <ReorderIcon sx={{color: accentColor, fontSize: 32 }} />
+                    </Avatar>
+                    <Box>
+                      <Typography variant="h4" component="h1" sx={{ fontWeight: 700, mb: 1, lineHeight: 1.2, color: accentColor }}>
+                        Employee Remittance Management
+                      </Typography>
+                      <Typography variant="body1" sx={{ opacity: 0.8, fontWeight: 400, color: accentDark }}>
+                        Add and manage remittance records for employees
+                      </Typography>
+                    </Box>
+                  </Box>
+                  <Box display="flex" alignItems="center" gap={2}>
+                    <Chip 
+                      label="Enterprise Grade" 
+                      size="small" 
+                      sx={{ 
+                        bgcolor: 'rgba(109,35,35,0.15)', 
+                        color: accentColor,
+                        fontWeight: 500,
+                        '& .MuiChip-label': { px: 1 }
+                      }} 
+                    />
+                    <Tooltip title="Refresh Data">
+                      <IconButton 
+                        onClick={() => window.location.reload()}
+                        sx={{ 
+                          bgcolor: 'rgba(109,35,35,0.1)', 
+                          '&:hover': { bgcolor: 'rgba(109,35,35,0.2)' },
+                          color: accentColor,
+                          width: 48,
+                          height: 48,
+                        }}
+                      >
+                        <Refresh sx={{ fontSize: 24 }} />
+                      </IconButton>
+                    </Tooltip>
+                  </Box>
                 </Box>
               </Box>
+            </GlassCard>
+          </Box>
+        </Fade>
 
-              <Box sx={{ 
-                p: 3, 
-                flexGrow: 1, 
-                display: 'flex', 
-                flexDirection: 'column',
-                overflowY: 'auto'
-              }}>
-                <Grid container spacing={2}>
-                  <Grid item xs={12}>
-                    <Typography variant="subtitle2" sx={{ fontWeight: "bold", mb: 1.5, color: "#6D2323" }}>
-                      Employee Information <span style={{ color: 'red' }}>*</span>
+        {/* Loading Backdrop */}
+        <Backdrop
+          sx={{ color: primaryColor, zIndex: (theme) => theme.zIndex.drawer + 1 }}
+          open={loading}
+        >
+          <Box sx={{ textAlign: 'center' }}>
+            <CircularProgress color="inherit" size={60} thickness={4} />
+            <Typography variant="h6" sx={{ mt: 2, color: primaryColor }}>
+              Processing remittance record...
+            </Typography>
+          </Box>
+        </Backdrop>
+
+        {/* Main Content */}
+        <Grid container spacing={4}>
+          {/* Add New Remittance Section */}
+          <Grid item xs={12} lg={6}>
+            <Fade in timeout={700}>
+              <GlassCard sx={{ height: 'calc(100vh - 200px)', display: 'flex', flexDirection: 'column' }}>
+                <Box
+                  sx={{
+                    p: 4,
+                    background: `linear-gradient(135deg, ${primaryColor} 0%, ${secondaryColor} 100%)`,
+                    color: accentColor,
+                    display: "flex",
+                    alignItems: "center",
+                    boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                  }}
+                >
+                  <FactCheckIcon sx={{ fontSize: "1.8rem", mr: 2 }} />
+                  <Box>
+                    <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
+                      Add New Remittance
                     </Typography>
+                    <Typography variant="caption" sx={{ opacity: 0.9 }}>
+                      Fill in remittance information
+                    </Typography>
+                  </Box>
+                </Box>
+
+                <Box sx={{ 
+                  p: 4, 
+                  flexGrow: 1, 
+                  display: 'flex', 
+                  flexDirection: 'column',
+                  overflowY: 'auto'
+                }}>
+                  <Box sx={{ mb: 3 }}>
+                    <Typography variant="h5" sx={{ fontWeight: 600, mb: 2, color: accentColor, display: 'flex', alignItems: 'center' }}>
+                      <PersonIcon sx={{ mr: 2, fontSize: 24 }} />
+                      Employee Information <span style={{ marginLeft: '12px', fontWeight: 400, opacity: 0.7, color: 'red' }}>*</span>
+                    </Typography>
+                    
                     <Grid container spacing={2}>
                       <Grid item xs={12} sm={6}>
-                        <Typography variant="caption" sx={{ fontWeight: "bold", mb: 0.5, color: "#333", display: 'block' }}>
+                        <Typography variant="body2" sx={{ fontWeight: 500, mb: 1, color: accentColor }}>
                           Search Employee
                         </Typography>
                         <EmployeeAutocomplete
@@ -799,7 +938,7 @@ const EmployeeRemittance = () => {
                       </Grid>
 
                       <Grid item xs={12} sm={6}>
-                        <Typography variant="caption" sx={{ fontWeight: "bold", mb: 0.5, color: "#333", display: 'block' }}>
+                        <Typography variant="body2" sx={{ fontWeight: 500, mb: 1, color: accentColor }}>
                           Selected Employee
                         </Typography>
                         {selectedEmployee ? (
@@ -807,22 +946,21 @@ const EmployeeRemittance = () => {
                             sx={{
                               display: 'flex',
                               alignItems: 'center',
-                              backgroundColor: '#f8f9fa',
-                              border: '1px solid #6D2323',
-                              borderRadius: '4px',
-                              padding: '8px 12px',
+                              backgroundColor: 'rgba(254, 249, 225, 0.8)',
+                              border: '1px solid rgba(109, 35, 35, 0.3)',
+                              borderRadius: 2,
+                              paddingLeft: '10px',
                               gap: 1.5,
-                              height: '21px'
                             }}
                           >
-                            <PersonIcon sx={{ color: '#6D2323', fontSize: '20px' }} />
+                            <PersonIcon sx={{ color: accentColor, fontSize: 20 }} />
                             <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
                               <Typography
                                 variant="body2"
                                 sx={{
                                   fontWeight: 'bold',
-                                  color: '#6D2323',
-                                  fontSize: '13px',
+                                  color: accentColor,
+                                  fontSize: '14px',
                                   lineHeight: 1.2,
                                 }}
                               >
@@ -831,8 +969,8 @@ const EmployeeRemittance = () => {
                               <Typography
                                 variant="caption"
                                 sx={{
-                                  color: '#666',
-                                  fontSize: '11px',
+                                  color: grayColor,
+                                  fontSize: '12px',
                                   lineHeight: 1.2,
                                 }}
                               >
@@ -846,19 +984,18 @@ const EmployeeRemittance = () => {
                               display: 'flex',
                               alignItems: 'center',
                               justifyContent: 'center',
-                              backgroundColor: '#f5f5f5',
-                              border: '2px dashed #ccc',
-                              borderRadius: '8px',
-                              padding: '8px 12px',
-                              height: '21px',
+                              backgroundColor: 'rgba(0, 0, 0, 0.05)',
+                              border: '2px dashed rgba(109, 35, 35, 0.3)',
+                              borderRadius: 2,
+                              minHeight: '30px',
                             }}
                           >
                             <Typography
                               variant="body2"
                               sx={{
-                                color: '#999',
+                                color: grayColor,
                                 fontStyle: 'italic',
-                                fontSize: '13px',
+                                fontSize: '14px',
                               }}
                             >
                               No employee selected
@@ -867,365 +1004,316 @@ const EmployeeRemittance = () => {
                         )}
                       </Grid>
                     </Grid>
+                  </Box>
+
+                  <Divider sx={{ my: 3, borderColor: 'rgba(109,35,35,0.1)' }} />
+
+                  <Typography variant="h5" sx={{ fontWeight: 600, mb: 3, color: accentColor, display: 'flex', alignItems: 'center' }}>
+                    <FactCheckIcon sx={{ mr: 2, fontSize: 24 }} />
+                    Remittance Details
+                  </Typography>
+
+                  <Grid container spacing={2}>
+                    {Object.keys(fieldLabels).map((field) => (
+                      <Grid item xs={12} sm={6} key={field}>
+                        <Typography variant="body2" sx={{ fontWeight: 500, mb: 1, color: accentColor }}>
+                          {fieldLabels[field]}
+                        </Typography>
+                        <ModernTextField
+                          type="number"
+                          value={newRemittance[field]}
+                          onChange={(e) => handleChange(field, e.target.value)}
+                          fullWidth
+                          size="small"
+                          inputProps={{ step: '0.01', min: '0' }}
+                        />
+                      </Grid>
+                    ))}
                   </Grid>
 
-                  <Grid item xs={12}>
-                    <Box sx={{ 
-                      borderBottom: '2px solid #e0e0e0', 
-                      my: 2,
-                      '&::before': {
-                        content: '"Remittance Details"',
-                        position: 'absolute',
-                        left: 20,
-                        top: -10,
-                        backgroundColor: '#fff',
-                        px: 1,
-                        color: '#6D2323',
-                        fontWeight: 'bold',
-                        fontSize: '0.875rem'
-                      },
-                      position: 'relative'
-                    }} />
-                  </Grid>
+                  <Box sx={{ mt: 'auto', pt: 3 }}>
+                    <ProfessionalButton
+                      onClick={handleAdd}
+                      variant="contained"
+                      startIcon={<AddIcon />}
+                      fullWidth
+                      sx={{
+                        backgroundColor: accentColor,
+                        color: primaryColor,
+                        py: 1.5,
+                        fontSize: '1rem',
+                        "&:hover": { 
+                          backgroundColor: accentDark,
+                        },
+                      }}
+                    >
+                      Add Remittance Record
+                    </ProfessionalButton>
+                  </Box>
+                </Box>
+              </GlassCard>
+            </Fade>
+          </Grid>
 
-                  {Object.keys(fieldLabels).map((field) => (
-                    <Grid item xs={12} sm={6} key={field}>
-                      <Typography variant="caption" sx={{ fontWeight: "bold", mb: 0.5, color: "#333", display: 'block' }}>
-                        {fieldLabels[field]}
+          {/* Remittance Records Section */}
+          <Grid item xs={12} lg={6}>
+            <Fade in timeout={900}>
+              <GlassCard sx={{ height: 'calc(100vh - 200px)', display: 'flex', flexDirection: 'column' }}>
+                <Box
+                  sx={{
+                    p: 4,
+                    background: `linear-gradient(135deg, ${primaryColor} 0%, ${secondaryColor} 100%)`,
+                    color: accentColor,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                  }}
+                >
+                  <Box sx={{ display: "flex", alignItems: "center" }}>
+                    <ReorderIcon sx={{ fontSize: "1.8rem", mr: 2 }} />
+                    <Box>
+                      <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
+                        Remittance Records
                       </Typography>
-                      <TextField
-                        type="number"
-                        value={newRemittance[field]}
-                        onChange={(e) => handleChange(field, e.target.value)}
-                        fullWidth
-                        size="small"
-                        inputProps={{ step: '0.01', min: '0' }}
-                        sx={{
-                          '& .MuiOutlinedInput-root': {
-                            '& fieldset': {
-                              borderColor: '#6D2323',
-                              borderWidth: '1.5px'
-                            },
-                            '&:hover fieldset': {
-                              borderColor: '#6D2323',
-                            },
-                            '&.Mui-focused fieldset': {
-                              borderColor: '#6D2323',
-                            },
-                          },
-                        }}
-                      />
-                    </Grid>
-                  ))}
-                </Grid>
-
-                <Box sx={{ mt: 'auto', pt: 2 }}>
-                  <Button
-                    onClick={handleAdd}
-                    variant="contained"
-                    startIcon={<AddIcon />}
-                    fullWidth
+                      <Typography variant="caption" sx={{ opacity: 0.9 }}>
+                        View and manage existing records
+                      </Typography>
+                    </Box>
+                  </Box>
+                  
+                  <ToggleButtonGroup
+                    value={viewMode}
+                    exclusive
+                    onChange={handleViewModeChange}
+                    aria-label="view mode"
+                    size="small"
                     sx={{
-                      backgroundColor: "#6D2323",
-                      color: "#FEF9E1",
-                      py: 1.2,
-                      fontWeight: 'bold',
-                      "&:hover": { 
-                        backgroundColor: "#5a1d1d",
+                      backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                      '& .MuiToggleButton-root': {
+                        color: accentColor,
+                        borderColor: 'rgba(109, 35, 35, 0.5)',
+                        padding: '4px 8px',
+                        '&.Mui-selected': {
+                          backgroundColor: 'rgba(255, 255, 255, 0.3)',
+                          color: accentColor
+                        },
+                      }
+                    }}
+                  >
+                    <ToggleButton value="grid" aria-label="grid view">
+                      <ViewModuleIcon fontSize="small" />
+                    </ToggleButton>
+                    <ToggleButton value="list" aria-label="list view">
+                      <ViewListIcon fontSize="small" />
+                    </ToggleButton>
+                  </ToggleButtonGroup>
+                </Box>
+
+                <Box sx={{ 
+                  p: 4, 
+                  flexGrow: 1, 
+                  display: 'flex', 
+                  flexDirection: 'column',
+                  overflow: 'hidden'
+                }}>
+                  <Box sx={{ mb: 3 }}>
+                    <ModernTextField
+                      size="small"
+                      variant="outlined"
+                      placeholder="Search by Employee ID or Name"
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      fullWidth
+                      InputProps={{
+                        startAdornment: (
+                          <SearchIcon sx={{ color: accentColor, mr: 1 }} />
+                        ),
+                      }}
+                    />
+                  </Box>
+
+                  <Box 
+                    sx={{ 
+                      flexGrow: 1, 
+                      overflowY: 'auto',
+                      pr: 1,
+                      '&::-webkit-scrollbar': {
+                        width: '6px',
+                      },
+                      '&::-webkit-scrollbar-track': {
+                        background: '#f1f1f1',
+                        borderRadius: '3px',
+                      },
+                      '&::-webkit-scrollbar-thumb': {
+                        background: accentColor,
+                        borderRadius: '3px',
                       },
                     }}
                   >
-                    Add Remittance Record
-                  </Button>
-                </Box>
-              </Box>
-            </Paper>
-          </Grid>
-
-          <Grid item xs={12} lg={6} sx={{ display: 'flex', flexDirection: 'column' }}>
-            <Paper 
-              elevation={4}
-              sx={{
-                display: 'flex',
-                flexDirection: 'column',
-                borderRadius: 2,
-                overflow: 'hidden',
-                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-                border: '1px solid rgba(109, 35, 35, 0.1)',
-                height: { xs: 'auto', lg: 'calc(100vh - 200px)' },
-                maxHeight: { xs: 'none', lg: 'calc(100vh - 200px)' }
-              }}
-            >
-              <Box
-                sx={{
-                  backgroundColor: "#6D2323",
-                  color: "#ffffff",
-                  p: 2,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-                }}
-              >
-                <Box sx={{ display: "flex", alignItems: "center" }}>
-                  <ReorderIcon sx={{ fontSize: "1.8rem", mr: 2 }} />
-                  <Box>
-                    <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
-                      Remittance Records
-                    </Typography>
-                    <Typography variant="caption" sx={{ opacity: 0.9 }}>
-                      View and manage existing records
-                    </Typography>
-                  </Box>
-                </Box>
-                
-                <ToggleButtonGroup
-                  value={viewMode}
-                  exclusive
-                  onChange={handleViewModeChange}
-                  aria-label="view mode"
-                  size="small"
-                  sx={{
-                    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-                    '& .MuiToggleButton-root': {
-                      color: 'white',
-                      borderColor: 'rgba(255, 255, 255, 0.5)',
-                      padding: '4px 8px',
-                      '&.Mui-selected': {
-                        backgroundColor: 'rgba(255, 255, 255, 0.3)',
-                        color: 'white'
-                      },
-                    }
-                  }}
-                >
-                  <ToggleButton value="grid" aria-label="grid view">
-                    <ViewModuleIcon fontSize="small" />
-                  </ToggleButton>
-                  <ToggleButton value="list" aria-label="list view">
-                    <ViewListIcon fontSize="small" />
-                  </ToggleButton>
-                </ToggleButtonGroup>
-              </Box>
-
-              <Box sx={{ 
-                p: 3, 
-                flexGrow: 1, 
-                display: 'flex', 
-                flexDirection: 'column',
-                overflow: 'hidden'
-              }}>
-                <Box sx={{ mb: 2 }}>
-                  <TextField
-                    size="small"
-                    variant="outlined"
-                    placeholder="Search by Employee ID or Name"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    fullWidth
-                    sx={{
-                      "& .MuiOutlinedInput-root": {
-                        "& fieldset": {
-                          borderColor: "#6D2323",
-                          borderWidth: '1.5px'
-                        },
-                        "&:hover fieldset": {
-                          borderColor: "#6D2323",
-                        },
-                        "&.Mui-focused fieldset": {
-                          borderColor: "#6D2323",
-                        },
-                      },
-                    }}
-                    InputProps={{
-                      startAdornment: (
-                        <SearchIcon sx={{ color: "#6D2323", mr: 1 }} />
-                      ),
-                    }}
-                  />
-                </Box>
-
-                <Box 
-                  sx={{ 
-                    flexGrow: 1, 
-                    overflowY: 'auto',
-                    pr: 1,
-                    '&::-webkit-scrollbar': {
-                      width: '6px',
-                    },
-                    '&::-webkit-scrollbar-track': {
-                      background: '#f1f1f1',
-                      borderRadius: '3px',
-                    },
-                    '&::-webkit-scrollbar-thumb': {
-                      background: '#6D2323',
-                      borderRadius: '3px',
-                    },
-                  }}
-                >
-                  {viewMode === 'grid' ? (
-                    <Grid container spacing={1.5}>
-                      {filteredData.map((remittance) => (
-                        <Grid item xs={12} sm={6} md={4} key={remittance.id}>
-                          <Card
-                            onClick={() => handleOpenModal(remittance)}
-                            sx={{
-                              cursor: "pointer",
-                              border: "1px solid #ddd",
-                              height: "100%",
-                              display: 'flex',
-                              flexDirection: 'column',
-                              "&:hover": { 
-                                borderColor: "#6d2323",
-                                transform: 'translateY(-2px)',
-                                transition: 'all 0.2s ease',
-                                boxShadow: '0 4px 8px rgba(0,0,0,0.15)'
-                              },
-                            }}
-                          >
-                            <CardContent sx={{ p: 1.5, flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
-                              <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                                <FactCheckIcon sx={{ fontSize: 18, color: '#6d2323', mr: 0.5 }} />
-                                <Typography variant="caption" sx={{ 
-                                  color: '#6d2323', 
-                                  px: 0.5, 
-                                  py: 0.2, 
-                                  borderRadius: 0.5,
-                                  fontSize: '0.7rem',
-                                  fontWeight: 'bold'
-                                }}>
-                                  {remittance.employeeNumber}
-                                </Typography>
-                              </Box>
-                              
-                              <Typography variant="body2" fontWeight="bold" color="#333" mb={0.5} noWrap>
-                                {employeeNames[remittance.employeeNumber] || 'Loading...'}
-                              </Typography>
-                              
-                              <Typography variant="body2" color="#666" sx={{ flexGrow: 1 }}>
-                                Total Deductions: {Object.keys(fieldLabels).reduce((sum, field) => 
-                                  sum + (parseFloat(remittance[field]) || 0), 0).toFixed(2)}
-                              </Typography>
-                            </CardContent>
-                          </Card>
-                        </Grid>
-                      ))}
-                    </Grid>
-                  ) : (
-                    filteredData.map((remittance) => (
-                      <Card
-                        key={remittance.id}
-                        onClick={() => handleOpenModal(remittance)}
-                        sx={{
-                          cursor: "pointer",
-                          border: "1px solid #ddd",
-                          mb: 1,
-                          "&:hover": { 
-                            borderColor: "#6d2323",
-                            backgroundColor: '#fafafa'
-                          },
-                        }}
-                      >
-                        <Box sx={{ p: 1.5 }}>
-                          <Box sx={{ display: 'flex', alignItems: 'flex-start' }}>
-                            <Box sx={{ mr: 1.5, mt: 0.2 }}>
-                              <FactCheckIcon sx={{ fontSize: 20, color: '#6d2323' }} />
-                            </Box>
-                            
-                            <Box sx={{ flexGrow: 1 }}>
-                              <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
-                                <Typography variant="caption" sx={{ 
-                                  color: '#6d2323', 
-                                  px: 0.5, 
-                                  py: 0.2, 
-                                  borderRadius: 0.5,
-                                  fontSize: '0.7rem',
-                                  fontWeight: 'bold',
-                                  mr: 1
-                                }}>
-                                  {remittance.employeeNumber}
-                                </Typography>
-                                <Typography variant="body2" fontWeight="bold" color="#333">
+                    {viewMode === 'grid' ? (
+                      <Grid container spacing={2}>
+                        {filteredData.map((remittance) => (
+                          <Grid item xs={12} sm={6} md={4} key={remittance.id}>
+                            <Card
+                              onClick={() => handleOpenModal(remittance)}
+                              sx={{
+                                cursor: "pointer",
+                                border: "1px solid rgba(109, 35, 35, 0.1)",
+                                height: "100%",
+                                display: 'flex',
+                                flexDirection: 'column',
+                                "&:hover": { 
+                                  borderColor: accentColor,
+                                  transform: 'translateY(-2px)',
+                                  transition: 'all 0.2s ease',
+                                  boxShadow: '0 4px 8px rgba(109,35,35,0.15)'
+                                },
+                              }}
+                            >
+                              <CardContent sx={{ p: 2, flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
+                                <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                                  <FactCheckIcon sx={{ fontSize: 18, color: accentColor, mr: 0.5 }} />
+                                  <Typography variant="caption" sx={{ 
+                                    color: accentColor, 
+                                    px: 0.5, 
+                                    py: 0.2, 
+                                    borderRadius: 0.5,
+                                    fontSize: '0.7rem',
+                                    fontWeight: 'bold'
+                                  }}>
+                                    {remittance.employeeNumber}
+                                  </Typography>
+                                </Box>
+                                
+                                <Typography variant="body2" fontWeight="bold" color="#333" mb={0.5} noWrap>
                                   {employeeNames[remittance.employeeNumber] || 'Loading...'}
                                 </Typography>
+                                
+                                <Typography variant="body2" color={grayColor} sx={{ flexGrow: 1 }}>
+                                  Total Deductions: {Object.keys(fieldLabels).reduce((sum, field) => 
+                                    sum + (parseFloat(remittance[field]) || 0), 0).toFixed(2)}
+                                </Typography>
+                              </CardContent>
+                            </Card>
+                          </Grid>
+                        ))}
+                      </Grid>
+                    ) : (
+                      filteredData.map((remittance) => (
+                        <Card
+                          key={remittance.id}
+                          onClick={() => handleOpenModal(remittance)}
+                          sx={{
+                            cursor: "pointer",
+                            border: "1px solid rgba(109, 35, 35, 0.1)",
+                            mb: 1,
+                            "&:hover": { 
+                              borderColor: accentColor,
+                              backgroundColor: 'rgba(254, 249, 225, 0.3)'
+                            },
+                          }}
+                        >
+                          <Box sx={{ p: 2 }}>
+                            <Box sx={{ display: 'flex', alignItems: 'flex-start' }}>
+                              <Box sx={{ mr: 1.5, mt: 0.2 }}>
+                                <FactCheckIcon sx={{ fontSize: 20, color: accentColor }} />
                               </Box>
                               
-                              <Typography variant="body2" color="#666" sx={{ mb: 0.5 }}>
-                                Total Deductions: {Object.keys(fieldLabels).reduce((sum, field) => 
-                                  sum + (parseFloat(remittance[field]) || 0), 0).toFixed(2)}
-                              </Typography>
+                              <Box sx={{ flexGrow: 1 }}>
+                                <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
+                                  <Typography variant="caption" sx={{ 
+                                    color: accentColor, 
+                                    px: 0.5, 
+                                    py: 0.2, 
+                                    borderRadius: 0.5,
+                                    fontSize: '0.7rem',
+                                    fontWeight: 'bold',
+                                    mr: 1
+                                  }}>
+                                    {remittance.employeeNumber}
+                                  </Typography>
+                                  <Typography variant="body2" fontWeight="bold" color="#333">
+                                    {employeeNames[remittance.employeeNumber] || 'Loading...'}
+                                  </Typography>
+                                </Box>
+                                
+                                <Typography variant="body2" color={grayColor} sx={{ mb: 0.5 }}>
+                                  Total Deductions: {Object.keys(fieldLabels).reduce((sum, field) => 
+                                    sum + (parseFloat(remittance[field]) || 0), 0).toFixed(2)}
+                                </Typography>
+                              </Box>
                             </Box>
                           </Box>
-                        </Box>
-                      </Card>
-                    ))
-                  )}
-                  
-                  {filteredData.length === 0 && (
-                    <Box textAlign="center" py={4}>
-                      <Typography variant="body1" color="#555" fontWeight="bold">
-                        No Records Found
-                      </Typography>
-                      <Typography variant="body2" color="#666" sx={{ mt: 0.5 }}>
-                        Try adjusting your search criteria
-                      </Typography>
-                    </Box>
-                  )}
+                        </Card>
+                      ))
+                    )}
+                    
+                    {filteredData.length === 0 && (
+                      <Box textAlign="center" py={4}>
+                        <Typography variant="h6" color={accentColor} fontWeight="bold" sx={{ mb: 1 }}>
+                          No Records Found
+                        </Typography>
+                        <Typography variant="body2" color={grayColor}>
+                          Try adjusting your search criteria
+                        </Typography>
+                      </Box>
+                    )}
+                  </Box>
                 </Box>
-              </Box>
-            </Paper>
+              </GlassCard>
+            </Fade>
           </Grid>
         </Grid>
-      </Container>
 
-      <Modal
-        open={!!editRemittance}
-        onClose={handleCloseModal}
-        sx={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
-        <Paper
+        {/* Edit Modal */}
+        <Modal
+          open={!!editRemittance}
+          onClose={handleCloseModal}
           sx={{
-            width: "90%",
-            maxWidth: "600px",
-            maxHeight: "90vh",
-            overflowY: 'auto',
-            borderRadius: 2,
-            boxShadow: '0 8px 24px rgba(0, 0, 0, 0.3)',
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
           }}
         >
-          {editRemittance && (
-            <>
-              <Box
-                sx={{
-                  backgroundColor: "#6D2323",
-                  color: "#ffffff",
-                  p: 2,
-                  borderRadius: "8px 8px 0 0",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                }}
-              >
-                <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
-                  {isEditing ? "Edit Remittance Information" : "Remittance Details"}
-                </Typography>
-                <IconButton onClick={handleCloseModal} sx={{ color: "#fff" }}>
-                  <Close />
-                </IconButton>
-              </Box>
+          <GlassCard
+            sx={{
+              width: "90%",
+              maxWidth: "600px",
+              maxHeight: "90vh",
+              overflowY: 'auto',
+            }}
+          >
+            {editRemittance && (
+              <>
+                <Box
+                  sx={{
+                    p: 4,
+                    background: `linear-gradient(135deg, ${primaryColor} 0%, ${secondaryColor} 100%)`,
+                    color: accentColor,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                  }}
+                >
+                  <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
+                    {isEditing ? "Edit Remittance Information" : "Remittance Details"}
+                  </Typography>
+                  <IconButton onClick={handleCloseModal} sx={{ color: accentColor }}>
+                    <Close />
+                  </IconButton>
+                </Box>
 
-              <Box sx={{ p: 3 }}>
-                <Grid container spacing={2}>
-                  <Grid item xs={12}>
-                    <Typography variant="subtitle2" sx={{ fontWeight: "bold", mb: 1.5, color: "#6D2323" }}>
+                <Box sx={{ p: 4 }}>
+                  <Box sx={{ mb: 3 }}>
+                    <Typography variant="h5" sx={{ fontWeight: 600, mb: 2, color: accentColor, display: 'flex', alignItems: 'center' }}>
+                      <PersonIcon sx={{ mr: 2, fontSize: 24 }} />
                       Employee Information
                     </Typography>
+                    
                     <Grid container spacing={2}>
                       <Grid item xs={12} sm={6}>
-                        <Typography variant="caption" sx={{ fontWeight: "bold", mb: 0.5, color: "#333", display: 'block' }}>
+                        <Typography variant="body2" sx={{ fontWeight: 500, mb: 1, color: accentColor }}>
                           Search Employee
                         </Typography>
                         <EmployeeAutocomplete
@@ -1242,7 +1330,7 @@ const EmployeeRemittance = () => {
                           <Typography
                             variant="caption"
                             sx={{
-                              color: '#666',
+                              color: grayColor,
                               fontStyle: 'italic',
                               display: 'block',
                               mt: 0.5,
@@ -1254,7 +1342,7 @@ const EmployeeRemittance = () => {
                       </Grid>
 
                       <Grid item xs={12} sm={6}>
-                        <Typography variant="caption" sx={{ fontWeight: "bold", mb: 0.5, color: "#333", display: 'block' }}>
+                        <Typography variant="body2" sx={{ fontWeight: 500, mb: 1, color: accentColor }}>
                           Selected Employee
                         </Typography>
                         {selectedEditEmployee ? (
@@ -1262,22 +1350,21 @@ const EmployeeRemittance = () => {
                             sx={{
                               display: 'flex',
                               alignItems: 'center',
-                              backgroundColor: '#f8f9fa',
-                              border: '2px solid #6D2323',
-                              borderRadius: '8px',
-                              padding: '8px 12px',
+                              backgroundColor: 'rgba(254, 249, 225, 0.8)',
+                              border: '1px solid rgba(109, 35, 35, 0.3)',
+                              borderRadius: 2,
+                              padding: '12px',
                               gap: 1.5,
-                              height: '21px',
                             }}
                           >
-                            <PersonIcon sx={{ color: '#6D2323', fontSize: '20px' }} />
+                            <PersonIcon sx={{ color: accentColor, fontSize: 20 }} />
                             <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
                               <Typography
                                 variant="body2"
                                 sx={{
                                   fontWeight: 'bold',
-                                  color: '#6D2323',
-                                  fontSize: '13px',
+                                  color: accentColor,
+                                  fontSize: '14px',
                                   lineHeight: 1.2,
                                 }}
                               >
@@ -1286,8 +1373,8 @@ const EmployeeRemittance = () => {
                               <Typography
                                 variant="caption"
                                 sx={{
-                                  color: '#666',
-                                  fontSize: '11px',
+                                  color: grayColor,
+                                  fontSize: '12px',
                                   lineHeight: 1.2,
                                 }}
                               >
@@ -1301,19 +1388,19 @@ const EmployeeRemittance = () => {
                               display: 'flex',
                               alignItems: 'center',
                               justifyContent: 'center',
-                              backgroundColor: '#f5f5f5',
-                              border: '2px dashed #ccc',
-                              borderRadius: '8px',
-                              padding: '8px 12px',
-                              height: '21px',
+                              backgroundColor: 'rgba(0, 0, 0, 0.05)',
+                              border: '2px dashed rgba(109, 35, 35, 0.3)',
+                              borderRadius: 2,
+                              padding: '12px',
+                              minHeight: '48px',
                             }}
                           >
                             <Typography
                               variant="body2"
                               sx={{
-                                color: '#999',
+                                color: grayColor,
                                 fontStyle: 'italic',
-                                fontSize: '13px',
+                                fontSize: '14px',
                               }}
                             >
                               No employee selected
@@ -1322,152 +1409,138 @@ const EmployeeRemittance = () => {
                         )}
                       </Grid>
                     </Grid>
-                  </Grid>
+                  </Box>
 
-                  <Grid item xs={12}>
-                    <Box sx={{ 
-                      borderBottom: '2px solid #e0e0e0', 
-                      my: 2,
-                      '&::before': {
-                        content: '"Remittance Details"',
-                        position: 'absolute',
-                        left: 20,
-                        top: -10,
-                        backgroundColor: '#fff',
-                        px: 1,
-                        color: '#6D2323',
-                        fontWeight: 'bold',
-                        fontSize: '0.875rem'
-                      },
-                      position: 'relative'
-                    }} />
-                  </Grid>
+                  <Divider sx={{ my: 3, borderColor: 'rgba(109,35,35,0.1)' }} />
 
-                  {Object.keys(fieldLabels).map((field) => (
-                    <Grid item xs={12} sm={6} key={field}>
-                      <Typography variant="caption" sx={{ fontWeight: "bold", mb: 0.5, color: "#333", display: 'block' }}>
-                        {fieldLabels[field]}
-                      </Typography>
-                      {isEditing ? (
-                        <TextField
-                          type="number"
-                          value={editRemittance[field] || ''}
-                          onChange={(e) => handleChange(field, e.target.value, true)}
-                          fullWidth
-                          size="small"
-                          inputProps={{ step: '0.01', min: '0' }}
-                          sx={{
-                            '& .MuiOutlinedInput-root': {
-                              '& fieldset': {
-                                borderColor: "#6D2323",
-                              },
-                              '&:hover fieldset': {
-                                borderColor: "#6D2323",
-                              },
-                              '&.Mui-focused fieldset': {
-                                borderColor: "#6D2323",
-                              },
-                            },
-                          }}
-                        />
-                      ) : (
-                        <Typography variant="body2" sx={{ p: 1, bgcolor: '#f5f5f5', borderRadius: 1 }}>
-                          {editRemittance[field] || '0.00'}
+                  <Typography variant="h5" sx={{ fontWeight: 600, mb: 3, color: accentColor, display: 'flex', alignItems: 'center' }}>
+                    <FactCheckIcon sx={{ mr: 2, fontSize: 24 }} />
+                    Remittance Details
+                  </Typography>
+
+                  <Grid container spacing={2}>
+                    {Object.keys(fieldLabels).map((field) => (
+                      <Grid item xs={12} sm={6} key={field}>
+                        <Typography variant="body2" sx={{ fontWeight: 500, mb: 1, color: accentColor }}>
+                          {fieldLabels[field]}
                         </Typography>
-                      )}
-                    </Grid>
-                  ))}
-                </Grid>
+                        {isEditing ? (
+                          <ModernTextField
+                            type="number"
+                            value={editRemittance[field] || ''}
+                            onChange={(e) => handleChange(field, e.target.value, true)}
+                            fullWidth
+                            size="small"
+                            inputProps={{ step: '0.01', min: '0' }}
+                          />
+                        ) : (
+                          <Box sx={{ 
+                            p: 1.5, 
+                            bgcolor: 'rgba(254, 249, 225, 0.5)', 
+                            borderRadius: 1,
+                            border: '1px solid rgba(109, 35, 35, 0.2)'
+                          }}>
+                            <Typography variant="body2">
+                              {editRemittance[field] || '0.00'}
+                            </Typography>
+                          </Box>
+                        )}
+                      </Grid>
+                    ))}
+                  </Grid>
 
-                <Box sx={{ display: 'flex', gap: 2, mt: 3, justifyContent: 'flex-end' }}>
-                  {!isEditing ? (
-                    <>
-                      <Button
-                        onClick={() => handleDelete(editRemittance.id)}
-                        variant="outlined"
-                        startIcon={<DeleteIcon />}
-                        sx={{
-                          color: "#d32f2f",
-                          borderColor: "#d32f2f",
-                          "&:hover": {
-                            backgroundColor: "#d32f2f",
-                            color: "#fff"
-                          }
-                        }}
-                      >
-                        Delete
-                      </Button>
-                      <Button
-                        onClick={handleStartEdit}
-                        variant="contained"
-                        startIcon={<EditIcon />}
-                        sx={{ 
-                          backgroundColor: "#6D2323", 
-                          color: "#FEF9E1",
-                          "&:hover": { backgroundColor: "#5a1d1d" }
-                        }}
-                      >
-                        Edit
-                      </Button>
-                    </>
-                  ) : (
-                    <>
-                      <Button
-                        onClick={handleCancelEdit}
-                        variant="outlined"
-                        startIcon={<CancelIcon />}
-                        sx={{
-                          color: "#666",
-                          borderColor: "#666",
-                          "&:hover": {
-                            backgroundColor: "#f5f5f5"
-                          }
-                        }}
-                      >
-                        Cancel
-                      </Button>
-                      <Button
-                        onClick={handleUpdate}
-                        variant="contained"
-                        startIcon={<SaveIcon />}
-                        disabled={!hasChanges()}
-                        sx={{ 
-                          backgroundColor: hasChanges() ? "#6D2323" : "#ccc", 
-                          color: "#FEF9E1",
-                          "&:hover": { 
-                            backgroundColor: hasChanges() ? "#5a1d1d" : "#ccc"
-                          },
-                          "&:disabled": {
-                            backgroundColor: "#ccc",
-                            color: "#999"
-                          }
-                        }}
-                      >
-                        Save
-                      </Button>
-                    </>
-                  )}
+                  <Box sx={{ display: 'flex', gap: 2, mt: 4, justifyContent: 'flex-end' }}>
+                    {!isEditing ? (
+                      <>
+                        <ProfessionalButton
+                          onClick={() => handleDelete(editRemittance.id)}
+                          variant="outlined"
+                          startIcon={<DeleteIcon />}
+                          sx={{
+                            color: "#d32f2f",
+                            borderColor: "#d32f2f",
+                            "&:hover": {
+                              backgroundColor: "#d32f2f",
+                              color: "#fff"
+                            }
+                          }}
+                        >
+                          Delete
+                        </ProfessionalButton>
+                        <ProfessionalButton
+                          onClick={handleStartEdit}
+                          variant="contained"
+                          startIcon={<EditIcon />}
+                          sx={{ 
+                            backgroundColor: accentColor, 
+                            color: primaryColor,
+                            "&:hover": { backgroundColor: accentDark }
+                          }}
+                        >
+                          Edit
+                        </ProfessionalButton>
+                      </>
+                    ) : (
+                      <>
+                        <ProfessionalButton
+                          onClick={handleCancelEdit}
+                          variant="outlined"
+                          startIcon={<CancelIcon />}
+                          sx={{
+                            color: grayColor,
+                            borderColor: grayColor,
+                            "&:hover": {
+                              backgroundColor: 'rgba(108, 117, 125, 0.1)'
+                            }
+                          }}
+                        >
+                          Cancel
+                        </ProfessionalButton>
+                        <ProfessionalButton
+                          onClick={handleUpdate}
+                          variant="contained"
+                          startIcon={<SaveIcon />}
+                          disabled={!hasChanges()}
+                          sx={{ 
+                            backgroundColor: hasChanges() ? accentColor : grayColor, 
+                            color: primaryColor,
+                            "&:hover": { 
+                              backgroundColor: hasChanges() ? accentDark : grayColor
+                            },
+                            "&:disabled": {
+                              backgroundColor: grayColor,
+                              color: "#999"
+                            }
+                          }}
+                        >
+                          Save
+                        </ProfessionalButton>
+                      </>
+                    )}
+                  </Box>
                 </Box>
-              </Box>
-            </>
-          )}
-        </Paper>
-      </Modal>
+              </>
+            )}
+          </GlassCard>
+        </Modal>
 
-      <Snackbar
-        open={snackbar.open}
-        autoHideDuration={3000}
-        onClose={() => setSnackbar({ ...snackbar, open: false })}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-      >
-        <Alert
+        <SuccessfullOverlay open={successOpen} action={successAction} />
+        
+        <Snackbar
+          open={snackbar.open}
+          autoHideDuration={3000}
           onClose={() => setSnackbar({ ...snackbar, open: false })}
-          severity={snackbar.severity}
-          sx={{ width: '100%' }}
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
         >
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
+          <Alert
+            onClose={() => setSnackbar({ ...snackbar, open: false })}
+            severity={snackbar.severity}
+            sx={{ width: '100%' }}
+          >
+            {snackbar.message}
+          </Alert>
+        </Snackbar>
+      </Box>
     </Box>
   );
 };

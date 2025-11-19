@@ -531,7 +531,6 @@ const AttendanceModuleFaculty = () => {
       });
 
       setAttendanceData(processedData);
-      setSuccess("Attendance data loaded successfully!");
     } catch (error) {
       console.error("Error fetching attendance data:", error);
       setError("Failed to fetch attendance data. Please try again.");
@@ -751,8 +750,8 @@ const AttendanceModuleFaculty = () => {
 
   const currentYear = new Date().getFullYear();
   const months = [
-    "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+     "JAN", "FEB", "MAR", "APR", "MAY", "JUN",
+    "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"
   ];
 
   const handleMonthClick = (monthIndex) => {
@@ -788,30 +787,20 @@ const AttendanceModuleFaculty = () => {
         <Fade in timeout={300}>
           <Box sx={{ mb: 3 }}>
             <Breadcrumbs aria-label="breadcrumb" sx={{ fontSize: '0.9rem' }}>
-              <Link 
+              <Typography
                 underline="hover" 
                 color="inherit" 
-                href="/dashboard"
-                sx={{ display: 'flex', alignItems: 'center', color: primaryColor }}
-              >
-                <Home sx={{ mr: 0.5, fontSize: 20 }} />
-                Dashboard
-              </Link>
-              <Link 
-                underline="hover" 
-                color="inherit" 
-                href="/attendance"
                 sx={{ display: 'flex', alignItems: 'center', color: primaryColor }}
               >
                 <Assessment sx={{ mr: 0.5, fontSize: 20 }} />
-                Attendance
-              </Link>
+                Attendance Management
+              </Typography>
               <Typography 
                 color="text.primary" 
                 sx={{ display: 'flex', alignItems: 'center', fontWeight: 600, color: primaryColor }}
               >
                 <WorkHistory sx={{ mr: 0.5, fontSize: 20 }} />
-                Faculty (30hrs)
+                 30hrs | Job Order (JO)
               </Typography>
             </Breadcrumbs>
           </Box>
@@ -867,7 +856,7 @@ const AttendanceModuleFaculty = () => {
                     </Avatar>
                     <Box>
                       <Typography variant="h4" component="h1" sx={{ fontWeight: 700, mb: 1, lineHeight: 1.2, color: accentColor }}>
-                        Faculty Attendance Report (30hrs)
+                        Attendance Records (30hrs)
                       </Typography>
                       <Typography variant="body1" sx={{ opacity: 0.8, fontWeight: 400, color: accentDark }}>
                         Generate and review all attendance records of 30 hours faculty employees
@@ -876,7 +865,7 @@ const AttendanceModuleFaculty = () => {
                   </Box>
                   <Box display="flex" alignItems="center" gap={2}>
                     <Chip 
-                      label="Faculty Module" 
+                      label="30hrs | Job Order (JO)" 
                       size="small" 
                       sx={{ 
                         bgcolor: 'rgba(109,35,35,0.15)', 
@@ -921,11 +910,8 @@ const AttendanceModuleFaculty = () => {
                     <FilterList />
                   </Avatar>
                   <Box>
-                    <Typography variant="h5" component="div" sx={{ fontWeight: 600, color: accentColor }}>
-                      Report Parameters
-                    </Typography>
                     <Typography variant="body2" color="text.secondary" sx={{ color: accentDark }}>
-                      Configure your attendance report criteria
+                        Configure your attendance record criteria
                     </Typography>
                   </Box>
                 </Box>
@@ -1001,7 +987,7 @@ const AttendanceModuleFaculty = () => {
                 <Box sx={{ mb: 4 }}>
                   <Typography variant="h6" gutterBottom sx={{ fontWeight: 600, color: accentColor, display: 'flex', alignItems: 'center', mb: 3 }}>
                     <DateRange sx={{ mr: 2, fontSize: 24 }} />
-                    Quick Month Selection
+                    FILTERS:
                   </Typography>
                   <Box sx={{ 
                     display: 'grid', 
@@ -1050,7 +1036,7 @@ const AttendanceModuleFaculty = () => {
                       }
                     }}
                   >
-                    Generate Report
+                    Search Records
                   </ProfessionalButton>
                 </Box>
               </Box>
@@ -1066,7 +1052,7 @@ const AttendanceModuleFaculty = () => {
           <Box sx={{ textAlign: 'center' }}>
             <CircularProgress color="inherit" size={60} thickness={4} />
             <Typography variant="h6" sx={{ mt: 2, color: primaryColor }}>
-              Generating attendance report...
+              Generating attendance records...
             </Typography>
           </Box>
         </Backdrop>
@@ -1117,10 +1103,10 @@ const AttendanceModuleFaculty = () => {
               }}>
                 <Box>
                   <Typography variant="body2" sx={{ opacity: 0.8, mb: 1, textTransform: 'uppercase', letterSpacing: '0.1em', color: accentDark }}>
-                    Faculty Attendance Report
+                    30hrs | Job Order (JO) Attendance Records
                   </Typography>
                   <Typography variant="h4" sx={{ fontWeight: 600, mb: 1, color: accentColor }}>
-                    Employee #{employeeNumber}
+                    {employeeNumber}
                   </Typography>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mt: 2 }}>
                     <Chip 
@@ -1139,20 +1125,6 @@ const AttendanceModuleFaculty = () => {
                   </Box>
                 </Box>
                 <Box sx={{ display: 'flex', gap: 2 }}>
-                  <Tooltip title="Export to Excel">
-                    <IconButton 
-                      onClick={exportToExcel}
-                      sx={{ 
-                        bgcolor: 'rgba(109,35,35,0.1)', 
-                        '&:hover': { bgcolor: 'rgba(109,35,35,0.2)' },
-                        color: accentColor,
-                        width: 48,
-                        height: 48,
-                      }}
-                    >
-                      <FileDownload />
-                    </IconButton>
-                  </Tooltip>
                   <Avatar 
                     sx={{ 
                       bgcolor: 'rgba(109,35,35,0.15)', 
@@ -1269,7 +1241,7 @@ const AttendanceModuleFaculty = () => {
                         </TableRow>
                       ))}
                       <TableRow>
-                        <PremiumTableCell colSpan={7} sx={{ fontWeight: "bold", textAlign: "right" }}>
+                        <PremiumTableCell colSpan={6} sx={{ fontWeight: "bold", textAlign: "right" }}>
                           Total Rendered Time (Regular Duty):
                         </PremiumTableCell>
                         <PremiumTableCell colSpan={1} bgColor={alpha(accentColor, 0.2)} sx={{ fontWeight: "bold", textAlign: "center" }}>
@@ -1316,7 +1288,7 @@ const AttendanceModuleFaculty = () => {
                         <PremiumTableCell colSpan={3} sx={{ fontWeight: "bold", textAlign: "right" }}>
                           Overall Tardiness Official Time <br /> {startDate} to {endDate}:
                         </PremiumTableCell>
-                        <PremiumTableCell colSpan={2} bgColor={alpha(accentColor, 0.3)} sx={{ fontWeight: "bold", textAlign: "center" }}>
+                        <PremiumTableCell colSpan={1} bgColor={alpha(accentColor, 0.3)} sx={{ fontWeight: "bold", textAlign: "center" }}>
                           {calculateTotalRenderedTimeTardiness()}
                         </PremiumTableCell>
                       </TableRow>
@@ -1332,28 +1304,6 @@ const AttendanceModuleFaculty = () => {
         {attendanceData.length > 0 && (
           <Fade in timeout={900}>
             <GlassCard>
-              <CardHeader
-                title={
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                    <Avatar sx={{ bgcolor: alpha(primaryColor, 0.8), color: accentColor }}>
-                      <SaveAs />
-                    </Avatar>
-                    <Box>
-                      <Typography variant="h5" component="div" sx={{ fontWeight: 600, color: accentColor }}>
-                        Save Attendance Record
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary" sx={{ color: accentDark }}>
-                        Save this attendance report to the system
-                      </Typography>
-                    </Box>
-                  </Box>
-                }
-                sx={{ 
-                  bgcolor: alpha(primaryColor, 0.5), 
-                  pb: 2,
-                  borderBottom: '1px solid rgba(109,35,35,0.1)'
-                }}
-              />
               <CardContent sx={{ p: 4 }}>
                 <ProfessionalButton
                   variant="contained"

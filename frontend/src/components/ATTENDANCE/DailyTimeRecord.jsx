@@ -2,16 +2,84 @@ import API_BASE_URL from "../../apiConfig";
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
-import { TextField, Button, Box } from "@mui/material";
-import earistLogo from "../../assets/earistLogo.jpg";
 import {
   AccessTime,
+  CalendarToday,
   Print,
   SaveOutlined,
   Search,
   SearchOutlined,
 } from "@mui/icons-material";
 import PrintIcon from "@mui/icons-material/Print";
+import {
+  Avatar,
+  Box,
+  Button,
+  Card,
+  Chip,
+  Container,
+  Fade,
+  IconButton,
+  Paper,
+  styled,
+  TextField,
+  Tooltip,
+  Typography
+} from "@mui/material";
+import earistLogo from "../../assets/earistLogo.jpg";
+
+// Professional styled components
+const GlassCard = styled(Card)(({ theme }) => ({
+  borderRadius: 20,
+  background: 'rgba(254, 249, 225, 0.95)',
+  backdropFilter: 'blur(10px)',
+  boxShadow: '0 8px 40px rgba(109, 35, 35, 0.08)',
+  border: '1px solid rgba(109, 35, 35, 0.1)',
+  overflow: 'hidden',
+  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+  '&:hover': {
+    boxShadow: '0 12px 48px rgba(109, 35, 35, 0.15)',
+    transform: 'translateY(-4px)',
+  },
+}));
+
+const ProfessionalButton = styled(Button)(({ theme, variant, color = 'primary' }) => ({
+  borderRadius: 12,
+  fontWeight: 600,
+  padding: '12px 24px',
+  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+  textTransform: 'none',
+  fontSize: '0.95rem',
+  letterSpacing: '0.025em',
+  boxShadow: variant === 'contained' ? '0 4px 14px rgba(254, 249, 225, 0.25)' : 'none',
+  '&:hover': {
+    transform: 'translateY(-2px)',
+    boxShadow: variant === 'contained' ? '0 6px 20px rgba(254, 249, 225, 0.35)' : 'none',
+  },
+  '&:active': {
+    transform: 'translateY(0)',
+  },
+}));
+
+const ModernTextField = styled(TextField)(({ theme }) => ({
+  '& .MuiOutlinedInput-root': {
+    borderRadius: 12,
+    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+    backgroundColor: 'rgba(255, 255, 255, 0.8)',
+    '&:hover': {
+      transform: 'translateY(-1px)',
+      backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    },
+    '&.Mui-focused': {
+      transform: 'translateY(-1px)',
+      boxShadow: '0 4px 20px rgba(254, 249, 225, 0.25)',
+      backgroundColor: 'rgba(255, 255, 255, 1)',
+    },
+  },
+  '& .MuiInputLabel-root': {
+    fontWeight: 500,
+  },
+}));
 
 const DailyTimeRecord = () => {
   const [personID, setPersonID] = useState("");
@@ -20,6 +88,13 @@ const DailyTimeRecord = () => {
   const [records, setRecords] = useState([]);
   const [employeeName, setEmployeeName] = useState("");
   const [officialTimes, setOfficialTimes] = useState({});
+  
+  // Color scheme
+  const primaryColor = '#FEF9E1';
+  const secondaryColor = '#FFF8E7';
+  const accentColor = '#6d2323';
+  const accentDark = '#8B3333';
+  const grayColor = '#6c757d';
 
   const getAuthHeaders = () => {
     const token = localStorage.getItem("token");
@@ -142,18 +217,8 @@ const DailyTimeRecord = () => {
 
   const currentYear = new Date().getFullYear();
   const months = [
-    "Jan",
-    "Feb",
-    "Mar",
-    "Apr",
-    "May",
-    "Jun",
-    "Jul",
-    "Aug",
-    "Sep",
-    "Oct",
-    "Nov",
-    "Dec",
+      "JAN", "FEB", "MAR", "APR", "MAY", "JUN",
+    "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"
   ];
 
   const handleMonthClick = (monthIndex) => {
@@ -189,16 +254,12 @@ const DailyTimeRecord = () => {
   const formattedEndDate = formatEndDate(endDate);
 
   return (
-    <div
-      className="container faculty"
-      style={{ transform: "scale(0.8)", marginTop: "-10rem" }}
-    >
+    <Container maxWidth="xl" sx={{ py: 4, mt: -5 }}>
       <style>
         {`
           @media print {
             .no-print { 
               display: none !important;
-              
             }
 
             .header { 
@@ -254,1940 +315,1945 @@ const DailyTimeRecord = () => {
           }
         `}
       </style>
+      
+      <Box sx={{ px: { xs: 2, sm: 4, md: 6 } }}>
+        {/* Header */}
+        <Fade in timeout={500}>
+          <Box sx={{ mb: 4 }}>
+            <GlassCard>
+              <Box
+                sx={{
+                  p: 5,
+                  background: `linear-gradient(135deg, ${primaryColor} 0%, ${secondaryColor} 100%)`,
+                  color: accentColor,
+                  position: 'relative',
+                  overflow: 'hidden',
+                }}
+              >
+                <Box
+                  sx={{
+                    position: 'absolute',
+                    top: -50,
+                    right: -50,
+                    width: 200,
+                    height: 200,
+                    background: 'radial-gradient(circle, rgba(109,35,35,0.1) 0%, rgba(109,35,35,0) 70%)',
+                  }}
+                />
+                <Box
+                  sx={{
+                    position: 'absolute',
+                    bottom: -30,
+                    left: '30%',
+                    width: 150,
+                    height: 150,
+                    background: 'radial-gradient(circle, rgba(109,35,35,0.08) 0%, rgba(109,35,35,0) 70%)',
+                  }}
+                />
+                
+                <Box display="flex" alignItems="center" justifyContent="space-between" position="relative" zIndex={1}>
+                  <Box display="flex" alignItems="center">
+                    <Avatar 
+                      sx={{ 
+                        bgcolor: 'rgba(109,35,35,0.15)', 
+                        mr: 4, 
+                        width: 64,
+                        height: 64,
+                        boxShadow: '0 8px 24px rgba(109,35,35,0.15)'
+                      }}
+                    >
+                      <AccessTime sx={{color: accentColor, fontSize: 32 }} />
+                    </Avatar>
+                    <Box>
+                      <Typography variant="h4" component="h1" sx={{ fontWeight: 700, mb: 1, lineHeight: 1.2, color: accentColor }}>
+                        Daily Time Record
+                      </Typography>
+                      <Typography variant="body1" sx={{ opacity: 0.8, fontWeight: 400, color: accentDark }}>
+                        Filter your DTR records by date
+                      </Typography>
+                    </Box>
+                  </Box>
+                  <Box display="flex" alignItems="center" gap={2}>
+                    <Chip 
+                      label="Faculty Records" 
+                      size="small" 
+                      sx={{ 
+                        bgcolor: 'rgba(109,35,35,0.15)', 
+                        color: accentColor,
+                        fontWeight: 500,
+                        '& .MuiChip-label': { px: 1 }
+                      }} 
+                    />
+                    <Tooltip title="Refresh Data">
+                      <IconButton 
+                        onClick={() => window.location.reload()}
+                        sx={{ 
+                          bgcolor: 'rgba(109,35,35,0.1)', 
+                          '&:hover': { bgcolor: 'rgba(109,35,35,0.2)' },
+                          color: accentColor,
+                          width: 48,
+                          height: 48,
+                        }}
+                      >
+                        <AccessTime sx={{ fontSize: 24 }} />
+                      </IconButton>
+                    </Tooltip>
+                  </Box>
+                </Box>
+              </Box>
+            </GlassCard>
+          </Box>
+        </Fade>
 
-      <div
-        className="search-container no-print textfield-container"
-        style={{
-          backgroundColor: "#6D2323",
-          color: "#ffffff",
-          padding: "20px",
-          borderRadius: "8px",
-          borderBottomLeftRadius: "0px",
-          borderBottomRightRadius: "0px",
-        }}
-      >
-        <div
-          style={{ display: "flex", alignItems: "center", color: "#ffffff" }}
-        >
-          <AccessTime
-            sx={{
-              fontSize: "3rem",
-              marginRight: "16px",
-              marginLeft: "5px",
-            }}
-          />
-          <div>
-            <h4 style={{ margin: 0, fontSize: "150%", marginBottom: "2px" }}>
-              Daily Time Record
-            </h4>
-            <p style={{ margin: 0, fontSize: "85%" }}>
-              Filter your DTR records by date
-            </p>
-          </div>
-        </div>
-      </div>
+        {/* Search Section */}
+        <Fade in timeout={700}>
+          <GlassCard sx={{ mb: 4 }}>
+            <Box
+              sx={{
+                p: 4,
+                background: `linear-gradient(135deg, ${primaryColor} 0%, ${secondaryColor} 100%)`,
+                color: accentColor,
+                display: "flex",
+                alignItems: "center",
+                boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+              }}
+            >
+              <CalendarToday sx={{ fontSize: "1.8rem", mr: 2 }} />
+              <Box>
+                <Typography variant="h7" sx={{ opacity: 0.9 }}>
+                  Select date range to view records
+                </Typography>
+              </Box>
+            </Box>
 
-      <div
-        className="search-container no-print textfield-container"
-        style={{
-          backgroundColor: "white",
-          padding: "30px 20px",
-          borderRadius: "0px 0px 8px 8px",
-          boxShadow: "0px 2px 8px rgba(0, 0, 0, 0.1)",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-        }}
-      >
-      <Box
-        sx={{
-          display: "flex",
-          flexWrap: "wrap",
-          justifyContent: "center",
-          alignItems: "center",
-          gap: 1, // normal spacing
-          mb: 2,
-          width: "100%",
-        }}
-      >
-        {months.map((month, index) => (
-          <Button
-            key={month}
-            variant="contained"
-            onClick={() => handleMonthClick(index)}
+            <Box sx={{ p: 4 }}>
+              {/* Month Buttons */}
+              <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, mb: 3, justifyContent: "center" }}>
+                {months.map((month, index) => (
+                  <ProfessionalButton
+                    key={month}
+                    variant="contained"
+                    onClick={() => handleMonthClick(index)}
+                    sx={{ 
+                      backgroundColor: accentColor, 
+                      color: primaryColor,
+                      "&:hover": { backgroundColor: accentDark },
+                      py: 0.5,
+                      px: 1.5,
+                      fontSize: '0.8rem'
+                    }}
+                  >
+                    {month}
+                  </ProfessionalButton>
+                ))}
+              </Box>
+
+              <Box sx={{ display: 'flex', gap: 2, alignItems: 'flex-end', flexWrap: 'wrap', justifyContent: 'center' }}>
+                <Box sx={{ minWidth: 225 }}>
+                  <Typography variant="body2" sx={{ fontWeight: 500, mb: 1, color: accentColor }}>
+                    Employee Number
+                  </Typography>
+                  <ModernTextField
+                    value={personID}
+                    variant="outlined"
+                    disabled
+                    fullWidth
+                  />
+                </Box>
+
+                <Box sx={{ minWidth: 225 }}>
+                  <Typography variant="body2" sx={{ fontWeight: 500, mb: 1, color: accentColor }}>
+                    Start Date
+                  </Typography>
+                  <ModernTextField
+                    label="Start Date"
+                    type="date"
+                    value={startDate}
+                    onChange={(e) => setStartDate(e.target.value)}
+                    variant="outlined"
+                    InputLabelProps={{ shrink: true }}
+                    fullWidth
+                  />
+                </Box>
+
+                <Box sx={{ minWidth: 225 }}>
+                  <Typography variant="body2" sx={{ fontWeight: 500, mb: 1, color: accentColor }}>
+                    End Date
+                  </Typography>
+                  <ModernTextField
+                    label="End Date"
+                    type="date"
+                    value={endDate}
+                    onChange={(e) => setEndDate(e.target.value)}
+                    variant="outlined"
+                    InputLabelProps={{ shrink: true }}
+                    fullWidth
+                  />
+                </Box>
+
+                <ProfessionalButton
+                  variant="contained"
+                  onClick={fetchRecords}
+                  startIcon={<SearchOutlined />}
+                  sx={{ 
+                    backgroundColor: accentColor, 
+                    color: primaryColor,
+                    "&:hover": { backgroundColor: accentDark },
+                    py: 1.5,
+                    px: 3
+                  }}
+                >
+                  Search
+                </ProfessionalButton>
+              </Box>
+            </Box>
+          </GlassCard>
+        </Fade>
+
+        {/* Records Table */}
+        <Fade in timeout={900}>
+          <Paper
+            elevation={4}
             sx={{
-              backgroundColor: "#6D2323",
-              color: "white",
-              fontSize: "18px",    
-              padding: "8px 18px", 
-              minWidth: "95px",     
-              borderRadius: "6px",
-              "&:hover": { backgroundColor: "#A31d1d" },
+              borderRadius: 2,
+              overflow: 'hidden',
+              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+              border: '1px solid rgba(109, 35, 35, 0.1)',
+              mb: 4,
             }}
           >
-            {month}
-          </Button>
-        ))}
+            <Box sx={{ p: 5, overflowX: 'auto' }}>
+              <div className="table-container">
+                <div className="table-wrapper">
+                  <div
+                    style={{ display: "flex", gap: "2%", justifyContent: "center" }}
+                    className="table-side-by-side"
+                  >
+                    <table
+                      style={{
+                        border: "1px solid black",
+                        borderCollapse: "collapse",
+                        width: "47%",
+                      }}
+                      className="print-visble"
+                    >
+                      <thead style={{ textAlign: "center", position: "relative" }}>
+                        <tr>
+                          <div
+                            style={{
+                              position: "absolute",
+                              top: "1.5rem",
+                              left: "50%",
+                              transform: "translateX(-50%)",
+                              fontWeight: "bold",
+                              fontSize: "13px",
+                            }}
+                          >
+                            Republic of the Philippines
+                          </div>
+
+                          <td
+                            colSpan="1"
+                            style={{
+                              position: "relative",
+                              padding: "0",
+                              lineHeight: "0",
+                              height: "0px",
+                              textAlign: "right",
+                              marginRight: "0",
+                            }}
+                          >
+                            <img
+                              src={earistLogo}
+                              alt="EARIST Logo"
+                              width="55"
+                              height="55"
+                              style={{
+                                position: "absolute",
+                                marginTop: "-14%",
+                                left: "60%",
+                              }}
+                            />
+                          </td>
+                          <td colSpan="3">
+                            <p
+                              style={{
+                                marginTop: "15%",
+                                fontSize: "15px",
+                                fontWeight: "bold",
+                                textAlign: "center",
+                                marginLeft: "20%",
+                              }}
+                            >
+                              EULOGIO "AMANG" RODRIGUEZ <br /> INSTITUTE OF SCIENCE &
+                              TECHNOLOGY
+                            </p>
+                          </td>
+                          <td></td>
+                          <td></td>
+                          <td></td>
+                          <td></td>
+                          <td></td>
+                        </tr>
+                        <tr>
+                          <td colSpan="9">
+                            <p
+                              style={{
+                                fontSize: "14px",
+                                fontWeight: "bold",
+                                lineHeight: "0",
+                              }}
+                            >
+                              Nagtahan, Sampaloc Manila
+                            </p>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td colSpan="9">
+                            <p
+                              style={{
+                                fontSize: "12px",
+                                fontWeight: "bold",
+                                lineHeight: "0",
+                              }}
+                            >
+                              Civil Service Form No. 48
+                            </p>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td colSpan="9" style={{ padding: "2", lineHeight: "0" }}>
+                            <h4>DAILY TIME RECORD</h4>
+                          </td>
+                        </tr>
+                        <tr style={{ position: "relative" }}>
+                          <td colSpan="3" style={{ padding: "2", lineHeight: "0" }}>
+                            <p
+                              style={{
+                                fontSize: "15px",
+                                margin: "0",
+                                height: "20px",
+                                textAlign: "left",
+                                padding: "0 1rem",
+                                marginTop: "6%",
+                              }}
+                            >
+                              NAME: <b>{employeeName}</b>
+                            </p>
+                          </td>
+                          <td></td>
+                        </tr>
+                        <tr>
+                          <td colSpan="5" style={{ padding: "2", lineHeight: "0" }}>
+                            <p
+                              style={{
+                                fontSize: "15px",
+                                margin: "0",
+                                height: "10px",
+                                paddingLeft: "1rem",
+                                textAlign: "Left",
+                              }}
+                            >
+                              Covered Dates:{" "}
+                              <b>
+                                {formattedStartDate} - {formattedEndDate}
+                              </b>
+                            </p>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td
+                            colSpan="3"
+                            style={{ padding: "2", lineHeight: "2", textAlign: "left" }}
+                          >
+                            <p
+                              style={{
+                                fontSize: "15px",
+                                margin: "0",
+                                paddingLeft: "1rem",
+                              }}
+                            >
+                              For the month of:{" "}
+                              <b>{startDate ? formatMonth(startDate) : ""}</b>
+                            </p>
+                          </td>
+                          <td></td>
+                          <td></td>
+                          <td></td>
+                          <td></td>
+                          <td></td>
+                        </tr>
+                        <tr>
+                          <td
+                            style={{
+                              fontSize: "15px",
+                              margin: "0",
+                              height: "10px",
+                              position: "absolute",
+                              paddingLeft: "1rem",
+                              textAlign: "left",
+                            }}
+                          >
+                            Official hours for arrival (regular day) and departure
+                          </td>
+                        </tr>
+                        <tr>
+                          <td colSpan="3"></td>
+                          <td></td>
+                          <td></td>
+
+                          <td></td>
+                        </tr>
+                        <tr>
+                          <td colSpan="3"></td>
+                          <td></td>
+                          <td></td>
+
+                          <td></td>
+                        </tr>
+                        <tr>
+                          <td colSpan="3"></td>
+                          <td></td>
+                          <td></td>
+
+                          <td></td>
+                        </tr>
+                        <tr>
+                          <td colSpan="3"></td>
+                          <td></td>
+                          <td></td>
+                        </tr>
+                        <tr>
+                          <td colSpan="3"></td>
+                          <td></td>
+                          <td></td>
+
+                          <td></td>
+                        </tr>
+                        <tr>
+                          <td colSpan="3"></td>
+                          <td></td>
+                          <td></td>
+                        </tr>
+                        <tr>
+                          <td colSpan="3"></td>
+                          <td></td>
+                          <td></td>
+
+                          <td></td>
+                        </tr>
+                        <tr>
+                          <td colSpan="3"></td>
+                          <td></td>
+                          <td></td>
+                        </tr>
+                        <tr>
+                          <td colSpan="3"></td>
+                          <td></td>
+                          <td></td>
+
+                          <td></td>
+                        </tr>
+                        <tr>
+                          <td colSpan="3"></td>
+                          <td></td>
+                          <td></td>
+                        </tr>
+                        <tr>
+                          <td></td>
+                          <td></td>
+
+                          <td></td>
+                        </tr>
+                        <tr>
+                          <td></td>
+                          <td></td>
+                          <td
+                            style={{
+                              position: "absolute",
+                              display: "flex",
+                              flexDirection: "column",
+                              right: "50%",
+                              gap: "1px",
+                              paddingBottom: "5rem",
+                            }}
+                          >
+                            Regular days M-TH
+                          </td>
+                          <td></td>
+                          <td></td>
+
+                          <tr
+                            style={{
+                              position: "absolute",
+                              display: "flex",
+                              flexDirection: "column",
+                              right: "5%",
+                              gap: "1px",
+                              paddingBottom: "2rem",
+                            }}
+                          >
+                            <td
+                              style={{
+                                fontSize: "15px",
+                                fontWeight: "bold",
+                                margin: "0",
+                                height: "10px",
+                                textAlign: "Left",
+                                fontSize: "0.8rem",
+                              }}
+                            >
+                              M -{" "}
+                              {officialTimes["Monday"]?.officialTimeIN || "00:00:00"} -{" "}
+                              {officialTimes["Monday"]?.officialTimeOUT || "00:00:00"}
+                            </td>
+
+                            <td
+                              style={{
+                                fontSize: "15px",
+                                fontWeight: "bold",
+                                margin: "0",
+                                height: "10px",
+                                textAlign: "left",
+                                fontSize: "0.8rem",
+                              }}
+                            >
+                              T -{" "}
+                              {officialTimes["Tuesday"]?.officialTimeIN || "00:00:00"} -{" "}
+                              {officialTimes["Tuesday"]?.officialTimeOUT || "00:00:00"}
+                            </td>
+
+                            <td
+                              style={{
+                                fontSize: "15px",
+                                fontWeight: "bold",
+                                margin: "0",
+                                height: "10px",
+                                textAlign: "Left",
+                                fontSize: "0.8rem",
+                              }}
+                            >
+                              W -{" "}
+                              {officialTimes["Wednesday"]?.officialTimeIN || "00:00:00"}{" "}
+                              -{" "}
+                              {officialTimes["Wednesday"]?.officialTimeOUT ||
+                                "00:00:00"}
+                            </td>
+                            <td
+                              style={{
+                                fontSize: "15px",
+                                fontWeight: "bold",
+                                margin: "0",
+                                height: "10px",
+                                textAlign: "left",
+                                fontSize: "0.8rem",
+                              }}
+                            >
+                              TH -{" "}
+                              {officialTimes["Thursday"]?.officialTimeIN || "00:00:00"}{" "}
+                              -{" "}
+                              {officialTimes["Thursday"]?.officialTimeOUT || "00:00:00"}
+                            </td>
+                            <td
+                              style={{
+                                fontSize: "15px",
+                                fontWeight: "bold",
+                                margin: "0",
+                                height: "10px",
+                                textAlign: "Left",
+                                fontSize: "0.8rem",
+                              }}
+                            >
+                              F -{" "}
+                              {officialTimes["Friday"]?.officialTimeIN || "00:00:00"} -{" "}
+                              {officialTimes["Friday"]?.officialTimeOUT || "00:00:00"}
+                            </td>
+                            <td
+                              style={{
+                                fontSize: "15px",
+                                fontWeight: "bold",
+                                margin: "0",
+                                height: "10px",
+                                textAlign: "Left",
+                                fontSize: "0.8rem",
+                              }}
+                            >
+                              SAT -{" "}
+                              {officialTimes["Saturday"]?.officialTimeIN || "00:00:00"}{" "}
+                              -{" "}
+                              {officialTimes["Saturday"]?.officialTimeOUT || "00:00:00"}
+                            </td>
+                            <td
+                              style={{
+                                fontSize: "15px",
+                                fontWeight: "bold",
+                                margin: "0",
+                                height: "10px",
+                                textAlign: "Left",
+                                fontSize: "0.8rem",
+                              }}
+                            >
+                              SUN -{" "}
+                              {officialTimes["Sunday"]?.officialTimeIN || "00:00:00"} -{" "}
+                              {officialTimes["Sunday"]?.officialTimeOUT || "00:00:00"}
+                            </td>
+                          </tr>
+                        </tr>
+                        <tr>
+                          <td colSpan="3"></td>
+                          <td></td>
+                          <td></td>
+                          <td></td>
+                        </tr>
+                        <tr>
+                          <td colSpan="3"></td>
+                          <td></td>
+                          <td></td>
+
+                          <td></td>
+                        </tr>
+                        <tr>
+                          <td colSpan="3"></td>
+                          <td></td>
+                          <td></td>
+                        </tr>
+                        <tr>
+                          <td colSpan="3"></td>
+                          <td></td>
+                          <td></td>
+
+                          <td></td>
+                        </tr>
+                        <tr>
+                          <td colSpan="3"></td>
+                          <td></td>
+                          <td></td>
+                        </tr>
+                        <tr>
+                          <td colSpan="3"></td>
+                          <td></td>
+                          <td></td>
+
+                          <td></td>
+                        </tr>
+                        <tr>
+                          <td colSpan="3"></td>
+                          <td></td>
+                          <td></td>
+                        </tr>{" "}
+                        <tr>
+                          <td colSpan="3"></td>
+                          <td></td>
+                          <td></td>
+
+                          <td></td>
+                        </tr>
+                        <tr>
+                          <td
+                            colSpan="3"
+                            style={{
+                              position: "absolute",
+                              display: "flex",
+                              justifyContent: "left",
+                              flexDirection: "column",
+                              right: "58.2%",
+                              gap: "1px",
+                              paddingBottom: "5rem",
+                            }}
+                          >
+                            Saturdays
+                          </td>
+
+                          <td></td>
+                          <td></td>
+                        </tr>
+                        <tr>
+                          <td colSpan="3"></td>
+                          <td></td>
+                          <td></td>
+
+                          <td></td>
+                        </tr>
+                        <tr>
+                          <td colSpan="3"></td>
+                          <td></td>
+                          <td></td>
+                        </tr>
+                        <tr>
+                          <td colSpan="3"></td>
+                          <td></td>
+                          <td></td>
+
+                          <td></td>
+                        </tr>
+                        <tr>
+                          <td colSpan="3"></td>
+                          <td></td>
+                          <td></td>
+                        </tr>
+                        <tr>
+                          <td colSpan="3"></td>
+                          <td></td>
+                          <td></td>
+
+                          <td></td>
+                        </tr>
+                        <tr>
+                          <td colSpan="3"></td>
+                          <td></td>
+                          <td></td>
+                        </tr>
+                        <tr>
+                          <td colSpan="3"></td>
+                          <td></td>
+                          <td></td>
+
+                          <td></td>
+                        </tr>
+                        <tr>
+                          <td colSpan="3"></td>
+                          <td></td>
+                          <td></td>
+                        </tr>
+                        <tr>
+                          <td colSpan="3"></td>
+                          <td></td>
+                          <td></td>
+
+                          <td></td>
+                        </tr>
+                        <tr>
+                          <td colSpan="3"></td>
+                          <td></td>
+                          <td></td>
+                        </tr>
+                        <tr>
+                          <td colSpan="3"></td>
+                          <td></td>
+                          <td></td>
+
+                          <td></td>
+                        </tr>
+                        <tr>
+                          <td colSpan="3"></td>
+                          <td></td>
+                          <td></td>
+                        </tr>
+                        <tr>
+                          <td colSpan="3"></td>
+                          <td></td>
+                          <td></td>
+
+                          <td></td>
+                        </tr>
+                        <tr>
+                          <td colSpan="3"></td>
+                          <td></td>
+                          <td></td>
+                          <td></td>
+                          <td></td>
+                          <tr>
+                            <td colSpan="3"></td>
+                            <td></td>
+                            <td></td>
+
+                            <td></td>
+                          </tr>{" "}
+                          <tr>
+                            <td colSpan="3"></td>
+                            <td></td>
+                            <td></td>
+
+                            <td></td>
+                          </tr>{" "}
+                          <tr>
+                            <td colSpan="3"></td>
+                            <td></td>
+                            <td></td>
+
+                            <td></td>
+                          </tr>{" "}
+                          <tr>
+                            <td colSpan="3"></td>
+                            <td></td>
+                            <td></td>
+
+                            <td></td>
+                          </tr>{" "}
+                          <tr>
+                            <td colSpan="3"></td>
+                            <td></td>
+                            <td></td>
+
+                            <td></td>
+                          </tr>{" "}
+                          <tr>
+                            <td colSpan="3"></td>
+                            <td></td>
+                            <td></td>
+
+                            <td></td>
+                          </tr>{" "}
+                          <tr>
+                            <td colSpan="3"></td>
+                            <td></td>
+                            <td></td>
+
+                            <td></td>
+                          </tr>{" "}
+                          <tr>
+                            <td colSpan="3"></td>
+                            <td></td>
+                            <td></td>
+
+                            <td></td>
+                          </tr>{" "}
+                          <tr>
+                            <td colSpan="3"></td>
+                            <td></td>
+                            <td></td>
+
+                            <td></td>
+                          </tr>{" "}
+                          <tr>
+                            <td colSpan="3"></td>
+                            <td></td>
+                            <td></td>
+
+                            <td></td>
+                          </tr>{" "}
+                          <tr>
+                            <td colSpan="3"></td>
+                            <td></td>
+                            <td></td>
+
+                            <td></td>
+                          </tr>{" "}
+                          <tr>
+                            <td colSpan="3"></td>
+                            <td></td>
+                            <td></td>
+
+                            <td></td>
+                          </tr>{" "}
+                          <tr>
+                            <td colSpan="3"></td>
+                            <td></td>
+                            <td></td>
+
+                            <td></td>
+                          </tr>{" "}
+                          <tr>
+                            <td colSpan="3"></td>
+                            <td></td>
+                            <td></td>
+
+                            <td></td>
+                          </tr>{" "}
+                          <tr>
+                            <td colSpan="3"></td>
+                            <td></td>
+                            <td></td>
+
+                            <td></td>
+                          </tr>{" "}
+                          <tr>
+                            <td colSpan="3"></td>
+                            <td></td>
+                            <td></td>
+
+                            <td></td>
+                          </tr>{" "}
+                          <tr>
+                            <td colSpan="3"></td>
+                            <td></td>
+                            <td></td>
+
+                            <td></td>
+                          </tr>{" "}
+                          <tr>
+                            <td colSpan="3"></td>
+                            <td></td>
+                            <td></td>
+
+                            <td></td>
+                          </tr>{" "}
+                          <tr>
+                            <td colSpan="3"></td>
+                            <td></td>
+                            <td></td>
+
+                            <td></td>
+                          </tr>{" "}
+                          <tr>
+                            <td colSpan="3"></td>
+                            <td></td>
+                            <td></td>
+
+                            <td></td>
+                          </tr>{" "}
+                          <tr>
+                            <td colSpan="3"></td>
+                            <td></td>
+                            <td></td>
+
+                            <td></td>
+                          </tr>{" "}
+                          <tr>
+                            <td colSpan="3"></td>
+                            <td></td>
+                            <td></td>
+
+                            <td></td>
+                          </tr>{" "}
+                          <tr>
+                            <td colSpan="3"></td>
+                            <td></td>
+                            <td></td>
+
+                            <td></td>
+                          </tr>{" "}
+                          <tr>
+                            <td colSpan="3"></td>
+                            <td></td>
+                            <td></td>
+
+                            <td></td>
+                          </tr>{" "}
+                          <tr>
+                            <td colSpan="3"></td>
+                            <td></td>
+                            <td></td>
+
+                            <td></td>
+                          </tr>{" "}
+                          <tr>
+                            <td colSpan="3"></td>
+                            <td></td>
+                            <td></td>
+
+                            <td></td>
+                          </tr>
+                        </tr>
+                      </thead>
+                      <tr>
+                        <th
+                          rowSpan="2"
+                          style={{
+                            textAlign: "center",
+                            verticalAlign: "middle",
+                            border: "1px solid black",
+                          }}
+                        >
+                          DAY
+                        </th>
+                        <th colSpan="2" style={{ border: "1px solid black" }}>
+                          A.M.
+                        </th>
+                        <th colSpan="2" style={{ border: "1px solid black" }}>
+                          P.M.
+                        </th>
+                        <th style={{ border: "1px solid black" }}>Late</th>
+                        <th style={{ border: "1px solid black" }}>Undertime</th>
+                      </tr>
+                      <tr style={{ textAlign: "center" }}>
+                        <td style={{ border: "1px solid black" }}>Arrival</td>
+                        <td style={{ border: "1px solid black" }}>Departure</td>
+                        <td style={{ border: "1px solid black" }}>Arrival</td>
+                        <td style={{ border: "1px solid black" }}>Departure</td>
+                        <td style={{ border: "1px solid black" }}>Minutes</td>
+                        <td style={{ border: "1px solid black" }}>Minutes</td>
+                      </tr>
+
+                      <tbody>
+                        {Array.from({ length: 31 }, (_, i) => {
+                          const day = (i + 1).toString().padStart(2, "0");
+                          const record = records.find((r) =>
+                            r.date.endsWith(`-${day}`)
+                          );
+
+                          return (
+                            <tr key={i}>
+                              <td
+                                style={{
+                                  border: "1px solid black",
+                                  textAlign: "center",
+                                }}
+                              >
+                                {day}
+                              </td>
+                              <td
+                                style={{
+                                  border: "1px solid black",
+                                  textAlign: "center",
+                                }}
+                              >
+                                {record?.timeIN || ""}
+                              </td>
+                              <td
+                                style={{
+                                  border: "1px solid black",
+                                  textAlign: "center",
+                                }}
+                              >
+                                {record?.breaktimeIN || ""}
+                              </td>
+                              <td
+                                style={{
+                                  border: "1px solid black",
+                                  textAlign: "center",
+                                }}
+                              >                        
+                                {record?.breaktimeOUT || ""}
+                              </td>
+                              <td
+                                style={{
+                                  border: "1px solid black",
+                                  textAlign: "center",
+                                }}
+                              >
+                                {record?.timeOUT || ""}
+                              </td>
+                              <td
+                                style={{
+                                  border: "1px solid black",
+                                  textAlign: "center",
+                                }}
+                              >
+                                {record?.minutes || ""}
+                              </td>
+                              <td
+                                style={{
+                                  border: "1px solid black",
+                                  textAlign: "center",
+                                }}
+                              >
+                                {record?.minutes || ""}
+                              </td>
+                            </tr>
+                          );
+                        })}
+                        <tr>
+                          <td colspan="9">
+                            <div className="">
+                              <br />
+                              <hr
+                                style={{
+                                  borderTop: "3px solid black",
+                                  width: "98%",
+                                  margin: "0 auto",
+                                }}
+                              />
+                              <p
+                                style={{
+                                  textAlign: "justify",
+                                  width: "95%",
+                                  margin: "0 auto",
+                                  marginTop: "10px",
+                                }}
+                              >
+                                I certify on my honor that the above is a true and
+                                correct report of the hours of work performed, record of
+                                which was made daily at the time of arrival and
+                                departure from office.
+                              </p>
+                              <br />
+
+                              <hr
+                                style={{
+                                  borderTop: "1px double black",
+                                  width: "94%",
+                                  margin: "0 auto",
+                                }}
+                              />
+                              <p style={{ textAlign: "center", marginTop: "12px" }}>
+                                Verified as to prescribe office hours.
+                              </p>
+                              <br />
+                              <hr
+                                style={{
+                                  textAlign: "right",
+                                  borderTop: "1px solid black",
+                                  width: "94%",
+                                  marginBottom: "20px",
+                                }}
+                              />
+                            </div>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+
+                    {/* 2nd TABLE */}
+
+                    <table
+                      style={{
+                        border: "1px solid black",
+                        borderCollapse: "collapse",
+                        width: "47%",
+                      }}
+                      className="print-visble"
+                    >
+                      <thead style={{ textAlign: "center", position: "relative" }}>
+                        <tr>
+                          <div
+                            style={{
+                              position: "absolute",
+                              top: "1.5rem",
+                              left: "50%",
+                              transform: "translateX(-50%)",
+                              fontWeight: "bold",
+                              fontSize: "13px",
+                            }}
+                          >
+                            Republic of the Philippines
+                          </div>
+
+                          <td
+                            colSpan="1"
+                            style={{
+                              position: "relative",
+                              padding: "0",
+                              lineHeight: "0",
+                              height: "0px",
+                              textAlign: "right",
+                              marginRight: "0",
+                            }}
+                          >
+                            <img
+                              src={earistLogo}
+                              alt="EARIST Logo"
+                              width="55"
+                              height="55"
+                              style={{
+                                position: "absolute",
+                                marginTop: "-14%",
+                                left: "60%",
+                              }}
+                            />
+                          </td>
+                          <td colSpan="3">
+                            <p
+                              style={{
+                                marginTop: "15%",
+                                fontSize: "15px",
+                                fontWeight: "bold",
+                                textAlign: "center",
+                                marginLeft: "23%",
+                              }}
+                            >
+                              EULOGIO "AMANG" RODRIGUEZ <br /> INSTITUTE OF SCIENCE &
+                              TECHNOLOGY
+                            </p>
+                          </td>
+                          <td></td>
+                          <td></td>
+                          <td></td>
+                          <td></td>
+                          <td></td>
+                        </tr>
+                        <tr>
+                          <td colSpan="9">
+                            <p
+                              style={{
+                                fontSize: "14px",
+                                fontWeight: "bold",
+                                lineHeight: "0",
+                              }}
+                            >
+                              Nagtahan, Sampaloc Manila
+                            </p>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td colSpan="9">
+                            <p
+                              style={{
+                                fontSize: "12px",
+                                fontWeight: "bold",
+                                lineHeight: "0",
+                              }}
+                            >
+                              Civil Service Form No. 48
+                            </p>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td colSpan="9" style={{ padding: "2", lineHeight: "0" }}>
+                            <h4>DAILY TIME RECORD</h4>
+                          </td>
+                        </tr>
+                        <tr style={{ position: "relative" }}>
+                          <td colSpan="3" style={{ padding: "2", lineHeight: "0" }}>
+                            <p
+                              style={{
+                                fontSize: "15px",
+                                margin: "0",
+                                height: "20px",
+                                textAlign: "left",
+                                padding: "0 1rem",
+                                marginTop: "6%",
+                              }}
+                            >
+                              NAME: <b>{employeeName}</b>
+                            </p>
+                          </td>
+                          <td></td>
+                        </tr>
+                        <tr>
+                          <td colSpan="5" style={{ padding: "2", lineHeight: "0" }}>
+                            <p
+                              style={{
+                                fontSize: "15px",
+                                margin: "0",
+                                height: "10px",
+                                paddingLeft: "1rem",
+                                textAlign: "Left",
+                              }}
+                            >
+                              Covered Dates:{" "}
+                              <b>
+                                {formattedStartDate} - {formattedEndDate}
+                              </b>
+                            </p>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td
+                            colSpan="3"
+                            style={{ padding: "2", lineHeight: "2", textAlign: "left" }}
+                          >
+                            <p
+                              style={{
+                                fontSize: "15px",
+                                margin: "0",
+                                paddingLeft: "1rem",
+                              }}
+                            >
+                              For the month of:{" "}
+                              <b>{startDate ? formatMonth(startDate) : ""}</b>
+                            </p>
+                          </td>
+                          <td></td>
+                          <td></td>
+                          <td></td>
+                          <td></td>
+                          <td></td>
+                        </tr>
+                        <tr>
+                          <td
+                            style={{
+                              fontSize: "15px",
+                              margin: "0",
+                              height: "10px",
+                              position: "absolute",
+                              paddingLeft: "1rem",
+                              textAlign: "left",
+                            }}
+                          >
+                            Official hours for arrival (regular day) and departure
+                          </td>
+                        </tr>
+                        <tr>
+                          <td colSpan="3"></td>
+                          <td></td>
+                          <td></td>
+
+                          <td></td>
+                        </tr>
+                        <tr>
+                          <td colSpan="3"></td>
+                          <td></td>
+                          <td></td>
+
+                          <td></td>
+                        </tr>
+                        <tr>
+                          <td colSpan="3"></td>
+                          <td></td>
+                          <td></td>
+
+                          <td></td>
+                        </tr>
+                        <tr>
+                          <td colSpan="3"></td>
+                          <td></td>
+                          <td></td>
+                        </tr>
+                        <tr>
+                          <td colSpan="3"></td>
+                          <td></td>
+                          <td></td>
+
+                          <td></td>
+                        </tr>
+                        <tr>
+                          <td colSpan="3"></td>
+                          <td></td>
+                          <td></td>
+                        </tr>
+                        <tr>
+                          <td colSpan="3"></td>
+                          <td></td>
+                          <td></td>
+
+                          <td></td>
+                        </tr>
+                        <tr>
+                          <td colSpan="3"></td>
+                          <td></td>
+                          <td></td>
+                        </tr>
+                        <tr>
+                          <td colSpan="3"></td>
+                          <td></td>
+                          <td></td>
+
+                          <td></td>
+                        </tr>
+                        <tr>
+                          <td colSpan="3"></td>
+                          <td></td>
+                          <td></td>
+                        </tr>
+                        <tr>
+                          <td></td>
+                          <td></td>
+
+                          <td></td>
+                        </tr>
+                        <tr>
+                          <td></td>
+                          <td></td>
+                          <td
+                            style={{
+                              position: "absolute",
+                              display: "flex",
+                              flexDirection: "column",
+                              right: "50%",
+                              gap: "1px",
+                              paddingBottom: "5rem",
+                            }}
+                          >
+                            Regular days M-TH
+                          </td>
+                          <td></td>
+                          <td></td>
+
+                          <tr
+                            style={{
+                              position: "absolute",
+                              display: "flex",
+                              flexDirection: "column",
+                              right: "5%",
+                              gap: "1px",
+                              paddingBottom: "2rem",
+                            }}
+                          >
+                            <td
+                              style={{
+                                fontSize: "15px",
+                                fontWeight: "bold",
+                                margin: "0",
+                                height: "10px",
+                                textAlign: "Left",
+                                fontSize: "0.8rem",
+                              }}
+                            >
+                              M -{" "}
+                              {officialTimes["Monday"]?.officialTimeIN || "00:00:00"} -{" "}
+                              {officialTimes["Monday"]?.officialTimeOUT || "00:00:00"}
+                            </td>
+
+                            <td
+                              style={{
+                                fontSize: "15px",
+                                fontWeight: "bold",
+                                margin: "0",
+                                height: "10px",
+                                textAlign: "left",
+                                fontSize: "0.8rem",
+                              }}
+                            >
+                              T -{" "}
+                              {officialTimes["Tuesday"]?.officialTimeIN || "00:00:00"} -{" "}
+                              {officialTimes["Tuesday"]?.officialTimeOUT || "00:00:00"}
+                            </td>
+
+                            <td
+                              style={{
+                                fontSize: "15px",
+                                fontWeight: "bold",
+                                margin: "0",
+                                height: "10px",
+                                textAlign: "Left",
+                                fontSize: "0.8rem",
+                              }}
+                            >
+                              W -{" "}
+                              {officialTimes["Wednesday"]?.officialTimeIN || "00:00:00"}{" "}
+                              -{" "}
+                              {officialTimes["Wednesday"]?.officialTimeOUT ||
+                                "00:00:00"}
+                            </td>
+                            <td
+                              style={{
+                                fontSize: "15px",
+                                fontWeight: "bold",
+                                margin: "0",
+                                height: "10px",
+                                textAlign: "left",
+                                fontSize: "0.8rem",
+                              }}
+                            >
+                              TH -{" "}
+                              {officialTimes["Thursday"]?.officialTimeIN || "00:00:00"}{" "}
+                              -{" "}
+                              {officialTimes["Thursday"]?.officialTimeOUT || "00:00:00"}
+                            </td>
+                            <td
+                              style={{
+                                fontSize: "15px",
+                                fontWeight: "bold",
+                                margin: "0",
+                                height: "10px",
+                                textAlign: "Left",
+                                fontSize: "0.8rem",
+                              }}
+                            >
+                              F -{" "}
+                              {officialTimes["Friday"]?.officialTimeIN || "00:00:00"} -{" "}
+                              {officialTimes["Friday"]?.officialTimeOUT || "00:00:00"}
+                            </td>
+                            <td
+                              style={{
+                                fontSize: "15px",
+                                fontWeight: "bold",
+                                margin: "0",
+                                height: "10px",
+                                textAlign: "Left",
+                                fontSize: "0.8rem",
+                              }}
+                            >
+                              SAT -{" "}
+                              {officialTimes["Saturday"]?.officialTimeIN || "00:00:00"}{" "}
+                              -{" "}
+                              {officialTimes["Saturday"]?.officialTimeOUT || "00:00:00"}
+                            </td>
+                            <td
+                              style={{
+                                fontSize: "15px",
+                                fontWeight: "bold",
+                                margin: "0",
+                                height: "10px",
+                                textAlign: "Left",
+                                fontSize: "0.8rem",
+                              }}
+                            >
+                              SUN -{" "}
+                              {officialTimes["Sunday"]?.officialTimeIN || "00:00:00"} -{" "}
+                              {officialTimes["Sunday"]?.officialTimeOUT || "00:00:00"}
+                            </td>
+                          </tr>
+                        </tr>
+                        <tr>
+                          <td colSpan="3"></td>
+                          <td></td>
+                          <td></td>
+                          <td></td>
+                        </tr>
+                        <tr>
+                          <td colSpan="3"></td>
+                          <td></td>
+                          <td></td>
+
+                          <td></td>
+                        </tr>
+                        <tr>
+                          <td colSpan="3"></td>
+                          <td></td>
+                          <td></td>
+                        </tr>
+                        <tr>
+                          <td colSpan="3"></td>
+                          <td></td>
+                          <td></td>
+
+                          <td></td>
+                        </tr>
+                        <tr>
+                          <td colSpan="3"></td>
+                          <td></td>
+                          <td></td>
+                        </tr>
+                        <tr>
+                          <td colSpan="3"></td>
+                          <td></td>
+                          <td></td>
+
+                          <td></td>
+                        </tr>
+                        <tr>
+                          <td colSpan="3"></td>
+                          <td></td>
+                          <td></td>
+                        </tr>{" "}
+                        <tr>
+                          <td colSpan="3"></td>
+                          <td></td>
+                          <td></td>
+
+                          <td></td>
+                        </tr>
+                        <tr>
+                          <td
+                            colSpan="3"
+                            style={{
+                              position: "absolute",
+                              display: "flex",
+                              justifyContent: "left",
+                              flexDirection: "column",
+                              right: "58.2%",
+                              gap: "1px",
+                              paddingBottom: "5rem",
+                            }}
+                          >
+                            Saturdays
+                          </td>
+
+                          <td></td>
+                          <td></td>
+                        </tr>
+                        <tr>
+                          <td colSpan="3"></td>
+                          <td></td>
+                          <td></td>
+
+                          <td></td>
+                        </tr>
+                        <tr>
+                          <td colSpan="3"></td>
+                          <td></td>
+                          <td></td>
+                        </tr>
+                        <tr>
+                          <td colSpan="3"></td>
+                          <td></td>
+                          <td></td>
+
+                          <td></td>
+                        </tr>
+                        <tr>
+                          <td colSpan="3"></td>
+                          <td></td>
+                          <td></td>
+                        </tr>
+                        <tr>
+                          <td colSpan="3"></td>
+                          <td></td>
+                          <td></td>
+
+                          <td></td>
+                        </tr>
+                        <tr>
+                          <td colSpan="3"></td>
+                          <td></td>
+                          <td></td>
+                        </tr>
+                        <tr>
+                          <td colSpan="3"></td>
+                          <td></td>
+                          <td></td>
+
+                          <td></td>
+                        </tr>
+                        <tr>
+                          <td colSpan="3"></td>
+                          <td></td>
+                          <td></td>
+                        </tr>
+                        <tr>
+                          <td colSpan="3"></td>
+                          <td></td>
+                          <td></td>
+
+                          <td></td>
+                        </tr>
+                        <tr>
+                          <td colSpan="3"></td>
+                          <td></td>
+                          <td></td>
+                        </tr>
+                        <tr>
+                          <td colSpan="3"></td>
+                          <td></td>
+                          <td></td>
+
+                          <td></td>
+                        </tr>
+                        <tr>
+                          <td colSpan="3"></td>
+                          <td></td>
+                          <td></td>
+                        </tr>
+                        <tr>
+                          <td colSpan="3"></td>
+                          <td></td>
+                          <td></td>
+
+                          <td></td>
+                        </tr>
+                        <tr>
+                          <td colSpan="3"></td>
+                          <td></td>
+                          <td></td>
+                          <td></td>
+                          <td></td>
+                          <tr>
+                            <td colSpan="3"></td>
+                            <td></td>
+                            <td></td>
+
+                            <td></td>
+                          </tr>{" "}
+                          <tr>
+                            <td colSpan="3"></td>
+                            <td></td>
+                            <td></td>
+
+                            <td></td>
+                          </tr>{" "}
+                          <tr>
+                            <td colSpan="3"></td>
+                            <td></td>
+                            <td></td>
+
+                            <td></td>
+                          </tr>{" "}
+                          <tr>
+                            <td colSpan="3"></td>
+                            <td></td>
+                            <td></td>
+
+                            <td></td>
+                          </tr>{" "}
+                          <tr>
+                            <td colSpan="3"></td>
+                            <td></td>
+                            <td></td>
+
+                            <td></td>
+                          </tr>{" "}
+                          <tr>
+                            <td colSpan="3"></td>
+                            <td></td>
+                            <td></td>
+
+                            <td></td>
+                          </tr>{" "}
+                          <tr>
+                            <td colSpan="3"></td>
+                            <td></td>
+                            <td></td>
+
+                            <td></td>
+                          </tr>{" "}
+                          <tr>
+                            <td colSpan="3"></td>
+                            <td></td>
+                            <td></td>
+
+                            <td></td>
+                          </tr>{" "}
+                          <tr>
+                            <td colSpan="3"></td>
+                            <td></td>
+                            <td></td>
+
+                            <td></td>
+                          </tr>{" "}
+                          <tr>
+                            <td colSpan="3"></td>
+                            <td></td>
+                            <td></td>
+
+                            <td></td>
+                          </tr>{" "}
+                          <tr>
+                            <td colSpan="3"></td>
+                            <td></td>
+                            <td></td>
+
+                            <td></td>
+                          </tr>{" "}
+                          <tr>
+                            <td colSpan="3"></td>
+                            <td></td>
+                            <td></td>
+
+                            <td></td>
+                          </tr>{" "}
+                          <tr>
+                            <td colSpan="3"></td>
+                            <td></td>
+                            <td></td>
+
+                            <td></td>
+                          </tr>{" "}
+                          <tr>
+                            <td colSpan="3"></td>
+                            <td></td>
+                            <td></td>
+
+                            <td></td>
+                          </tr>{" "}
+                          <tr>
+                            <td colSpan="3"></td>
+                            <td></td>
+                            <td></td>
+
+                            <td></td>
+                          </tr>{" "}
+                          <tr>
+                            <td colSpan="3"></td>
+                            <td></td>
+                            <td></td>
+
+                            <td></td>
+                          </tr>{" "}
+                          <tr>
+                            <td colSpan="3"></td>
+                            <td></td>
+                            <td></td>
+
+                            <td></td>
+                          </tr>{" "}
+                          <tr>
+                            <td colSpan="3"></td>
+                            <td></td>
+                            <td></td>
+
+                            <td></td>
+                          </tr>{" "}
+                          <tr>
+                            <td colSpan="3"></td>
+                            <td></td>
+                            <td></td>
+
+                            <td></td>
+                          </tr>{" "}
+                          <tr>
+                            <td colSpan="3"></td>
+                            <td></td>
+                            <td></td>
+
+                            <td></td>
+                          </tr>{" "}
+                          <tr>
+                            <td colSpan="3"></td>
+                            <td></td>
+                            <td></td>
+
+                            <td></td>
+                          </tr>{" "}
+                          <tr>
+                            <td colSpan="3"></td>
+                            <td></td>
+                            <td></td>
+
+                            <td></td>
+                          </tr>{" "}
+                          <tr>
+                            <td colSpan="3"></td>
+                            <td></td>
+                            <td></td>
+
+                            <td></td>
+                          </tr>{" "}
+                          <tr>
+                            <td colSpan="3"></td>
+                            <td></td>
+                            <td></td>
+
+                            <td></td>
+                          </tr>
+                        </tr>
+                      </thead>
+                      <tr>
+                        <th
+                          rowSpan="2"
+                          style={{
+                            textAlign: "center",
+                            verticalAlign: "middle",
+                            border: "1px solid black",
+                          }}
+                        >
+                          DAY
+                        </th>
+                        <th colSpan="2" style={{ border: "1px solid black" }}>
+                          A.M.
+                        </th>
+                        <th colSpan="2" style={{ border: "1px solid black" }}>
+                          P.M.
+                        </th>
+                        <th style={{ border: "1px solid black" }}>Late</th>
+                        <th style={{ border: "1px solid black" }}>Undertime</th>
+                      </tr>
+                      <tr style={{ textAlign: "center" }}>
+                        <td style={{ border: "1px solid black" }}>Arrival</td>
+                        <td style={{ border: "1px solid black" }}>Departure</td>
+                        <td style={{ border: "1px solid black" }}>Arrival</td>
+                        <td style={{ border: "1px solid black" }}>Departure</td>
+                        <td style={{ border: "1px solid black" }}>Minutes</td>
+                        <td style={{ border: "1px solid black" }}>Minutes</td>
+                      </tr>
+
+                      <tbody>
+                        {Array.from({ length: 31 }, (_, i) => {
+                          const day = (i + 1).toString().padStart(2, "0");
+                          const record = records.find((r) =>
+                            r.date.endsWith(`-${day}`)
+                          );
+
+                          return (
+                            <tr key={i}>
+                              <td
+                                style={{
+                                  border: "1px solid black",
+                                  textAlign: "center",
+                                }}
+                              >
+                                {day}
+                              </td>
+                              <td
+                                style={{
+                                  border: "1px solid black",
+                                  textAlign: "center",
+                                }}
+                              >
+                                {record?.timeIN || ""}
+                              </td>
+                              <td
+                                style={{
+                                  border: "1px solid black",
+                                  textAlign: "center",
+                                }}
+                              >
+                                {record?.breaktimeIN || ""}
+                              </td>
+                              <td
+                                style={{
+                                  border: "1px solid black",
+                                  textAlign: "center",
+                                }}
+                              >
+                                {record?.breaktimeOUT || ""}
+                              </td>
+                              <td
+                                style={{
+                                  border: "1px solid black",
+                                  textAlign: "center",
+                                }}
+                              >
+                                {record?.timeOUT || ""}
+                              </td>
+                              <td
+                                style={{
+                                  border: "1px solid black",
+                                  textAlign: "center",
+                                }}
+                              >
+                                {record?.minutes || ""}
+                              </td>
+                              <td
+                                style={{
+                                  border: "1px solid black",
+                                  textAlign: "center",
+                                }}
+                              >
+                                {record?.minutes || ""}
+                              </td>
+                            </tr>
+                          );
+                        })}
+                        <tr>
+                          <td colspan="9">
+                            <div className="">
+                              <br />
+                              <hr
+                                style={{
+                                  borderTop: "3px solid black",
+                                  width: "98%",
+                                  margin: "0 auto",
+                                }}
+                              />
+                              <p
+                                style={{
+                                  textAlign: "justify",
+                                  width: "95%",
+                                  margin: "0 auto",
+                                  marginTop: "10px",
+                                }}
+                              >
+                                I certify on my honor that the above is a true and
+                                correct report of the hours of work performed, record of
+                                which was made daily at the time of arrival and
+                                departure from office.
+                              </p>
+                              <br />
+
+                              <hr
+                                style={{
+                                  borderTop: "1px double black",
+                                  width: "94%",
+                                  margin: "0 auto",
+                                }}
+                              />
+                              <p style={{ textAlign: "center", marginTop: "12px" }}>
+                                Verified as to prescribe office hours.
+                              </p>
+                              <br />
+                              <hr
+                                style={{
+                                  textAlign: "right",
+                                  borderTop: "1px solid black",
+                                  width: "94%",
+                                  marginBottom: "20px",
+                                  marginRight: "20px",
+                                }}
+                              />
+                            </div>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </Box>
+          </Paper>
+        </Fade>
+
+        {/* Print Button */}
+        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2, mb: 4 }}>
+          <ProfessionalButton
+            variant="contained"
+            onClick={printPage}
+            startIcon={<PrintIcon />}
+            className="no-print"
+            sx={{ 
+              backgroundColor: accentColor, 
+              color: primaryColor,
+              "&:hover": { backgroundColor: accentDark },
+              py: 1.5,
+              px: 4
+            }}
+          >
+            Print
+          </ProfessionalButton>
+        </Box>
       </Box>
-
-        <div
-          className="search-container no-print textfield-container"
-          style={{
-            display: "flex",
-            flexWrap: "wrap",
-            justifyContent: "center",
-            alignItems: "center",
-            gap: "15px",
-          }}
-        >
-          <TextField
-            sx={{
-              width: "350px",
-              backgroundColor: "white",
-            }}
-            disabled
-            value={personID}
-            variant="outlined"
-          />
-
-          <TextField
-            sx={{
-              width: "350px",
-              backgroundColor: "white",
-            }}
-            label="Start Date"
-            type="date"
-            value={startDate}
-            onChange={(e) => setStartDate(e.target.value)}
-            variant="outlined"
-            InputLabelProps={{ shrink: true }}
-          />
-
-          <TextField
-            sx={{
-              width: "350px",
-              backgroundColor: "white",
-            }}
-            label="End Date"
-            type="date"
-            value={endDate}
-            onChange={(e) => setEndDate(e.target.value)}
-            variant="outlined"
-            InputLabelProps={{ shrink: true }}
-          />
-
-          <Button
-            sx={{
-              width: "230px",
-              height: "55px",
-              bgcolor: "#6D2323",
-              fontWeight: "bold",
-              fontSize: "17px",
-            }}
-            variant="contained"
-            color="primary"
-            onClick={fetchRecords || fetchOfficialTimes}
-          >
-            <SearchOutlined /> &nbsp; Search
-          </Button>
-        </div>
-      </div>
-
-
-      <br />
-      <div
-        className="table-container"
-        style={{ marginBottom: "3%", backgroundColor: "white" }}
-      >
-        <div className="table-wrapper">
-          <div
-            style={{ display: "flex", gap: "2%", justifyContent: "center" }}
-            className="table-side-by-side"
-          >
-            <table
-              style={{
-                border: "1px solid black",
-                borderCollapse: "collapse",
-                width: "47%",
-              }}
-              className="print-visble"
-            >
-              <thead style={{ textAlign: "center", position: "relative" }}>
-                <tr>
-                  <div
-                    style={{
-                      position: "absolute",
-                      top: "1.5rem",
-                      left: "50%",
-                      transform: "translateX(-50%)",
-                      fontWeight: "bold",
-                      fontSize: "13px",
-                    }}
-                  >
-                    Republic of the Philippines
-                  </div>
-
-                  <td
-                    colSpan="1"
-                    style={{
-                      position: "relative",
-                      padding: "0",
-                      lineHeight: "0",
-                      height: "0px",
-                      textAlign: "right",
-                      marginRight: "0",
-                    }}
-                  >
-                    <img
-                      src={earistLogo}
-                      alt="EARIST Logo"
-                      width="55"
-                      height="55"
-                      style={{
-                        position: "absolute",
-                        marginTop: "-14%",
-                        left: "60%",
-                      }}
-                    />
-                  </td>
-                  <td colSpan="3">
-                    <p
-                      style={{
-                        marginTop: "15%",
-                        fontSize: "15px",
-                        fontWeight: "bold",
-                        textAlign: "center",
-                        marginLeft: "20%",
-                      }}
-                    >
-                      EULOGIO "AMANG" RODRIGUEZ <br /> INSTITUTE OF SCIENCE &
-                      TECHNOLOGY
-                    </p>
-                  </td>
-                  <td></td>
-                  <td></td>
-                  <td></td>
-                  <td></td>
-                  <td></td>
-                </tr>
-                <tr>
-                  <td colSpan="9">
-                    <p
-                      style={{
-                        fontSize: "14px",
-                        fontWeight: "bold",
-                        lineHeight: "0",
-                      }}
-                    >
-                      Nagtahan, Sampaloc Manila
-                    </p>
-                  </td>
-                </tr>
-                <tr>
-                  <td colSpan="9">
-                    <p
-                      style={{
-                        fontSize: "12px",
-                        fontWeight: "bold",
-                        lineHeight: "0",
-                      }}
-                    >
-                      Civil Service Form No. 48
-                    </p>
-                  </td>
-                </tr>
-                <tr>
-                  <td colSpan="9" style={{ padding: "2", lineHeight: "0" }}>
-                    <h4>DAILY TIME RECORD</h4>
-                  </td>
-                </tr>
-                <tr style={{ position: "relative" }}>
-                  <td colSpan="3" style={{ padding: "2", lineHeight: "0" }}>
-                    <p
-                      style={{
-                        fontSize: "15px",
-                        margin: "0",
-                        height: "20px",
-                        textAlign: "left",
-                        padding: "0 1rem",
-                        marginTop: "6%",
-                      }}
-                    >
-                      NAME: <b>{employeeName}</b>
-                    </p>
-                  </td>
-                  <td></td>
-                </tr>
-                <tr>
-                  <td colSpan="5" style={{ padding: "2", lineHeight: "0" }}>
-                    <p
-                      style={{
-                        fontSize: "15px",
-                        margin: "0",
-                        height: "10px",
-                        paddingLeft: "1rem",
-                        textAlign: "Left",
-                      }}
-                    >
-                      Covered Dates:{" "}
-                      <b>
-                        {formattedStartDate} - {formattedEndDate}
-                      </b>
-                    </p>
-                  </td>
-                </tr>
-                <tr>
-                  <td
-                    colSpan="3"
-                    style={{ padding: "2", lineHeight: "2", textAlign: "left" }}
-                  >
-                    <p
-                      style={{
-                        fontSize: "15px",
-                        margin: "0",
-                        paddingLeft: "1rem",
-                      }}
-                    >
-                      For the month of:{" "}
-                      <b>{startDate ? formatMonth(startDate) : ""}</b>
-                    </p>
-                  </td>
-                  <td></td>
-                  <td></td>
-                  <td></td>
-                  <td></td>
-                  <td></td>
-                </tr>
-                <tr>
-                  <td
-                    style={{
-                      fontSize: "15px",
-                      margin: "0",
-                      height: "10px",
-                      position: "absolute",
-                      paddingLeft: "1rem",
-                      textAlign: "left",
-                    }}
-                  >
-                    Official hours for arrival (regular day) and departure
-                  </td>
-                </tr>
-                <tr>
-                  <td colSpan="3"></td>
-                  <td></td>
-                  <td></td>
-
-                  <td></td>
-                </tr>
-                <tr>
-                  <td colSpan="3"></td>
-                  <td></td>
-                  <td></td>
-
-                  <td></td>
-                </tr>
-                <tr>
-                  <td colSpan="3"></td>
-                  <td></td>
-                  <td></td>
-
-                  <td></td>
-                </tr>
-                <tr>
-                  <td colSpan="3"></td>
-                  <td></td>
-                  <td></td>
-                </tr>
-                <tr>
-                  <td colSpan="3"></td>
-                  <td></td>
-                  <td></td>
-
-                  <td></td>
-                </tr>
-                <tr>
-                  <td colSpan="3"></td>
-                  <td></td>
-                  <td></td>
-                </tr>
-                <tr>
-                  <td colSpan="3"></td>
-                  <td></td>
-                  <td></td>
-
-                  <td></td>
-                </tr>
-                <tr>
-                  <td colSpan="3"></td>
-                  <td></td>
-                  <td></td>
-                </tr>
-                <tr>
-                  <td colSpan="3"></td>
-                  <td></td>
-                  <td></td>
-
-                  <td></td>
-                </tr>
-                <tr>
-                  <td colSpan="3"></td>
-                  <td></td>
-                  <td></td>
-                </tr>
-                <tr>
-                  <td></td>
-                  <td></td>
-
-                  <td></td>
-                </tr>
-                <tr>
-                  <td></td>
-                  <td></td>
-                  <td
-                    style={{
-                      position: "absolute",
-                      display: "flex",
-                      flexDirection: "column",
-                      right: "50%",
-                      gap: "1px",
-                      paddingBottom: "5rem",
-                    }}
-                  >
-                    Regular days M-TH
-                  </td>
-                  <td></td>
-                  <td></td>
-
-                  <tr
-                    style={{
-                      position: "absolute",
-                      display: "flex",
-                      flexDirection: "column",
-                      right: "5%",
-                      gap: "1px",
-                      paddingBottom: "2rem",
-                    }}
-                  >
-                    <td
-                      style={{
-                        fontSize: "15px",
-                        fontWeight: "bold",
-                        margin: "0",
-                        height: "10px",
-                        textAlign: "Left",
-                        fontSize: "0.8rem",
-                      }}
-                    >
-                      M -{" "}
-                      {officialTimes["Monday"]?.officialTimeIN || "00:00:00"} -{" "}
-                      {officialTimes["Monday"]?.officialTimeOUT || "00:00:00"}
-                    </td>
-
-                    <td
-                      style={{
-                        fontSize: "15px",
-                        fontWeight: "bold",
-                        margin: "0",
-                        height: "10px",
-                        textAlign: "left",
-                        fontSize: "0.8rem",
-                      }}
-                    >
-                      T -{" "}
-                      {officialTimes["Tuesday"]?.officialTimeIN || "00:00:00"} -{" "}
-                      {officialTimes["Tuesday"]?.officialTimeOUT || "00:00:00"}
-                    </td>
-
-                    <td
-                      style={{
-                        fontSize: "15px",
-                        fontWeight: "bold",
-                        margin: "0",
-                        height: "10px",
-                        textAlign: "Left",
-                        fontSize: "0.8rem",
-                      }}
-                    >
-                      W -{" "}
-                      {officialTimes["Wednesday"]?.officialTimeIN || "00:00:00"}{" "}
-                      -{" "}
-                      {officialTimes["Wednesday"]?.officialTimeOUT ||
-                        "00:00:00"}
-                    </td>
-                    <td
-                      style={{
-                        fontSize: "15px",
-                        fontWeight: "bold",
-                        margin: "0",
-                        height: "10px",
-                        textAlign: "left",
-                        fontSize: "0.8rem",
-                      }}
-                    >
-                      TH -{" "}
-                      {officialTimes["Thursday"]?.officialTimeIN || "00:00:00"}{" "}
-                      -{" "}
-                      {officialTimes["Thursday"]?.officialTimeOUT || "00:00:00"}
-                    </td>
-                    <td
-                      style={{
-                        fontSize: "15px",
-                        fontWeight: "bold",
-                        margin: "0",
-                        height: "10px",
-                        textAlign: "Left",
-                        fontSize: "0.8rem",
-                      }}
-                    >
-                      F -{" "}
-                      {officialTimes["Friday"]?.officialTimeIN || "00:00:00"} -{" "}
-                      {officialTimes["Friday"]?.officialTimeOUT || "00:00:00"}
-                    </td>
-                    <td
-                      style={{
-                        fontSize: "15px",
-                        fontWeight: "bold",
-                        margin: "0",
-                        height: "10px",
-                        textAlign: "Left",
-                        fontSize: "0.8rem",
-                      }}
-                    >
-                      SAT -{" "}
-                      {officialTimes["Saturday"]?.officialTimeIN || "00:00:00"}{" "}
-                      -{" "}
-                      {officialTimes["Saturday"]?.officialTimeOUT || "00:00:00"}
-                    </td>
-                    <td
-                      style={{
-                        fontSize: "15px",
-                        fontWeight: "bold",
-                        margin: "0",
-                        height: "10px",
-                        textAlign: "Left",
-                        fontSize: "0.8rem",
-                      }}
-                    >
-                      SUN -{" "}
-                      {officialTimes["Sunday"]?.officialTimeIN || "00:00:00"} -{" "}
-                      {officialTimes["Sunday"]?.officialTimeOUT || "00:00:00"}
-                    </td>
-                  </tr>
-                </tr>
-                <tr>
-                  <td colSpan="3"></td>
-                  <td></td>
-                  <td></td>
-                  <td></td>
-                </tr>
-                <tr>
-                  <td colSpan="3"></td>
-                  <td></td>
-                  <td></td>
-
-                  <td></td>
-                </tr>
-                <tr>
-                  <td colSpan="3"></td>
-                  <td></td>
-                  <td></td>
-                </tr>
-                <tr>
-                  <td colSpan="3"></td>
-                  <td></td>
-                  <td></td>
-
-                  <td></td>
-                </tr>
-                <tr>
-                  <td colSpan="3"></td>
-                  <td></td>
-                  <td></td>
-                </tr>
-                <tr>
-                  <td colSpan="3"></td>
-                  <td></td>
-                  <td></td>
-
-                  <td></td>
-                </tr>
-                <tr>
-                  <td colSpan="3"></td>
-                  <td></td>
-                  <td></td>
-                </tr>{" "}
-                <tr>
-                  <td colSpan="3"></td>
-                  <td></td>
-                  <td></td>
-
-                  <td></td>
-                </tr>
-                <tr>
-                  <td
-                    colSpan="3"
-                    style={{
-                      position: "absolute",
-                      display: "flex",
-                      justifyContent: "left",
-                      flexDirection: "column",
-                      right: "58.2%",
-                      gap: "1px",
-                      paddingBottom: "5rem",
-                    }}
-                  >
-                    Saturdays
-                  </td>
-
-                  <td></td>
-                  <td></td>
-                </tr>
-                <tr>
-                  <td colSpan="3"></td>
-                  <td></td>
-                  <td></td>
-
-                  <td></td>
-                </tr>
-                <tr>
-                  <td colSpan="3"></td>
-                  <td></td>
-                  <td></td>
-                </tr>
-                <tr>
-                  <td colSpan="3"></td>
-                  <td></td>
-                  <td></td>
-
-                  <td></td>
-                </tr>
-                <tr>
-                  <td colSpan="3"></td>
-                  <td></td>
-                  <td></td>
-                </tr>
-                <tr>
-                  <td colSpan="3"></td>
-                  <td></td>
-                  <td></td>
-
-                  <td></td>
-                </tr>
-                <tr>
-                  <td colSpan="3"></td>
-                  <td></td>
-                  <td></td>
-                </tr>
-                <tr>
-                  <td colSpan="3"></td>
-                  <td></td>
-                  <td></td>
-
-                  <td></td>
-                </tr>
-                <tr>
-                  <td colSpan="3"></td>
-                  <td></td>
-                  <td></td>
-                </tr>
-                <tr>
-                  <td colSpan="3"></td>
-                  <td></td>
-                  <td></td>
-
-                  <td></td>
-                </tr>
-                <tr>
-                  <td colSpan="3"></td>
-                  <td></td>
-                  <td></td>
-                </tr>
-                <tr>
-                  <td colSpan="3"></td>
-                  <td></td>
-                  <td></td>
-
-                  <td></td>
-                </tr>
-                <tr>
-                  <td colSpan="3"></td>
-                  <td></td>
-                  <td></td>
-                </tr>
-                <tr>
-                  <td colSpan="3"></td>
-                  <td></td>
-                  <td></td>
-
-                  <td></td>
-                </tr>
-                <tr>
-                  <td colSpan="3"></td>
-                  <td></td>
-                  <td></td>
-                </tr>
-                <tr>
-                  <td colSpan="3"></td>
-                  <td></td>
-                  <td></td>
-
-                  <td></td>
-                </tr>
-                <tr>
-                  <td colSpan="3"></td>
-                  <td></td>
-                  <td></td>
-                  <td></td>
-                  <tr>
-                    <td colSpan="3"></td>
-                    <td></td>
-                    <td></td>
-
-                    <td></td>
-                  </tr>{" "}
-                  <tr>
-                    <td colSpan="3"></td>
-                    <td></td>
-                    <td></td>
-
-                    <td></td>
-                  </tr>{" "}
-                  <tr>
-                    <td colSpan="3"></td>
-                    <td></td>
-                    <td></td>
-
-                    <td></td>
-                  </tr>{" "}
-                  <tr>
-                    <td colSpan="3"></td>
-                    <td></td>
-                    <td></td>
-
-                    <td></td>
-                  </tr>{" "}
-                  <tr>
-                    <td colSpan="3"></td>
-                    <td></td>
-                    <td></td>
-
-                    <td></td>
-                  </tr>{" "}
-                  <tr>
-                    <td colSpan="3"></td>
-                    <td></td>
-                    <td></td>
-
-                    <td></td>
-                  </tr>{" "}
-                  <tr>
-                    <td colSpan="3"></td>
-                    <td></td>
-                    <td></td>
-
-                    <td></td>
-                  </tr>{" "}
-                  <tr>
-                    <td colSpan="3"></td>
-                    <td></td>
-                    <td></td>
-
-                    <td></td>
-                  </tr>{" "}
-                  <tr>
-                    <td colSpan="3"></td>
-                    <td></td>
-                    <td></td>
-
-                    <td></td>
-                  </tr>{" "}
-                  <tr>
-                    <td colSpan="3"></td>
-                    <td></td>
-                    <td></td>
-
-                    <td></td>
-                  </tr>{" "}
-                  <tr>
-                    <td colSpan="3"></td>
-                    <td></td>
-                    <td></td>
-
-                    <td></td>
-                  </tr>{" "}
-                  <tr>
-                    <td colSpan="3"></td>
-                    <td></td>
-                    <td></td>
-
-                    <td></td>
-                  </tr>{" "}
-                  <tr>
-                    <td colSpan="3"></td>
-                    <td></td>
-                    <td></td>
-
-                    <td></td>
-                  </tr>{" "}
-                  <tr>
-                    <td colSpan="3"></td>
-                    <td></td>
-                    <td></td>
-
-                    <td></td>
-                  </tr>{" "}
-                  <tr>
-                    <td colSpan="3"></td>
-                    <td></td>
-                    <td></td>
-
-                    <td></td>
-                  </tr>{" "}
-                  <tr>
-                    <td colSpan="3"></td>
-                    <td></td>
-                    <td></td>
-
-                    <td></td>
-                  </tr>{" "}
-                  <tr>
-                    <td colSpan="3"></td>
-                    <td></td>
-                    <td></td>
-
-                    <td></td>
-                  </tr>{" "}
-                  <tr>
-                    <td colSpan="3"></td>
-                    <td></td>
-                    <td></td>
-
-                    <td></td>
-                  </tr>{" "}
-                  <tr>
-                    <td colSpan="3"></td>
-                    <td></td>
-                    <td></td>
-
-                    <td></td>
-                  </tr>{" "}
-                  <tr>
-                    <td colSpan="3"></td>
-                    <td></td>
-                    <td></td>
-
-                    <td></td>
-                  </tr>{" "}
-                  <tr>
-                    <td colSpan="3"></td>
-                    <td></td>
-                    <td></td>
-
-                    <td></td>
-                  </tr>{" "}
-                  <tr>
-                    <td colSpan="3"></td>
-                    <td></td>
-                    <td></td>
-
-                    <td></td>
-                  </tr>{" "}
-                  <tr>
-                    <td colSpan="3"></td>
-                    <td></td>
-                    <td></td>
-
-                    <td></td>
-                  </tr>{" "}
-                  <tr>
-                    <td colSpan="3"></td>
-                    <td></td>
-                    <td></td>
-
-                    <td></td>
-                  </tr>{" "}
-                  <tr>
-                    <td colSpan="3"></td>
-                    <td></td>
-                    <td></td>
-
-                    <td></td>
-                  </tr>{" "}
-                  <tr>
-                    <td colSpan="3"></td>
-                    <td></td>
-                    <td></td>
-
-                    <td></td>
-                  </tr>{" "}
-                  <tr>
-                    <td colSpan="3"></td>
-                    <td></td>
-                    <td></td>
-
-                    <td></td>
-                  </tr>{" "}
-                  <tr>
-                    <td colSpan="3"></td>
-                    <td></td>
-                    <td></td>
-
-                    <td></td>
-                  </tr>
-                </tr>
-              </thead>
-              <tr>
-                <th
-                  rowSpan="2"
-                  style={{
-                    textAlign: "center",
-                    verticalAlign: "middle",
-                    border: "1px solid black",
-                  }}
-                >
-                  DAY
-                </th>
-                <th colSpan="2" style={{ border: "1px solid black" }}>
-                  A.M.
-                </th>
-                <th colSpan="2" style={{ border: "1px solid black" }}>
-                  P.M.
-                </th>
-                <th style={{ border: "1px solid black" }}>Late</th>
-                <th style={{ border: "1px solid black" }}>Undertime</th>
-              </tr>
-              <tr style={{ textAlign: "center" }}>
-                <td style={{ border: "1px solid black" }}>Arrival</td>
-                <td style={{ border: "1px solid black" }}>Departure</td>
-                <td style={{ border: "1px solid black" }}>Arrival</td>
-                <td style={{ border: "1px solid black" }}>Departure</td>
-                <td style={{ border: "1px solid black" }}>Minutes</td>
-                <td style={{ border: "1px solid black" }}>Minutes</td>
-              </tr>
-
-              <tbody>
-                {Array.from({ length: 31 }, (_, i) => {
-                  const day = (i + 1).toString().padStart(2, "0");
-                  const record = records.find((r) =>
-                    r.date.endsWith(`-${day}`)
-                  );
-
-                  return (
-                    <tr key={i}>
-                      <td
-                        style={{
-                          border: "1px solid black",
-                          textAlign: "center",
-                        }}
-                      >
-                        {day}
-                      </td>
-                      <td
-                        style={{
-                          border: "1px solid black",
-                          textAlign: "center",
-                        }}
-                      >
-                        {record?.timeIN || ""}
-                      </td>
-                      <td
-                        style={{
-                          border: "1px solid black",
-                          textAlign: "center",
-                        }}
-                      >
-                        {record?.timeOUT || ""}
-                      </td>
-                      <td
-                        style={{
-                          border: "1px solid black",
-                          textAlign: "center",
-                        }}
-                      >
-                        {record?.breaktimeIN || ""}
-                      </td>
-                      <td
-                        style={{
-                          border: "1px solid black",
-                          textAlign: "center",
-                        }}
-                      >
-                        {record?.breaktimeOUT || ""}
-                      </td>
-                      <td
-                        style={{
-                          border: "1px solid black",
-                          textAlign: "center",
-                        }}
-                      >
-                        {record?.hours || ""}
-                      </td>
-                      <td
-                        style={{
-                          border: "1px solid black",
-                          textAlign: "center",
-                        }}
-                      >
-                        {record?.minutes || ""}
-                      </td>
-                    </tr>
-                  );
-                })}
-                <tr>
-                  <td colspan="9">
-                    <div className="">
-                      <br />
-                      <hr
-                        style={{
-                          borderTop: "3px solid black",
-                          width: "98%",
-                          margin: "0 auto",
-                        }}
-                      />
-                      <p
-                        style={{
-                          textAlign: "justify",
-                          width: "95%",
-                          margin: "0 auto",
-                          marginTop: "10px",
-                        }}
-                      >
-                        I certify on my honor that the above is a true and
-                        correct report of the hours of work performed, record of
-                        which was made daily at the time of arrival and
-                        departure from office.
-                      </p>
-                      <br />
-
-                      <hr
-                        style={{
-                          borderTop: "1px double black",
-                          width: "94%",
-                          margin: "0 auto",
-                        }}
-                      />
-                      <p style={{ textAlign: "center", marginTop: "12px" }}>
-                        Verified as to prescribe office hours.
-                      </p>
-                      <br />
-                      <hr
-                        style={{
-                          textAlign: "right",
-                          borderTop: "1px solid black",
-                          width: "94%",
-                          marginBottom: "20px",
-                        }}
-                      />
-                    </div>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-
-            {/* 2nd TABLE */}
-
-            <table
-              style={{
-                border: "1px solid black",
-                borderCollapse: "collapse",
-                width: "47%",
-              }}
-              className="print-visble"
-            >
-              <thead style={{ textAlign: "center", position: "relative" }}>
-                <tr>
-                  <div
-                    style={{
-                      position: "absolute",
-                      top: "1.5rem",
-                      left: "50%",
-                      transform: "translateX(-50%)",
-                      fontWeight: "bold",
-                      fontSize: "13px",
-                    }}
-                  >
-                    Republic of the Philippines
-                  </div>
-
-                  <td
-                    colSpan="1"
-                    style={{
-                      position: "relative",
-                      padding: "0",
-                      lineHeight: "0",
-                      height: "0px",
-                      textAlign: "right",
-                      marginRight: "0",
-                    }}
-                  >
-                    <img
-                      src={earistLogo}
-                      alt="EARIST Logo"
-                      width="55"
-                      height="55"
-                      style={{
-                        position: "absolute",
-                        marginTop: "-14%",
-                        left: "60%",
-                      }}
-                    />
-                  </td>
-                  <td colSpan="3">
-                    <p
-                      style={{
-                        marginTop: "15%",
-                        fontSize: "15px",
-                        fontWeight: "bold",
-                        textAlign: "center",
-                        marginLeft: "23%",
-                      }}
-                    >
-                      EULOGIO "AMANG" RODRIGUEZ <br /> INSTITUTE OF SCIENCE &
-                      TECHNOLOGY
-                    </p>
-                  </td>
-                  <td></td>
-                  <td></td>
-                  <td></td>
-                  <td></td>
-                  <td></td>
-                </tr>
-                <tr>
-                  <td colSpan="9">
-                    <p
-                      style={{
-                        fontSize: "14px",
-                        fontWeight: "bold",
-                        lineHeight: "0",
-                      }}
-                    >
-                      Nagtahan, Sampaloc Manila
-                    </p>
-                  </td>
-                </tr>
-                <tr>
-                  <td colSpan="9">
-                    <p
-                      style={{
-                        fontSize: "12px",
-                        fontWeight: "bold",
-                        lineHeight: "0",
-                      }}
-                    >
-                      Civil Service Form No. 48
-                    </p>
-                  </td>
-                </tr>
-                <tr>
-                  <td colSpan="9" style={{ padding: "2", lineHeight: "0" }}>
-                    <h4>DAILY TIME RECORD</h4>
-                  </td>
-                </tr>
-                <tr style={{ position: "relative" }}>
-                  <td colSpan="3" style={{ padding: "2", lineHeight: "0" }}>
-                    <p
-                      style={{
-                        fontSize: "15px",
-                        margin: "0",
-                        height: "20px",
-                        textAlign: "left",
-                        padding: "0 1rem",
-                        marginTop: "6%",
-                      }}
-                    >
-                      NAME: <b>{employeeName}</b>
-                    </p>
-                  </td>
-                  <td></td>
-                </tr>
-                <tr>
-                  <td colSpan="5" style={{ padding: "2", lineHeight: "0" }}>
-                    <p
-                      style={{
-                        fontSize: "15px",
-                        margin: "0",
-                        height: "10px",
-                        paddingLeft: "1rem",
-                        textAlign: "Left",
-                      }}
-                    >
-                      Covered Dates:{" "}
-                      <b>
-                        {formattedStartDate} - {formattedEndDate}
-                      </b>
-                    </p>
-                  </td>
-                </tr>
-                <tr>
-                  <td
-                    colSpan="3"
-                    style={{ padding: "2", lineHeight: "2", textAlign: "left" }}
-                  >
-                    <p
-                      style={{
-                        fontSize: "15px",
-                        margin: "0",
-                        paddingLeft: "1rem",
-                      }}
-                    >
-                      For the month of:{" "}
-                      <b>{startDate ? formatMonth(startDate) : ""}</b>
-                    </p>
-                  </td>
-                  <td></td>
-                  <td></td>
-                  <td></td>
-                  <td></td>
-                  <td></td>
-                </tr>
-                <tr>
-                  <td
-                    style={{
-                      fontSize: "15px",
-                      margin: "0",
-                      height: "10px",
-                      position: "absolute",
-                      paddingLeft: "1rem",
-                      textAlign: "left",
-                    }}
-                  >
-                    Official hours for arrival (regular day) and departure
-                  </td>
-                </tr>
-                <tr>
-                  <td colSpan="3"></td>
-                  <td></td>
-                  <td></td>
-
-                  <td></td>
-                </tr>
-                <tr>
-                  <td colSpan="3"></td>
-                  <td></td>
-                  <td></td>
-
-                  <td></td>
-                </tr>
-                <tr>
-                  <td colSpan="3"></td>
-                  <td></td>
-                  <td></td>
-
-                  <td></td>
-                </tr>
-                <tr>
-                  <td colSpan="3"></td>
-                  <td></td>
-                  <td></td>
-                </tr>
-                <tr>
-                  <td colSpan="3"></td>
-                  <td></td>
-                  <td></td>
-
-                  <td></td>
-                </tr>
-                <tr>
-                  <td colSpan="3"></td>
-                  <td></td>
-                  <td></td>
-                </tr>
-                <tr>
-                  <td colSpan="3"></td>
-                  <td></td>
-                  <td></td>
-
-                  <td></td>
-                </tr>
-                <tr>
-                  <td colSpan="3"></td>
-                  <td></td>
-                  <td></td>
-                </tr>
-                <tr>
-                  <td colSpan="3"></td>
-                  <td></td>
-                  <td></td>
-
-                  <td></td>
-                </tr>
-                <tr>
-                  <td colSpan="3"></td>
-                  <td></td>
-                  <td></td>
-                </tr>
-                <tr>
-                  <td></td>
-                  <td></td>
-
-                  <td></td>
-                </tr>
-                <tr>
-                  <td></td>
-                  <td></td>
-                  <td
-                    style={{
-                      position: "absolute",
-                      display: "flex",
-                      flexDirection: "column",
-                      right: "50%",
-                      gap: "1px",
-                      paddingBottom: "5rem",
-                    }}
-                  >
-                    Regular days M-TH
-                  </td>
-                  <td></td>
-                  <td></td>
-
-                  <tr
-                    style={{
-                      position: "absolute",
-                      display: "flex",
-                      flexDirection: "column",
-                      right: "5%",
-                      gap: "1px",
-                      paddingBottom: "2rem",
-                    }}
-                  >
-                    <td
-                      style={{
-                        fontSize: "15px",
-                        fontWeight: "bold",
-                        margin: "0",
-                        height: "10px",
-                        textAlign: "Left",
-                        fontSize: "0.8rem",
-                      }}
-                    >
-                      M -{" "}
-                      {officialTimes["Monday"]?.officialTimeIN || "00:00:00"} -{" "}
-                      {officialTimes["Monday"]?.officialTimeOUT || "00:00:00"}
-                    </td>
-
-                    <td
-                      style={{
-                        fontSize: "15px",
-                        fontWeight: "bold",
-                        margin: "0",
-                        height: "10px",
-                        textAlign: "left",
-                        fontSize: "0.8rem",
-                      }}
-                    >
-                      T -{" "}
-                      {officialTimes["Tuesday"]?.officialTimeIN || "00:00:00"} -{" "}
-                      {officialTimes["Tuesday"]?.officialTimeOUT || "00:00:00"}
-                    </td>
-
-                    <td
-                      style={{
-                        fontSize: "15px",
-                        fontWeight: "bold",
-                        margin: "0",
-                        height: "10px",
-                        textAlign: "Left",
-                        fontSize: "0.8rem",
-                      }}
-                    >
-                      W -{" "}
-                      {officialTimes["Wednesday"]?.officialTimeIN || "00:00:00"}{" "}
-                      -{" "}
-                      {officialTimes["Wednesday"]?.officialTimeOUT ||
-                        "00:00:00"}
-                    </td>
-                    <td
-                      style={{
-                        fontSize: "15px",
-                        fontWeight: "bold",
-                        margin: "0",
-                        height: "10px",
-                        textAlign: "left",
-                        fontSize: "0.8rem",
-                      }}
-                    >
-                      TH -{" "}
-                      {officialTimes["Thursday"]?.officialTimeIN || "00:00:00"}{" "}
-                      -{" "}
-                      {officialTimes["Thursday"]?.officialTimeOUT || "00:00:00"}
-                    </td>
-                    <td
-                      style={{
-                        fontSize: "15px",
-                        fontWeight: "bold",
-                        margin: "0",
-                        height: "10px",
-                        textAlign: "Left",
-                        fontSize: "0.8rem",
-                      }}
-                    >
-                      F -{" "}
-                      {officialTimes["Friday"]?.officialTimeIN || "00:00:00"} -{" "}
-                      {officialTimes["Friday"]?.officialTimeOUT || "00:00:00"}
-                    </td>
-                    <td
-                      style={{
-                        fontSize: "15px",
-                        fontWeight: "bold",
-                        margin: "0",
-                        height: "10px",
-                        textAlign: "Left",
-                        fontSize: "0.8rem",
-                      }}
-                    >
-                      SAT -{" "}
-                      {officialTimes["Saturday"]?.officialTimeIN || "00:00:00"}{" "}
-                      -{" "}
-                      {officialTimes["Saturday"]?.officialTimeOUT || "00:00:00"}
-                    </td>
-                    <td
-                      style={{
-                        fontSize: "15px",
-                        fontWeight: "bold",
-                        margin: "0",
-                        height: "10px",
-                        textAlign: "Left",
-                        fontSize: "0.8rem",
-                      }}
-                    >
-                      SUN -{" "}
-                      {officialTimes["Sunday"]?.officialTimeIN || "00:00:00"} -{" "}
-                      {officialTimes["Sunday"]?.officialTimeOUT || "00:00:00"}
-                    </td>
-                  </tr>
-                </tr>
-                <tr>
-                  <td colSpan="3"></td>
-                  <td></td>
-                  <td></td>
-                  <td></td>
-                </tr>
-                <tr>
-                  <td colSpan="3"></td>
-                  <td></td>
-                  <td></td>
-
-                  <td></td>
-                </tr>
-                <tr>
-                  <td colSpan="3"></td>
-                  <td></td>
-                  <td></td>
-                </tr>
-                <tr>
-                  <td colSpan="3"></td>
-                  <td></td>
-                  <td></td>
-
-                  <td></td>
-                </tr>
-                <tr>
-                  <td colSpan="3"></td>
-                  <td></td>
-                  <td></td>
-                </tr>
-                <tr>
-                  <td colSpan="3"></td>
-                  <td></td>
-                  <td></td>
-
-                  <td></td>
-                </tr>
-                <tr>
-                  <td colSpan="3"></td>
-                  <td></td>
-                  <td></td>
-                </tr>{" "}
-                <tr>
-                  <td colSpan="3"></td>
-                  <td></td>
-                  <td></td>
-
-                  <td></td>
-                </tr>
-                <tr>
-                  <td
-                    colSpan="3"
-                    style={{
-                      position: "absolute",
-                      display: "flex",
-                      justifyContent: "left",
-                      flexDirection: "column",
-                      right: "58.2%",
-                      gap: "1px",
-                      paddingBottom: "5rem",
-                    }}
-                  >
-                    Saturdays
-                  </td>
-
-                  <td></td>
-                  <td></td>
-                </tr>
-                <tr>
-                  <td colSpan="3"></td>
-                  <td></td>
-                  <td></td>
-
-                  <td></td>
-                </tr>
-                <tr>
-                  <td colSpan="3"></td>
-                  <td></td>
-                  <td></td>
-                </tr>
-                <tr>
-                  <td colSpan="3"></td>
-                  <td></td>
-                  <td></td>
-
-                  <td></td>
-                </tr>
-                <tr>
-                  <td colSpan="3"></td>
-                  <td></td>
-                  <td></td>
-                </tr>
-                <tr>
-                  <td colSpan="3"></td>
-                  <td></td>
-                  <td></td>
-
-                  <td></td>
-                </tr>
-                <tr>
-                  <td colSpan="3"></td>
-                  <td></td>
-                  <td></td>
-                </tr>
-                <tr>
-                  <td colSpan="3"></td>
-                  <td></td>
-                  <td></td>
-
-                  <td></td>
-                </tr>
-                <tr>
-                  <td colSpan="3"></td>
-                  <td></td>
-                  <td></td>
-                </tr>
-                <tr>
-                  <td colSpan="3"></td>
-                  <td></td>
-                  <td></td>
-
-                  <td></td>
-                </tr>
-                <tr>
-                  <td colSpan="3"></td>
-                  <td></td>
-                  <td></td>
-                </tr>
-                <tr>
-                  <td colSpan="3"></td>
-                  <td></td>
-                  <td></td>
-
-                  <td></td>
-                </tr>
-                <tr>
-                  <td colSpan="3"></td>
-                  <td></td>
-                  <td></td>
-                </tr>
-                <tr>
-                  <td colSpan="3"></td>
-                  <td></td>
-                  <td></td>
-
-                  <td></td>
-                </tr>
-                <tr>
-                  <td colSpan="3"></td>
-                  <td></td>
-                  <td></td>
-                </tr>
-                <tr>
-                  <td colSpan="3"></td>
-                  <td></td>
-                  <td></td>
-
-                  <td></td>
-                </tr>
-                <tr>
-                  <td colSpan="3"></td>
-                  <td></td>
-                  <td></td>
-                  <td></td>
-                  <tr>
-                    <td colSpan="3"></td>
-                    <td></td>
-                    <td></td>
-
-                    <td></td>
-                  </tr>{" "}
-                  <tr>
-                    <td colSpan="3"></td>
-                    <td></td>
-                    <td></td>
-
-                    <td></td>
-                  </tr>{" "}
-                  <tr>
-                    <td colSpan="3"></td>
-                    <td></td>
-                    <td></td>
-
-                    <td></td>
-                  </tr>{" "}
-                  <tr>
-                    <td colSpan="3"></td>
-                    <td></td>
-                    <td></td>
-
-                    <td></td>
-                  </tr>{" "}
-                  <tr>
-                    <td colSpan="3"></td>
-                    <td></td>
-                    <td></td>
-
-                    <td></td>
-                  </tr>{" "}
-                  <tr>
-                    <td colSpan="3"></td>
-                    <td></td>
-                    <td></td>
-
-                    <td></td>
-                  </tr>{" "}
-                  <tr>
-                    <td colSpan="3"></td>
-                    <td></td>
-                    <td></td>
-
-                    <td></td>
-                  </tr>{" "}
-                  <tr>
-                    <td colSpan="3"></td>
-                    <td></td>
-                    <td></td>
-
-                    <td></td>
-                  </tr>{" "}
-                  <tr>
-                    <td colSpan="3"></td>
-                    <td></td>
-                    <td></td>
-
-                    <td></td>
-                  </tr>{" "}
-                  <tr>
-                    <td colSpan="3"></td>
-                    <td></td>
-                    <td></td>
-
-                    <td></td>
-                  </tr>{" "}
-                  <tr>
-                    <td colSpan="3"></td>
-                    <td></td>
-                    <td></td>
-
-                    <td></td>
-                  </tr>{" "}
-                  <tr>
-                    <td colSpan="3"></td>
-                    <td></td>
-                    <td></td>
-
-                    <td></td>
-                  </tr>{" "}
-                  <tr>
-                    <td colSpan="3"></td>
-                    <td></td>
-                    <td></td>
-
-                    <td></td>
-                  </tr>{" "}
-                  <tr>
-                    <td colSpan="3"></td>
-                    <td></td>
-                    <td></td>
-
-                    <td></td>
-                  </tr>{" "}
-                  <tr>
-                    <td colSpan="3"></td>
-                    <td></td>
-                    <td></td>
-
-                    <td></td>
-                  </tr>{" "}
-                  <tr>
-                    <td colSpan="3"></td>
-                    <td></td>
-                    <td></td>
-
-                    <td></td>
-                  </tr>{" "}
-                  <tr>
-                    <td colSpan="3"></td>
-                    <td></td>
-                    <td></td>
-
-                    <td></td>
-                  </tr>{" "}
-                  <tr>
-                    <td colSpan="3"></td>
-                    <td></td>
-                    <td></td>
-
-                    <td></td>
-                  </tr>{" "}
-                  <tr>
-                    <td colSpan="3"></td>
-                    <td></td>
-                    <td></td>
-
-                    <td></td>
-                  </tr>{" "}
-                  <tr>
-                    <td colSpan="3"></td>
-                    <td></td>
-                    <td></td>
-
-                    <td></td>
-                  </tr>{" "}
-                  <tr>
-                    <td colSpan="3"></td>
-                    <td></td>
-                    <td></td>
-
-                    <td></td>
-                  </tr>{" "}
-                  <tr>
-                    <td colSpan="3"></td>
-                    <td></td>
-                    <td></td>
-
-                    <td></td>
-                  </tr>{" "}
-                  <tr>
-                    <td colSpan="3"></td>
-                    <td></td>
-                    <td></td>
-
-                    <td></td>
-                  </tr>{" "}
-                  <tr>
-                    <td colSpan="3"></td>
-                    <td></td>
-                    <td></td>
-
-                    <td></td>
-                  </tr>{" "}
-                  <tr>
-                    <td colSpan="3"></td>
-                    <td></td>
-                    <td></td>
-
-                    <td></td>
-                  </tr>{" "}
-                  <tr>
-                    <td colSpan="3"></td>
-                    <td></td>
-                    <td></td>
-
-                    <td></td>
-                  </tr>{" "}
-                  <tr>
-                    <td colSpan="3"></td>
-                    <td></td>
-                    <td></td>
-
-                    <td></td>
-                  </tr>{" "}
-                  <tr>
-                    <td colSpan="3"></td>
-                    <td></td>
-                    <td></td>
-
-                    <td></td>
-                  </tr>
-                </tr>
-              </thead>
-              <tr>
-                <th
-                  rowSpan="2"
-                  style={{
-                    textAlign: "center",
-                    verticalAlign: "middle",
-                    border: "1px solid black",
-                  }}
-                >
-                  DAY
-                </th>
-                <th colSpan="2" style={{ border: "1px solid black" }}>
-                  A.M.
-                </th>
-                <th colSpan="2" style={{ border: "1px solid black" }}>
-                  P.M.
-                </th>
-                <th style={{ border: "1px solid black" }}>Late</th>
-                <th style={{ border: "1px solid black" }}>Undertime</th>
-              </tr>
-              <tr style={{ textAlign: "center" }}>
-                <td style={{ border: "1px solid black" }}>Arrival</td>
-                <td style={{ border: "1px solid black" }}>Departure</td>
-                <td style={{ border: "1px solid black" }}>Arrival</td>
-                <td style={{ border: "1px solid black" }}>Departure</td>
-                <td style={{ border: "1px solid black" }}>Hours</td>
-                <td style={{ border: "1px solid black" }}>Minutes</td>
-              </tr>
-
-              <tbody>
-                {Array.from({ length: 31 }, (_, i) => {
-                  const day = (i + 1).toString().padStart(2, "0");
-                  const record = records.find((r) =>
-                    r.date.endsWith(`-${day}`)
-                  );
-
-                  return (
-                    <tr key={i}>
-                      <td
-                        style={{
-                          border: "1px solid black",
-                          textAlign: "center",
-                        }}
-                      >
-                        {day}
-                      </td>
-                      <td
-                        style={{
-                          border: "1px solid black",
-                          textAlign: "center",
-                        }}
-                      >
-                        {record?.timeIN || ""}
-                      </td>
-                      <td
-                        style={{
-                          border: "1px solid black",
-                          textAlign: "center",
-                        }}
-                      >
-                        {record?.timeOUT || ""}
-                      </td>
-                      <td
-                        style={{
-                          border: "1px solid black",
-                          textAlign: "center",
-                        }}
-                      >
-                        {record?.breaktimeIN || ""}
-                      </td>
-                      <td
-                        style={{
-                          border: "1px solid black",
-                          textAlign: "center",
-                        }}
-                      >
-                        {record?.breaktimeOUT || ""}
-                      </td>
-                      <td
-                        style={{
-                          border: "1px solid black",
-                          textAlign: "center",
-                        }}
-                      >
-                        {record?.hours || ""}
-                      </td>
-                      <td
-                        style={{
-                          border: "1px solid black",
-                          textAlign: "center",
-                        }}
-                      >
-                        {record?.minutes || ""}
-                      </td>
-                    </tr>
-                  );
-                })}
-                <tr>
-                  <td colspan="9">
-                    <div className="">
-                      <br />
-                      <hr
-                        style={{
-                          borderTop: "3px solid black",
-                          width: "98%",
-                          margin: "0 auto",
-                        }}
-                      />
-                      <p
-                        style={{
-                          textAlign: "justify",
-                          width: "95%",
-                          margin: "0 auto",
-                          marginTop: "10px",
-                        }}
-                      >
-                        I certify on my honor that the above is a true and
-                        correct report of the hours of work performed, record of
-                        which was made daily at the time of arrival and
-                        departure from office.
-                      </p>
-                      <br />
-
-                      <hr
-                        style={{
-                          borderTop: "1px double black",
-                          width: "94%",
-                          margin: "0 auto",
-                        }}
-                      />
-                      <p style={{ textAlign: "center", marginTop: "12px" }}>
-                        Verified as to prescribe office hours.
-                      </p>
-                      <br />
-                      <hr
-                        style={{
-                          textAlign: "right",
-                          borderTop: "1px solid black",
-                          width: "94%",
-                          marginBottom: "20px",
-                          marginRight: "20px",
-                        }}
-                      />
-                    </div>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-
-      <Button
-        sx={{
-          width: "200px",
-          height: "55px",
-          marginLeft: "84%",
-          margintop: "10px",
-          bgcolor: "#6D2323",
-          fontSize: "15px",
-        }}
-        className="no-print"
-        variant="contained"
-        color="primary"
-        onClick={printPage}
-        fullWidth
-      >
-        <PrintIcon style={{ fontSize: "24px" }} /> &nbsp; Print
-      </Button>
-    </div>
+    </Container>
   );
 };
 

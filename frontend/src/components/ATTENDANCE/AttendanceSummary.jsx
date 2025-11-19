@@ -18,8 +18,26 @@ import {
   DialogContent,
   DialogActions,
   IconButton,
+  Card,
+  CardContent,
+  Grid,
+  InputAdornment,
+  Avatar,
+  Tooltip,
+  Chip,
+  Fade,
+  Alert,
+  TableContainer,
+  useTheme,
+  styled,
+  Divider,
+  Backdrop,
+  CircularProgress,
+  CardHeader,
 } from '@mui/material';
+import { alpha } from '@mui/material/styles';
 import {
+  Info,
   Add as AddIcon,
   Edit as EditIcon,
   Delete as DeleteIcon,
@@ -32,8 +50,109 @@ import {
   Warning as WarningIcon,
   Error as ErrorIcon,
   Info as InfoIcon,
+  Search,
+  Person,
+  CalendarToday,
+  Refresh,
+  FilterList,
+  Assignment,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
+
+// Color scheme
+const primaryColor = '#FEF9E1'; // Cream
+const secondaryColor = '#FFF8E7'; // Light cream
+const accentColor = '#6D2323'; // Burgundy
+const accentDark = '#8B3333'; // Darker burgundy
+const blackColor = '#1a1a1a';
+const whiteColor = '#FFFFFF';
+const grayColor = '#6c757d';
+
+// Styled components
+const GlassCard = styled(Card)(({ theme }) => ({
+  borderRadius: 20,
+  background: 'rgba(254, 249, 225, 0.95)',
+  backdropFilter: 'blur(10px)',
+  boxShadow: '0 8px 40px rgba(109, 35, 35, 0.08)',
+  border: '1px solid rgba(109, 35, 35, 0.1)',
+  overflow: 'hidden',
+  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+  '&:hover': {
+    boxShadow: '0 12px 48px rgba(109, 35, 35, 0.15)',
+    transform: 'translateY(-4px)',
+  },
+}));
+
+const ProfessionalButton = styled(Button)(({ theme, variant, color = 'primary' }) => ({
+  borderRadius: 12,
+  fontWeight: 600,
+  padding: '12px 24px',
+  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+  textTransform: 'none',
+  fontSize: '0.95rem',
+  letterSpacing: '0.025em',
+  boxShadow: variant === 'contained' ? '0 4px 14px rgba(254, 249, 225, 0.25)' : 'none',
+  '&:hover': {
+    transform: 'translateY(-2px)',
+    boxShadow: variant === 'contained' ? '0 6px 20px rgba(254, 249, 225, 0.35)' : 'none',
+  },
+  '&:active': {
+    transform: 'translateY(0)',
+  },
+}));
+
+const ModernTextField = styled(TextField)(({ theme }) => ({
+  '& .MuiOutlinedInput-root': {
+    borderRadius: 12,
+    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+    backgroundColor: 'rgba(255, 255, 255, 0.8)',
+    '&:hover': {
+      transform: 'translateY(-1px)',
+      backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    },
+    '&.Mui-focused': {
+      transform: 'translateY(-1px)',
+      boxShadow: '0 4px 20px rgba(254, 249, 225, 0.25)',
+      backgroundColor: 'rgba(255, 255, 255, 1)',
+    },
+  },
+  '& .MuiInputLabel-root': {
+    fontWeight: 500,
+  },
+}));
+
+const PremiumTableContainer = styled(TableContainer)(({ theme }) => ({
+  borderRadius: 16,
+  overflow: 'auto', // Enable both horizontal and vertical scrolling
+  boxShadow: '0 4px 24px rgba(109, 35, 35, 0.06)',
+  border: '1px solid rgba(109, 35, 35, 0.08)',
+  maxHeight: '600px', // Set max height for vertical scrolling
+  '&::-webkit-scrollbar': {
+    width: '8px',
+    height: '8px',
+  },
+  '&::-webkit-scrollbar-track': {
+    background: 'rgba(254, 249, 225, 0.3)',
+    borderRadius: '4px',
+  },
+  '&::-webkit-scrollbar-thumb': {
+    background: 'rgba(109, 35, 35, 0.4)',
+    borderRadius: '4px',
+    '&:hover': {
+      background: 'rgba(109, 35, 35, 0.6)',
+    },
+  },
+}));
+
+const PremiumTableCell = styled(TableCell)(({ theme, isHeader = false }) => ({
+  fontWeight: isHeader ? 600 : 500,
+  padding: '18px 20px',
+  borderBottom: isHeader ? '2px solid rgba(254, 249, 225, 0.5)' : '1px solid rgba(109, 35, 35, 0.06)',
+  fontSize: '0.95rem',
+  letterSpacing: '0.025em',
+  minWidth: '120px', // Ensure minimum width for cells
+  whiteSpace: 'nowrap', // Prevent text wrapping
+}));
 
 // Styled Modal Component
 const StyledModal = ({ open, onClose, title, message, type = 'info', onConfirm, showCancel = false }) => {
@@ -116,7 +235,7 @@ const StyledModal = ({ open, onClose, title, message, type = 'info', onConfirm, 
         }}
       >
         {showCancel && (
-          <Button
+          <ProfessionalButton
             onClick={onClose}
             variant="outlined"
             sx={{
@@ -124,16 +243,12 @@ const StyledModal = ({ open, onClose, title, message, type = 'info', onConfirm, 
               color: '#6D2323',
               fontWeight: 'bold',
               minWidth: '120px',
-              '&:hover': {
-                borderColor: '#6D2323',
-                backgroundColor: 'rgba(109, 35, 35, 0.1)',
-              },
             }}
           >
             Cancel
-          </Button>
+          </ProfessionalButton>
         )}
-        <Button
+        <ProfessionalButton
           onClick={onConfirm || onClose}
           variant="contained"
           sx={{
@@ -141,13 +256,10 @@ const StyledModal = ({ open, onClose, title, message, type = 'info', onConfirm, 
             color: '#FEF9E1',
             fontWeight: 'bold',
             minWidth: '120px',
-            '&:hover': {
-              backgroundColor: '#8B2E2E',
-            },
           }}
         >
           {showCancel ? 'Confirm' : 'OK'}
-        </Button>
+        </ProfessionalButton>
       </DialogActions>
     </Dialog>
   );
@@ -162,6 +274,7 @@ const OverallAttendance = () => {
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmittingJO, setIsSubmittingJO] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   // Modal state
   const [modal, setModal] = useState({
@@ -223,6 +336,8 @@ const OverallAttendance = () => {
       endDate,
     });
 
+    setLoading(true);
+
     try {
       const response = await axios.get(
         `${API_BASE_URL}/attendance/api/overall_attendance_record`,
@@ -244,6 +359,8 @@ const OverallAttendance = () => {
     } catch (error) {
       console.error('Error fetching data:', error);
       showModal('Data Retrieval Error', 'Unable to retrieve attendance records. Please try again.', 'error');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -715,312 +832,648 @@ const OverallAttendance = () => {
   };
 
   return (
-    <Container sx={{ mt: 2, backgroundColor: '#FEF9E1', pb: 4 }} maxWidth={false}>
-      <StyledModal
-        open={modal.open}
-        onClose={closeModal}
-        title={modal.title}
-        message={modal.message}
-        type={modal.type}
-        onConfirm={modal.onConfirm}
-        showCancel={modal.showCancel}
-      />
+    <Box sx={{ 
+      py: 4,
+      borderRadius: '14px',
+      width: '100vw', // Full viewport width
+      mx: 'auto', // Center horizontally
+      maxWidth: '100%', // Ensure it doesn't exceed viewport
+      overflow: 'hidden', // Prevent horizontal scroll
+      position: 'relative',
+      left: '50%',
+      transform: 'translateX(-50%)', // Center element
+    }}>
+      {/* Wider Container */}
+      <Box sx={{ px: 6, mx: 'auto', maxWidth: '1600px' }}>
+        {/* Header */}
+        <Fade in timeout={500}>
+          <Box sx={{ mb: 4 }}>
+            <GlassCard>
+              <Box
+                sx={{
+                  p: 5,
+                  background: `linear-gradient(135deg, ${primaryColor} 0%, ${secondaryColor} 100%)`,
+                  color: accentColor,
+                  position: 'relative',
+                  overflow: 'hidden',
+                }}
+              >
+                {/* Decorative elements */}
+                <Box
+                  sx={{
+                    position: 'absolute',
+                    top: -50,
+                    right: -50,
+                    width: 200,
+                    height: 200,
+                    background: 'radial-gradient(circle, rgba(109,35,35,0.1) 0%, rgba(109,35,35,0) 70%)',
+                  }}
+                />
+                <Box
+                  sx={{
+                    position: 'absolute',
+                    bottom: -30,
+                    left: '30%',
+                    width: 150,
+                    height: 150,
+                    background: 'radial-gradient(circle, rgba(109,35,35,0.08) 0%, rgba(109,35,35,0) 70%)',
+                  }}
+                />
+                
+                <Box display="flex" alignItems="center" justifyContent="space-between" position="relative" zIndex={1}>
+                  <Box display="flex" alignItems="center">
+                    <Avatar 
+                      sx={{ 
+                        bgcolor: 'rgba(109,35,35,0.15)', 
+                        mr: 4, 
+                        width: 64, 
+                        height: 64,
+                        boxShadow: '0 8px 24px rgba(109,35,35,0.15)'
+                      }}
+                    >
+                      <SummarizeOutlined sx={{ fontSize: 32 }} />
+                    </Avatar>
+                    <Box>
+                      <Typography variant="h4" component="h1" sx={{ fontWeight: 700, mb: 1, lineHeight: 1.2, color: accentColor }}>
+                        Overall Attendance Report
+                      </Typography>
+                      <Typography variant="body1" sx={{ opacity: 0.8, fontWeight: 400, color: accentDark }}>
+                        Generate and review summary of overall attendance records
+                      </Typography>
+                    </Box>
+                  </Box>
+                  <Box display="flex" alignItems="center" gap={2}>
+                    <Chip 
+                      label="System Generated" 
+                      size="small" 
+                      sx={{ 
+                        bgcolor: 'rgba(109,35,35,0.15)', 
+                        color: accentColor,
+                        fontWeight: 500,
+                        '& .MuiChip-label': { px: 1 }
+                      }} 
+                    />
+                    <Tooltip title="Refresh Data">
+                      <IconButton 
+                        onClick={fetchAttendanceData}
+                        disabled={!employeeNumber || !startDate || !endDate}
+                        sx={{ 
+                          bgcolor: 'rgba(109,35,35,0.1)', 
+                          '&:hover': { bgcolor: 'rgba(109,35,35,0.2)' },
+                          color: accentColor,
+                          width: 48,
+                          height: 48,
+                          '&:disabled': { 
+                            bgcolor: 'rgba(109,35,35,0.05)',
+                            color: 'rgba(109,35,35,0.3)'
+                          }
+                        }}
+                      >
+                        <Refresh />
+                      </IconButton>
+                    </Tooltip>
+                  </Box>
+                </Box>
+              </Box>
+            </GlassCard>
+          </Box>
+        </Fade>
 
-      <div
-        style={{
-          backgroundColor: '#6D2323',
-          color: '#ffffff',
-          padding: '20px',
-          width: '96.7%',
-          borderRadius: '8px',
-          borderBottomLeftRadius: '0px',
-          borderBottomRightRadius: '0px',
-        }}
-      >
-        <div style={{ display: 'flex', alignItems: 'center', color: '#ffffff' }}>
-          <SummarizeOutlined
-            sx={{
-              fontSize: '3rem',
-              marginRight: '16px',
-              marginTop: '5px',
-              marginLeft: '5px',
-            }}
-          />
-          <div>
-            <h4 style={{ margin: 0, fontSize: '150%', marginBottom: '2px' }}>
-              Overall Attendance Report
-            </h4>
-            <p style={{ margin: 0, fontSize: '85%' }}>
-              Generate and review summary of overall attendance records
-            </p>
-          </div>
-        </div>
-      </div>
-      
-      <Box
-        sx={{
-          backgroundColor: '#ffffff',
-          p: 3,
-          borderBottomLeftRadius: '5px',
-          borderBottomRightRadius: '5px',
-          boxShadow: '0px 4px 8px rgba(0,0,0,0.1)',
-          mb: 3,
-        }}
-      >
-        <Box sx={{ display: 'flex', gap: 2, mb: 3 }}>
-          <TextField
-            label="Employee Number"
-            variant="outlined"
-            value={employeeNumber}
-            onChange={(e) => setEmployeeNumber(e.target.value)}
-            sx={{ width: 250 }}
-            required
-          />
+        {/* Controls */}
+        <Fade in timeout={700}>
+          <GlassCard sx={{ mb: 4 }}>
+           <CardHeader
+              title={
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                  <Avatar sx={{ bgcolor: alpha(primaryColor, 0.8), color: accentColor }}>
+                    <FilterList />
+                  </Avatar>
+                  <Box>
+                    <Typography variant="body2" color="text.secondary" sx={{ color: accentDark }}>
+                      Configure your attendance record search criteria
+                    </Typography>
+                  </Box>
+                </Box>
+              }
+              sx={{ 
+                bgcolor: alpha(primaryColor, 0.5), 
+                pb: 2,
+                borderBottom: '1px solid rgba(109,35,35,0.1)'
+              }}
+            />  
+            <CardContent sx={{ p: 4 }}>
+              <Box component="form">
+                <Grid container spacing={4}>
+                  <Grid item xs={12} md={4}>
+                    <ModernTextField
+                      fullWidth
+                      label="Employee Number"
+                      value={employeeNumber}
+                      onChange={(e) => setEmployeeNumber(e.target.value)}
+                      required
+                      variant="outlined"
+                      placeholder="Enter employee ID"
+                      InputProps={{
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <Person sx={{ color: accentColor }} />
+                          </InputAdornment>
+                        ),
+                      }}
+                    />
+                  </Grid>
+                  <Grid item xs={12} md={4}>
+                    <ModernTextField
+                      fullWidth
+                      label="Start Date"
+                      type="date"
+                      value={startDate}
+                      onChange={(e) => setStartDate(e.target.value)}
+                      required
+                      InputLabelProps={{ shrink: true }}
+                      InputProps={{
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <CalendarToday sx={{ color: accentColor }} />
+                          </InputAdornment>
+                        ),
+                      }}
+                    />
+                  </Grid>
+                  <Grid item xs={12} md={4}>
+                    <ModernTextField
+                      fullWidth
+                      label="End Date"
+                      type="date"
+                      value={endDate}
+                      onChange={(e) => setEndDate(e.target.value)}
+                      required
+                      InputLabelProps={{ shrink: true }}
+                      InputProps={{
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <CalendarToday sx={{ color: accentColor }} />
+                          </InputAdornment>
+                        ),
+                      }}
+                    />
+                  </Grid>
+                </Grid>
 
-          <TextField
-            label="Start Date"
-            type="date"
-            variant="outlined"
-            value={startDate}
-            onChange={(e) => setStartDate(e.target.value)}
-            InputLabelProps={{ shrink: true }}
-            sx={{ width: 200 }}
-            required
-          />
+                <Box sx={{ mt: 4, display: 'flex', justifyContent: 'center' }}>
+                  <ProfessionalButton
+                    variant="contained"
+                    onClick={fetchAttendanceData}
+                    disabled={!employeeNumber || !startDate || !endDate}
+                    sx={{
+                      py: 2,
+                      px: 6,
+                      bgcolor: accentColor,
+                      color: primaryColor,
+                      fontSize: '1rem',
+                      '&:hover': {
+                        bgcolor: accentDark,
+                      }
+                    }}
+                  >
+                    Fetch Attendance Records
+                  </ProfessionalButton>
+                </Box>
+              </Box>
+            </CardContent>
+          </GlassCard>
+        </Fade>
 
-          <TextField
-            label="End Date"
-            type="date"
-            variant="outlined"
-            value={endDate}
-            onChange={(e) => setEndDate(e.target.value)}
-            InputLabelProps={{ shrink: true }}
-            sx={{ width: 200 }}
-            required
-          />
+        {/* Loading Backdrop */}
+        <Backdrop
+          sx={{ color: accentColor, zIndex: (theme) => theme.zIndex.drawer + 1 }}
+          open={loading}
+        >
+          <Box sx={{ textAlign: 'center' }}>
+            <CircularProgress color="inherit" size={60} thickness={4} />
+            <Typography variant="h6" sx={{ mt: 2, color: accentColor }}>
+              Fetching attendance records...
+            </Typography>
+          </Box>
+        </Backdrop>
 
-          <Button
-            variant="contained"
-            onClick={fetchAttendanceData}
-            sx={{
-              backgroundColor: '#6D2323',
-              color: '#FEF9E1',
-              height: 56,
-              flexGrow: 1,
-            }}
-          >
-            Fetch Attendance Records
-          </Button>
-        </Box>
+        {/* Results */}
+        {attendanceData.length > 0 && (
+          <Fade in={!loading} timeout={500}>
+            <GlassCard sx={{ mb: 4 }}>
+              <Box sx={{ 
+                p: 4, 
+                background: `linear-gradient(135deg, ${primaryColor} 0%, ${secondaryColor} 100%)`, 
+                color: accentColor,
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center'
+              }}>
+                <Box>
+                  <Typography variant="body2" sx={{ opacity: 0.8, mb: 1, textTransform: 'uppercase', letterSpacing: '0.1em', color: accentDark }}>
+                    Attendance Record Summary
+                  </Typography>
+                  <Typography variant="h4" sx={{ fontWeight: 600, mb: 1, color: accentColor }}>
+                    {attendanceData.length} Records Found
+                  </Typography>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mt: 2 }}>
+                    <Chip 
+                      icon={<CalendarToday />}
+                      label={`${startDate} to ${endDate}`}
+                      size="small"
+                      sx={{ 
+                        bgcolor: 'rgba(109,35,35,0.15)', 
+                        color: accentColor,
+                        fontWeight: 500
+                      }} 
+                    />
+                  </Box>
+                </Box>
+                <Avatar 
+                  sx={{ 
+                    bgcolor: 'rgba(109,35,35,0.15)', 
+                    width: 80, 
+                    height: 80,
+                    fontSize: '2rem',
+                    fontWeight: 600,
+                    color: accentColor
+                  }}
+                >
+                  <Summarize />
+                </Avatar>
+              </Box>
 
-        <Paper sx={{ marginTop: 3, overflowX: 'auto' }}>
-          <Table stickyHeader>
-            <TableHead>
-              <TableRow>
-                <TableCell style={{ textAlign: 'center' }}><b>ID</b></TableCell>
-                <TableCell style={{ textAlign: 'center' }}><b>Department</b></TableCell>
-                <TableCell style={{ textAlign: 'center' }}><b>Employee Number</b></TableCell>
-                <TableCell style={{ textAlign: 'center' }}><b>Start Date</b></TableCell>
-                <TableCell style={{ textAlign: 'center' }}><b>End Date</b></TableCell>
-                <TableCell style={{ textAlign: 'center' }}><b>Morning Hours</b></TableCell>
-                <TableCell style={{ textAlign: 'center' }}><b>Morning Tardiness</b></TableCell>
-                <TableCell style={{ textAlign: 'center' }}><b>Afternoon Hours</b></TableCell>
-                <TableCell style={{ textAlign: 'center' }}><b>Afternoon Tardiness</b></TableCell>
-                <TableCell style={{ textAlign: 'center' }}><b>Honorarium</b></TableCell>
-                <TableCell style={{ textAlign: 'center' }}><b>Honorarium Tardiness</b></TableCell>
-                <TableCell style={{ textAlign: 'center' }}><b>Service Credit</b></TableCell>
-                <TableCell style={{ textAlign: 'center' }}><b>Service Credit Tardiness</b></TableCell>
-                <TableCell style={{ textAlign: 'center' }}><b>Overtime</b></TableCell>
-                <TableCell style={{ textAlign: 'center' }}><b>Overtime Tardiness</b></TableCell>
-                <TableCell style={{ textAlign: 'center' }}><b>Overall Official Rendered Time</b></TableCell>
-                <TableCell style={{ textAlign: 'center' }}><b>Overall Official Tardiness Time</b></TableCell>
-                <TableCell style={{ textAlign: 'center' }}><b>Action</b></TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {attendanceData.map((record, index) => (
-                <TableRow key={index}>
-                  <TableCell style={{ textAlign: 'center' }}>{record.id}</TableCell>
-                  <TableCell style={{ textAlign: 'center' }}>{record.code}</TableCell>
-                  <TableCell style={{ textAlign: 'center' }}>
-                    {editRecord && editRecord.id === record.id ? (
-                      <TextField value={editRecord.personID} onChange={(e) => setEditRecord({ ...editRecord, personID: e.target.value })} />
-                    ) : (
-                      record.personID
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    {editRecord && editRecord.id === record.id ? (
-                      <TextField value={editRecord.startDate} onChange={(e) => setEditRecord({ ...editRecord, startDate: e.target.value })} />
-                    ) : (
-                      record.startDate
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    {editRecord && editRecord.id === record.id ? (
-                      <TextField value={editRecord.endDate} onChange={(e) => setEditRecord({ ...editRecord, endDate: e.target.value })} />
-                    ) : (
-                      record.endDate
-                    )}
-                  </TableCell>
-                  <TableCell style={{ textAlign: 'center' }}>
-                    {editRecord && editRecord.id === record.id ? (
-                      <TextField value={editRecord.totalRenderedTimeMorning} onChange={(e) => setEditRecord({ ...editRecord, totalRenderedTimeMorning: e.target.value })} />
-                    ) : (
-                      record.totalRenderedTimeMorning
-                    )}
-                  </TableCell>
-                  <TableCell style={{ textAlign: 'center' }}>
-                    {editRecord && editRecord.id === record.id ? (
-                      <TextField value={editRecord.totalRenderedTimeMorningTardiness} onChange={(e) => setEditRecord({ ...editRecord, totalTardAM: e.target.value })} />
-                    ) : (
-                      record.totalRenderedTimeMorningTardiness
-                    )}
-                  </TableCell>
-                  <TableCell style={{ textAlign: 'center' }}>
-                    {editRecord && editRecord.id === record.id ? (
-                      <TextField value={editRecord.totalRenderedTimeAfternoon} onChange={(e) => setEditRecord({ ...editRecord, totalRenderedTimeAfternoon: e.target.value })} />
-                    ) : (
-                      record.totalRenderedTimeAfternoon
-                    )}
-                  </TableCell>
-                  <TableCell style={{ textAlign: 'center' }}>
-                    {editRecord && editRecord.id === record.id ? (
-                      <TextField value={editRecord.totalRenderedTimeAfternoonTardiness} onChange={(e) => setEditRecord({ ...editRecord, totalRenderedTimeAfternoonTardiness: e.target.value })} />
-                    ) : (
-                      record.totalRenderedTimeAfternoonTardiness
-                    )}
-                  </TableCell>
-                  <TableCell style={{ textAlign: 'center' }}>
-                    {editRecord && editRecord.id === record.id ? (
-                      <TextField value={editRecord.totalRenderedHonorarium} onChange={(e) => setEditRecord({ ...editRecord, totalRenderedHonorarium: e.target.value })} />
-                    ) : (
-                      record.totalRenderedHonorarium
-                    )}
-                  </TableCell>
-                  <TableCell style={{ textAlign: 'center' }}>
-                    {editRecord && editRecord.id === record.id ? (
-                      <TextField value={editRecord.totalRenderedHonorariumTardiness} onChange={(e) => setEditRecord({ ...editRecord, TotalTatotalRenderedHonorariumTardinessrdHR: e.target.value })} />
-                    ) : (
-                      record.totalRenderedHonorariumTardiness
-                    )}
-                  </TableCell>
-                  <TableCell style={{ textAlign: 'center' }}>
-                    {editRecord && editRecord.id === record.id ? (
-                      <TextField value={editRecord.totalRenderedServiceCredit} onChange={(e) => setEditRecord({ ...editRecord, totalRenderedServiceCredit: e.target.value })} />
-                    ) : (
-                      record.totalRenderedServiceCredit
-                    )}
-                  </TableCell>
-                  <TableCell style={{ textAlign: 'center' }}>
-                    {editRecord && editRecord.id === record.id ? (
-                      <TextField value={editRecord.totalRenderedServiceCreditTardiness} onChange={(e) => setEditRecord({ ...editRecord, totalRenderedServiceCreditTardiness: e.target.value })} />
-                    ) : (
-                      record.totalRenderedServiceCreditTardiness
-                    )}
-                  </TableCell>
-                  <TableCell style={{ textAlign: 'center' }}>
-                    {editRecord && editRecord.id === record.id ? (
-                      <TextField value={editRecord.totalRenderedOvertime} onChange={(e) => setEditRecord({ ...editRecord, totalRenderedOvertime: e.target.value })} />
-                    ) : (
-                      record.totalRenderedOvertime
-                    )}
-                  </TableCell>
-                  <TableCell style={{ textAlign: 'center' }}>
-                    {editRecord && editRecord.id === record.id ? (
-                      <TextField value={editRecord.totalRenderedOvertimeTardiness} onChange={(e) => setEditRecord({ ...editRecord, totalRenderedOvertimeTardiness: e.target.value })} />
-                    ) : (
-                      record.totalRenderedOvertimeTardiness
-                    )}
-                  </TableCell>
-                  <TableCell style={{ textAlign: 'center' }}>
-                    {editRecord && editRecord.id === record.id ? (
-                      <TextField value={editRecord.overallRenderedOfficialTime} onChange={(e) => setEditRecord({ ...editRecord, overallRenderedOfficialTime: e.target.value })} />
-                    ) : (
-                      record.overallRenderedOfficialTime
-                    )}
-                  </TableCell>
-                  <TableCell style={{ textAlign: 'center' }}>
-                    {editRecord && editRecord.id === record.id ? (
-                      <TextField value={editRecord.overallRenderedOfficialTimeTardiness} onChange={(e) => setEditRecord({ ...editRecord, overallRenderedOfficialTimeTardiness: e.target.value })} />
-                    ) : (
-                      record.overallRenderedOfficialTimeTardiness
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    {editRecord && editRecord.id === record.id ? (
-                      <>
-                        <Button onClick={updateRecord} variant="contained" style={{ backgroundColor: '#6D2323', color: '#FEF9E1', marginBottom: '5px', width: '100%' }} startIcon={<SaveIcon />}>
-                          Save
-                        </Button>
-                        <Button onClick={() => setEditRecord(null)} variant="contained" style={{ backgroundColor: 'black', color: 'white', width: '100%' }} startIcon={<CancelIcon />}>
-                          Cancel
-                        </Button>
-                      </>
-                    ) : (
-                      <>
-                        <Button onClick={() => { setEditRecord(record); }} variant="contained" style={{ backgroundColor: '#6D2323', color: '#FEF9E1', width: '100%', marginBottom: '5px' }} startIcon={<EditIcon />}>
-                          Edit
-                        </Button>
-                        <Button onClick={() => deleteRecord(record.id, record.personID)} variant="contained" style={{ backgroundColor: 'black', color: 'white', width: '100%' }} startIcon={<DeleteIcon />}>
-                          Delete
-                        </Button>
-                      </>
-                    )}
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </Paper>
-
-        {attendanceData.length === 0 && (
-          <Typography variant="body1" color="textSecondary" sx={{ marginTop: 2 }}>
-            No records found for the given criteria.
-          </Typography>
+              <PremiumTableContainer>
+                <Table 
+                  stickyHeader 
+                  sx={{ 
+                    minWidth: '2000px', // Set minimum width to ensure horizontal scrolling
+                  }}
+                >
+                  <TableHead>
+                    <TableRow sx={{ bgcolor: 'rgba(254, 249, 225, 0.7)' }}>
+                      <PremiumTableCell isHeader sx={{ color: accentColor }}>ID</PremiumTableCell>
+                      <PremiumTableCell isHeader sx={{ color: accentColor }}>Department</PremiumTableCell>
+                      <PremiumTableCell isHeader sx={{ color: accentColor }}>Employee Number</PremiumTableCell>
+                      <PremiumTableCell isHeader sx={{ color: accentColor }}>Start Date</PremiumTableCell>
+                      <PremiumTableCell isHeader sx={{ color: accentColor }}>End Date</PremiumTableCell>
+                      <PremiumTableCell isHeader sx={{ color: accentColor }}>Morning Hours</PremiumTableCell>
+                      <PremiumTableCell isHeader sx={{ color: accentColor }}>Morning Tardiness</PremiumTableCell>
+                      <PremiumTableCell isHeader sx={{ color: accentColor }}>Afternoon Hours</PremiumTableCell>
+                      <PremiumTableCell isHeader sx={{ color: accentColor }}>Afternoon Tardiness</PremiumTableCell>
+                      <PremiumTableCell isHeader sx={{ color: accentColor }}>Honorarium</PremiumTableCell>
+                      <PremiumTableCell isHeader sx={{ color: accentColor }}>Honorarium Tardiness</PremiumTableCell>
+                      <PremiumTableCell isHeader sx={{ color: accentColor }}>Service Credit</PremiumTableCell>
+                      <PremiumTableCell isHeader sx={{ color: accentColor }}>Service Credit Tardiness</PremiumTableCell>
+                      <PremiumTableCell isHeader sx={{ color: accentColor }}>Overtime</PremiumTableCell>
+                      <PremiumTableCell isHeader sx={{ color: accentColor }}>Overtime Tardiness</PremiumTableCell>
+                      <PremiumTableCell isHeader sx={{ color: accentColor }}>Overall Official Rendered Time</PremiumTableCell>
+                      <PremiumTableCell isHeader sx={{ color: accentColor }}>Overall Official Tardiness Time</PremiumTableCell>
+                      <PremiumTableCell isHeader sx={{ color: accentColor }}>Action</PremiumTableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {attendanceData.map((record, index) => (
+                      <TableRow 
+                        key={index}
+                        sx={{ 
+                          '&:nth-of-type(even)': { bgcolor: 'rgba(254, 249, 225, 0.3)' },
+                          '&:hover': { bgcolor: 'rgba(109, 35, 35, 0.05)' },
+                          transition: 'all 0.2s ease'
+                        }}
+                      >
+                        <PremiumTableCell>{record.id}</PremiumTableCell>
+                        <PremiumTableCell>{record.code}</PremiumTableCell>
+                        <PremiumTableCell>
+                          {editRecord && editRecord.id === record.id ? (
+                            <ModernTextField 
+                              value={editRecord.personID} 
+                              onChange={(e) => setEditRecord({ ...editRecord, personID: e.target.value })} 
+                              size="small"
+                            />
+                          ) : (
+                            record.personID
+                          )}
+                        </PremiumTableCell>
+                        <PremiumTableCell>
+                          {editRecord && editRecord.id === record.id ? (
+                            <ModernTextField 
+                              value={editRecord.startDate} 
+                              onChange={(e) => setEditRecord({ ...editRecord, startDate: e.target.value })} 
+                              size="small"
+                            />
+                          ) : (
+                            record.startDate
+                          )}
+                        </PremiumTableCell>
+                        <PremiumTableCell>
+                          {editRecord && editRecord.id === record.id ? (
+                            <ModernTextField 
+                              value={editRecord.endDate} 
+                              onChange={(e) => setEditRecord({ ...editRecord, endDate: e.target.value })} 
+                              size="small"
+                            />
+                          ) : (
+                            record.endDate
+                          )}
+                        </PremiumTableCell>
+                        <PremiumTableCell>
+                          {editRecord && editRecord.id === record.id ? (
+                            <ModernTextField 
+                              value={editRecord.totalRenderedTimeMorning} 
+                              onChange={(e) => setEditRecord({ ...editRecord, totalRenderedTimeMorning: e.target.value })} 
+                              size="small"
+                            />
+                          ) : (
+                            record.totalRenderedTimeMorning
+                          )}
+                        </PremiumTableCell>
+                        <PremiumTableCell>
+                          {editRecord && editRecord.id === record.id ? (
+                            <ModernTextField 
+                              value={editRecord.totalRenderedTimeMorningTardiness} 
+                              onChange={(e) => setEditRecord({ ...editRecord, totalTardAM: e.target.value })} 
+                              size="small"
+                            />
+                          ) : (
+                            record.totalRenderedTimeMorningTardiness
+                          )}
+                        </PremiumTableCell>
+                        <PremiumTableCell>
+                          {editRecord && editRecord.id === record.id ? (
+                            <ModernTextField 
+                              value={editRecord.totalRenderedTimeAfternoon} 
+                              onChange={(e) => setEditRecord({ ...editRecord, totalRenderedTimeAfternoon: e.target.value })} 
+                              size="small"
+                            />
+                          ) : (
+                            record.totalRenderedTimeAfternoon
+                          )}
+                        </PremiumTableCell>
+                        <PremiumTableCell>
+                          {editRecord && editRecord.id === record.id ? (
+                            <ModernTextField 
+                              value={editRecord.totalRenderedTimeAfternoonTardiness} 
+                              onChange={(e) => setEditRecord({ ...editRecord, totalRenderedTimeAfternoonTardiness: e.target.value })} 
+                              size="small"
+                            />
+                          ) : (
+                            record.totalRenderedTimeAfternoonTardiness
+                          )}
+                        </PremiumTableCell>
+                        <PremiumTableCell>
+                          {editRecord && editRecord.id === record.id ? (
+                            <ModernTextField 
+                              value={editRecord.totalRenderedHonorarium} 
+                              onChange={(e) => setEditRecord({ ...editRecord, totalRenderedHonorarium: e.target.value })} 
+                              size="small"
+                            />
+                          ) : (
+                            record.totalRenderedHonorarium
+                          )}
+                        </PremiumTableCell>
+                        <PremiumTableCell>
+                          {editRecord && editRecord.id === record.id ? (
+                            <ModernTextField 
+                              value={editRecord.totalRenderedHonorariumTardiness} 
+                              onChange={(e) => setEditRecord({ ...editRecord, TotalTatotalRenderedHonorariumTardinessrdHR: e.target.value })} 
+                              size="small"
+                            />
+                          ) : (
+                            record.totalRenderedHonorariumTardiness
+                          )}
+                        </PremiumTableCell>
+                        <PremiumTableCell>
+                          {editRecord && editRecord.id === record.id ? (
+                            <ModernTextField 
+                              value={editRecord.totalRenderedServiceCredit} 
+                              onChange={(e) => setEditRecord({ ...editRecord, totalRenderedServiceCredit: e.target.value })} 
+                              size="small"
+                            />
+                          ) : (
+                            record.totalRenderedServiceCredit
+                          )}
+                        </PremiumTableCell>
+                        <PremiumTableCell>
+                          {editRecord && editRecord.id === record.id ? (
+                            <ModernTextField 
+                              value={editRecord.totalRenderedServiceCreditTardiness} 
+                              onChange={(e) => setEditRecord({ ...editRecord, totalRenderedServiceCreditTardiness: e.target.value })} 
+                              size="small"
+                            />
+                          ) : (
+                            record.totalRenderedServiceCreditTardiness
+                          )}
+                        </PremiumTableCell>
+                        <PremiumTableCell>
+                          {editRecord && editRecord.id === record.id ? (
+                            <ModernTextField 
+                              value={editRecord.totalRenderedOvertime} 
+                              onChange={(e) => setEditRecord({ ...editRecord, totalRenderedOvertime: e.target.value })} 
+                              size="small"
+                            />
+                          ) : (
+                            record.totalRenderedOvertime
+                          )}
+                        </PremiumTableCell>
+                        <PremiumTableCell>
+                          {editRecord && editRecord.id === record.id ? (
+                            <ModernTextField 
+                              value={editRecord.totalRenderedOvertimeTardiness} 
+                              onChange={(e) => setEditRecord({ ...editRecord, totalRenderedOvertimeTardiness: e.target.value })} 
+                              size="small"
+                            />
+                          ) : (
+                            record.totalRenderedOvertimeTardiness
+                          )}
+                        </PremiumTableCell>
+                        <PremiumTableCell>
+                          {editRecord && editRecord.id === record.id ? (
+                            <ModernTextField 
+                              value={editRecord.overallRenderedOfficialTime} 
+                              onChange={(e) => setEditRecord({ ...editRecord, overallRenderedOfficialTime: e.target.value })} 
+                              size="small"
+                            />
+                          ) : (
+                            record.overallRenderedOfficialTime
+                          )}
+                        </PremiumTableCell>
+                        <PremiumTableCell>
+                          {editRecord && editRecord.id === record.id ? (
+                            <ModernTextField 
+                              value={editRecord.overallRenderedOfficialTimeTardiness} 
+                              onChange={(e) => setEditRecord({ ...editRecord, overallRenderedOfficialTimeTardiness: e.target.value })} 
+                              size="small"
+                            />
+                          ) : (
+                            record.overallRenderedOfficialTimeTardiness
+                          )}
+                        </PremiumTableCell>
+                        <PremiumTableCell>
+                          {editRecord && editRecord.id === record.id ? (
+                            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                              <ProfessionalButton 
+                                onClick={updateRecord} 
+                                variant="contained" 
+                                size="small"
+                                sx={{ 
+                                  bgcolor: accentColor,
+                                  color: primaryColor,
+                                  '&:hover': {
+                                    bgcolor: accentDark,
+                                  }
+                                }} 
+                                startIcon={<SaveIcon />}
+                              >
+                                Save
+                              </ProfessionalButton>
+                              <ProfessionalButton 
+                                onClick={() => setEditRecord(null)} 
+                                variant="outlined" 
+                                size="small"
+                                sx={{ 
+                                  borderColor: accentColor,
+                                  color: accentColor,
+                                  '&:hover': {
+                                    backgroundColor: 'rgba(109, 35, 35, 0.1)',
+                                  }
+                                }} 
+                                startIcon={<CancelIcon />}
+                              >
+                                Cancel
+                              </ProfessionalButton>
+                            </Box>
+                          ) : (
+                            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                              <ProfessionalButton 
+                                onClick={() => { setEditRecord(record); }} 
+                                variant="contained" 
+                                size="small"
+                                sx={{ 
+                                  bgcolor: accentColor,
+                                  color: primaryColor,
+                                  '&:hover': {
+                                    bgcolor: accentDark,
+                                  }
+                                }} 
+                                startIcon={<EditIcon />}
+                              >
+                                Edit
+                              </ProfessionalButton>
+                              <ProfessionalButton 
+                                onClick={() => deleteRecord(record.id, record.personID)} 
+                                variant="outlined" 
+                                size="small"
+                                sx={{ 
+                                  borderColor: accentColor,
+                                  color: accentColor,
+                                  '&:hover': {
+                                    backgroundColor: 'rgba(109, 35, 35, 0.1)',
+                                  }
+                                }} 
+                                startIcon={<DeleteIcon />}
+                              >
+                                Delete
+                              </ProfessionalButton>
+                            </Box>
+                          )}
+                        </PremiumTableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </PremiumTableContainer>
+            </GlassCard>
+          </Fade>
         )}
-      </Box>
 
-      <Box sx={{ display: 'flex', gap: 2, mt: 3 }}>
-        <Button
-          variant="contained"
-          sx={{
-            flex: 1,
-            backgroundColor: isSubmitting ? '#6d2323' : '#6D2323',
-            color: '#ffffff',
-            fontWeight: 'bold',
-            '&:hover': {
-              backgroundColor: isSubmitting ? '#fef9e1' : '#fef9e1',
-              border: '1px solid #6d2323',
-              color: '#6d2323',
-            },
-          }}
-          onClick={submitToPayroll}
-          disabled={isSubmitting || attendanceData.length === 0}
-        >
-          {isSubmitting ? 'Submitting to Payroll...' : 'Submit Payroll Regular'}
-        </Button>
+        {attendanceData.length === 0 && !loading && (
+          <Fade in timeout={500}>
+            <GlassCard sx={{ mb: 4 }}>
+              <Box sx={{ 
+                p: 8, 
+                textAlign: 'center',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}>
+                <Info sx={{ fontSize: 80, color: 'rgba(109, 35, 35, 0.3)', mb: 3 }} />
+                <Typography variant="h5" color="rgba(109, 35, 35, 0.6)" gutterBottom sx={{ fontWeight: 600 }}>
+                  No Records Found
+                </Typography>
+                <Typography variant="body1" color="rgba(109, 35, 35, 0.4)">
+                  Try adjusting your date range or search for a different employee
+                </Typography>
+              </Box>
+            </GlassCard>
+          </Fade>
+        )}
 
-        <Button
-          variant="contained"
-          sx={{
-            flex: 1,
-            backgroundColor: isSubmittingJO ? '#6d2323' : '#6D2323',
-            color: '#fff',
-            fontWeight: 'bold',
-            '&:hover': {
-              backgroundColor: isSubmittingJO ? '#fef9e1' : '#fef9e1',
-              border: '1px solid #6d2323',
-              color: '#6d2323',
-            },
-          }}
-          onClick={submitPayrollJO}
-          disabled={isSubmittingJO || attendanceData.length === 0}
-        >
-          {isSubmittingJO ? 'Submitting to Payroll JO...' : 'Submit Payroll JO'}
-        </Button>
+        {/* Action Buttons */}
+        {attendanceData.length > 0 && (
+          <Fade in timeout={900}>
+            <GlassCard>
+              <CardContent sx={{ p: 4 }}>
+                <Grid container spacing={3}>
+                  <Grid item xs={12} md={6}>
+                    <ProfessionalButton
+                      variant="contained"
+                      fullWidth
+                      startIcon={<Assignment />}
+                      onClick={submitToPayroll}
+                      disabled={isSubmitting}
+                      sx={{
+                        py: 2,
+                        bgcolor: accentColor,
+                        color: primaryColor,
+                        fontSize: '1rem',
+                        '&:hover': {
+                          bgcolor: accentDark,
+                        }
+                      }}
+                    >
+                      {isSubmitting ? 'Submitting to Payroll...' : 'Submit Payroll Regular'}
+                    </ProfessionalButton>
+                  </Grid>
+                  <Grid item xs={12} md={6}>
+                    <ProfessionalButton
+                      variant="contained"
+                      fullWidth
+                      startIcon={<Assignment />}
+                      onClick={submitPayrollJO}
+                      disabled={isSubmittingJO}
+                      sx={{
+                        py: 2,
+                        bgcolor: accentColor,
+                        color: primaryColor,
+                        fontSize: '1rem',
+                        '&:hover': {
+                          bgcolor: accentDark,
+                        }
+                      }}
+                    >
+                      {isSubmittingJO ? 'Submitting to Payroll JO...' : 'Submit Payroll JO'}
+                    </ProfessionalButton>
+                  </Grid>
+                </Grid>
+              </CardContent>
+            </GlassCard>
+          </Fade>
+        )}
+
+        {/* Modal */}
+        <StyledModal
+          open={modal.open}
+          onClose={closeModal}
+          title={modal.title}
+          message={modal.message}
+          type={modal.type}
+          onConfirm={modal.onConfirm}
+          showCancel={modal.showCancel}
+        />
       </Box>
-    </Container>
+    </Box>
   );
 };
 

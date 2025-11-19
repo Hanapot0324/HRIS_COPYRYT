@@ -14,16 +14,92 @@ import {
   DialogActions,
   TextField,
   InputAdornment,
+  Card,
+  CardContent,
+  CardHeader,
+  Avatar,
+  Chip,
+  Divider,
+  Fade,
+  Backdrop,
+  styled,
+  alpha,
+  IconButton,
+  Tooltip,
+  Grid,
+  LinearProgress,
+  Stack,
+  Badge,
 } from '@mui/material';
 import Search from '@mui/icons-material/Search';
-
 import WorkIcon from '@mui/icons-material/Work';
+import Refresh from '@mui/icons-material/Refresh';
+import Download from '@mui/icons-material/Download';
+import Send from '@mui/icons-material/Send';
+import Person from '@mui/icons-material/Person';
+import CalendarToday from '@mui/icons-material/CalendarToday';
+import AttachMoney from '@mui/icons-material/AttachMoney';
+import Receipt from '@mui/icons-material/Receipt';
+import Mail from '@mui/icons-material/Mail';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import axios from 'axios';
 import logo from '../../assets/logo.png';
 import hrisLogo from '../../assets/hrisLogo.png';
 import SuccessfulOverlay from '../SuccessfulOverlay';
+
+// Professional styled components matching ViewAttendanceRecord
+const GlassCard = styled(Card)(({ theme }) => ({
+  borderRadius: 20,
+  background: 'rgba(254, 249, 225, 0.95)',
+  backdropFilter: 'blur(10px)',
+  boxShadow: '0 8px 40px rgba(109, 35, 35, 0.08)',
+  border: '1px solid rgba(109, 35, 35, 0.1)',
+  overflow: 'hidden',
+  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+  '&:hover': {
+    boxShadow: '0 12px 48px rgba(109, 35, 35, 0.15)',
+    transform: 'translateY(-4px)',
+  },
+}));
+
+const ProfessionalButton = styled(Button)(({ theme, variant, color = 'primary' }) => ({
+  borderRadius: 12,
+  fontWeight: 600,
+  padding: '12px 24px',
+  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+  textTransform: 'none',
+  fontSize: '0.95rem',
+  letterSpacing: '0.025em',
+  boxShadow: variant === 'contained' ? '0 4px 14px rgba(254, 249, 225, 0.25)' : 'none',
+  '&:hover': {
+    transform: 'translateY(-2px)',
+    boxShadow: variant === 'contained' ? '0 6px 20px rgba(254, 249, 225, 0.35)' : 'none',
+  },
+  '&:active': {
+    transform: 'translateY(0)',
+  },
+}));
+
+const ModernTextField = styled(TextField)(({ theme }) => ({
+  '& .MuiOutlinedInput-root': {
+    borderRadius: 12,
+    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+    backgroundColor: 'rgba(255, 255, 255, 0.8)',
+    '&:hover': {
+      transform: 'translateY(-1px)',
+      backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    },
+    '&.Mui-focused': {
+      transform: 'translateY(-1px)',
+      boxShadow: '0 4px 20px rgba(254, 249, 225, 0.25)',
+      backgroundColor: 'rgba(255, 255, 255, 1)',
+    },
+  },
+  '& .MuiInputLabel-root': {
+    fontWeight: 500,
+  },
+}));
 
 const PayslipOverall = forwardRef(({ employee }, ref) => {
   const payslipRef = ref || useRef();
@@ -35,20 +111,21 @@ const PayslipOverall = forwardRef(({ employee }, ref) => {
   const [sending, setSending] = useState(false);
   const [modal, setModal] = useState({
     open: false,
-    type: '', // "success" or "error"
-    action: '', // "create", "edit", "delete", "send"
+    type: '',
+    action: '',
   });
+
+  // Swapped color scheme matching ViewAttendanceRecord
+  const primaryColor = '#FEF9E1'; // Now cream is primary
+  const secondaryColor = '#FFF8E7'; // Light cream
+  const accentColor = '#6d2323'; // Burgundy is now accent
+  const accentDark = '#8B3333'; // Darker burgundy
+  const blackColor = '#1a1a1a';
+  const whiteColor = '#FFFFFF';
+  const grayColor = '#6c757d';
 
   const getAuthHeaders = () => {
     const token = localStorage.getItem('token');
-    console.log(
-      'Token from localStorage:',
-      token ? 'Token exists' : 'No token found'
-    );
-    if (token) {
-      console.log('Token length:', token.length);
-      console.log('Token starts with:', token.substring(0, 20) + '...');
-    }
     return {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -62,18 +139,8 @@ const PayslipOverall = forwardRef(({ employee }, ref) => {
   const [selectedMonth, setSelectedMonth] = useState('');
   const [filteredPayroll, setFilteredPayroll] = useState([]);
   const months = [
-    'Jan',
-    'Feb',
-    'Mar',
-    'Apr',
-    'May',
-    'Jun',
-    'Jul',
-    'Aug',
-    'Sep',
-    'Oct',
-    'Nov',
-    'Dec',
+    'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
   ];
 
   // Fetch payroll data
@@ -101,12 +168,10 @@ const PayslipOverall = forwardRef(({ employee }, ref) => {
   const downloadPDF = async () => {
     if (!displayEmployee) return;
 
-    // 1. Identify current month/year from displayEmployee
     const currentStart = new Date(displayEmployee.startDate);
-    const currentMonth = currentStart.getMonth(); // 0-11
+    const currentMonth = currentStart.getMonth();
     const currentYear = currentStart.getFullYear();
 
-    // 2. Collect last 3 months (current, prev, prev-1)
     const monthsToGet = [0, 1, 2].map((i) => {
       const d = new Date(currentYear, currentMonth - i, 1);
       return {
@@ -116,7 +181,6 @@ const PayslipOverall = forwardRef(({ employee }, ref) => {
       };
     });
 
-    // 3. Find payroll records (or null if missing)
     const records = monthsToGet.map(({ month, year, label }) => {
       const payroll = allPayroll.find(
         (p) =>
@@ -127,69 +191,92 @@ const PayslipOverall = forwardRef(({ employee }, ref) => {
       return { payroll, label };
     });
 
-    // 4. PDF setup
-    const pdf = new jsPDF('l', 'in', 'a4');
-    const contentWidth = 3.5;
-    const contentHeight = 7.1;
-    const gap = 0.2;
-
-    const totalWidth = contentWidth * 3 + gap * 2;
-    const pageWidth = pdf.internal.pageSize.getWidth();
-    const pageHeight = pdf.internal.pageSize.getHeight();
-    const yOffset = (pageHeight - contentHeight) / 2;
+    // PDF setup with A4 dimensions in mm
+    const pdf = new jsPDF('l', 'mm', 'a4'); // Landscape orientation, mm units
+    const pageWidth = pdf.internal.pageSize.getWidth(); // ~297mm for A4 landscape
+    const pageHeight = pdf.internal.pageSize.getHeight(); // ~210mm for A4 landscape
+    
+    // Calculate dimensions for 3 payslips side by side with proper margins
+    const margin = 10; // 10mm margin on each side
+    const gap = 5; // 5mm gap between payslips
+    const payslipWidth = (pageWidth - (2 * margin) - (2 * gap)) / 3; // Divide remaining width by 3
+    const payslipHeight = pageHeight - (2 * margin); // Use full height with margins
 
     const positions = [
-      (pageWidth - totalWidth) / 2,
-      (pageWidth - totalWidth) / 2 + contentWidth + gap,
-      (pageWidth - totalWidth) / 2 + (contentWidth + gap) * 2,
+      margin, // First payslip position
+      margin + payslipWidth + gap, // Second payslip position
+      margin + (2 * payslipWidth) + (2 * gap) // Third payslip position
     ];
 
-    // 5. Render each of the 3 slots
+    // Create a temporary container for proper rendering
+    const tempContainer = document.createElement('div');
+    tempContainer.style.position = 'absolute';
+    tempContainer.style.left = '-9999px';
+    tempContainer.style.width = '1200px'; // Fixed width for rendering
+    tempContainer.style.backgroundColor = '#fff';
+    document.body.appendChild(tempContainer);
+
     for (let i = 0; i < records.length; i++) {
       const { payroll, label } = records[i];
-
       let imgData;
 
       if (payroll) {
-        // ✅ Normal payslip
         setDisplayEmployee(payroll);
-        await new Promise((resolve) => setTimeout(resolve, 300)); // wait DOM update
-
+        await new Promise((resolve) => setTimeout(resolve, 300));
+        
+        // Clone the payslip element for rendering
         const input = payslipRef.current;
-        const canvas = await html2canvas(input, { scale: 2, useCORS: true });
+        const clone = input.cloneNode(true);
+        clone.style.width = '1200px';
+        clone.style.overflow = 'hidden';
+        tempContainer.innerHTML = '';
+        tempContainer.appendChild(clone);
+        
+        const canvas = await html2canvas(clone, { 
+          scale: 2, // Adjusted scale for better quality
+          useCORS: true,
+          width: 1200,
+          height: 1700,
+          windowWidth: 1200,
+          windowHeight: 1700,
+          logging: false, // Disable console logs
+        });
         imgData = canvas.toDataURL('image/png');
       } else {
-        // ❌ Missing → create "No Data" placeholder
+        // No Data placeholder with larger dimensions
         const placeholderCanvas = document.createElement('canvas');
-        placeholderCanvas.width = 600;
-        placeholderCanvas.height = 1200;
+        placeholderCanvas.width = 1200;
+        placeholderCanvas.height = 1700;
         const ctx = placeholderCanvas.getContext('2d');
-
+        
         ctx.fillStyle = '#fff';
         ctx.fillRect(0, 0, placeholderCanvas.width, placeholderCanvas.height);
-
+        
         ctx.fillStyle = '#6D2323';
-        ctx.font = 'bold 28px Arial';
+        ctx.font = 'bold 48px Arial';
         ctx.textAlign = 'center';
-        ctx.fillText('No Data', placeholderCanvas.width / 2, 500);
-        ctx.font = '20px Arial';
-        ctx.fillText(`for ${label}`, placeholderCanvas.width / 2, 550);
-
+        ctx.fillText('No Data', placeholderCanvas.width / 2, 750);
+        ctx.font = '32px Arial';
+        ctx.fillText(`for ${label}`, placeholderCanvas.width / 2, 820);
+        
         imgData = placeholderCanvas.toDataURL('image/png');
       }
 
-      // Add to PDF
+      // Add to PDF with proper dimensions
       pdf.addImage(
         imgData,
         'PNG',
         positions[i],
-        yOffset,
-        contentWidth,
-        contentHeight
+        margin, // Top margin
+        payslipWidth,
+        payslipHeight
       );
     }
 
-    // 6. Save file
+    // Clean up temporary container
+    document.body.removeChild(tempContainer);
+
+    // Save file
     pdf.save(`${displayEmployee.name || 'EARIST'}-Payslips-3Months.pdf`);
 
     setModal({
@@ -198,22 +285,18 @@ const PayslipOverall = forwardRef(({ employee }, ref) => {
       action: 'download',
     });
 
-    // Restore current employee in UI
-    setDisplayEmployee(employee); // Restore to original employee prop
+    setDisplayEmployee(employee);
   };
 
-  // Send Payslip via Gmail
   const sendPayslipViaGmail = async () => {
     if (!displayEmployee) return;
 
     setSending(true);
     try {
-      // 1. Identify current month/year
       const currentStart = new Date(displayEmployee.startDate);
       const currentMonth = currentStart.getMonth();
       const currentYear = currentStart.getFullYear();
 
-      // 2. Collect last 3 months (current + 2 previous)
       const monthsToGet = [0, 1, 2].map((i) => {
         const d = new Date(currentYear, currentMonth - i, 1);
         return {
@@ -223,7 +306,6 @@ const PayslipOverall = forwardRef(({ employee }, ref) => {
         };
       });
 
-      // 3. Find records
       const records = monthsToGet.map(({ month, year, label }) => {
         const payroll = allPayroll.find(
           (p) =>
@@ -234,24 +316,31 @@ const PayslipOverall = forwardRef(({ employee }, ref) => {
         return { payroll, label };
       });
 
-      // 4. PDF setup
-      const pdf = new jsPDF('l', 'in', 'a4');
-      const contentWidth = 3.5;
-      const contentHeight = 7.1;
-      const gap = 0.2;
-
-      const totalWidth = contentWidth * 3 + gap * 2;
+      // PDF setup with A4 dimensions in mm
+      const pdf = new jsPDF('l', 'mm', 'a4');
       const pageWidth = pdf.internal.pageSize.getWidth();
       const pageHeight = pdf.internal.pageSize.getHeight();
-      const yOffset = (pageHeight - contentHeight) / 2;
+      
+      // Calculate dimensions for 3 payslips side by side with proper margins
+      const margin = 10; // 10mm margin on each side
+      const gap = 5; // 5mm gap between payslips
+      const payslipWidth = (pageWidth - (2 * margin) - (2 * gap)) / 3;
+      const payslipHeight = pageHeight - (2 * margin);
 
       const positions = [
-        (pageWidth - totalWidth) / 2,
-        (pageWidth - totalWidth) / 2 + contentWidth + gap,
-        (pageWidth - totalWidth) / 2 + (contentWidth + gap) * 2,
+        margin,
+        margin + payslipWidth + gap,
+        margin + (2 * payslipWidth) + (2 * gap)
       ];
 
-      // 5. Render each slot (same as downloadPDF)
+      // Create a temporary container for proper rendering
+      const tempContainer = document.createElement('div');
+      tempContainer.style.position = 'absolute';
+      tempContainer.style.left = '-9999px';
+      tempContainer.style.width = '1200px';
+      tempContainer.style.backgroundColor = '#fff';
+      document.body.appendChild(tempContainer);
+
       for (let i = 0; i < records.length; i++) {
         const { payroll, label } = records[i];
         let imgData;
@@ -259,23 +348,38 @@ const PayslipOverall = forwardRef(({ employee }, ref) => {
         if (payroll) {
           setDisplayEmployee(payroll);
           await new Promise((resolve) => setTimeout(resolve, 300));
+          
+          // Clone the payslip element for rendering
           const input = payslipRef.current;
-          const canvas = await html2canvas(input, { scale: 2, useCORS: true });
+          const clone = input.cloneNode(true);
+          clone.style.width = '1200px';
+          clone.style.overflow = 'hidden';
+          tempContainer.innerHTML = '';
+          tempContainer.appendChild(clone);
+          
+          const canvas = await html2canvas(clone, { 
+            scale: 2,
+            useCORS: true,
+            width: 1200,
+            height: 1700,
+            windowWidth: 1200,
+            windowHeight: 1700,
+            logging: false,
+          });
           imgData = canvas.toDataURL('image/png');
         } else {
-          // No Data placeholder
           const placeholderCanvas = document.createElement('canvas');
-          placeholderCanvas.width = 600;
-          placeholderCanvas.height = 1200;
+          placeholderCanvas.width = 1200;
+          placeholderCanvas.height = 1700;
           const ctx = placeholderCanvas.getContext('2d');
           ctx.fillStyle = '#fff';
           ctx.fillRect(0, 0, placeholderCanvas.width, placeholderCanvas.height);
           ctx.fillStyle = '#6D2323';
-          ctx.font = 'bold 28px Arial';
+          ctx.font = 'bold 48px Arial';
           ctx.textAlign = 'center';
-          ctx.fillText('No Data', placeholderCanvas.width / 2, 500);
-          ctx.font = '20px Arial';
-          ctx.fillText(`for ${label}`, placeholderCanvas.width / 2, 550);
+          ctx.fillText('No Data', placeholderCanvas.width / 2, 750);
+          ctx.font = '32px Arial';
+          ctx.fillText(`for ${label}`, placeholderCanvas.width / 2, 820);
           imgData = placeholderCanvas.toDataURL('image/png');
         }
 
@@ -283,20 +387,21 @@ const PayslipOverall = forwardRef(({ employee }, ref) => {
           imgData,
           'PNG',
           positions[i],
-          yOffset,
-          contentWidth,
-          contentHeight
+          margin,
+          payslipWidth,
+          payslipHeight
         );
       }
 
-      // 6. Convert PDF to Blob
+      // Clean up temporary container
+      document.body.removeChild(tempContainer);
+
       const pdfBlob = pdf.output('blob');
       const formData = new FormData();
       formData.append('pdf', pdfBlob, `${displayEmployee.name}_payslip.pdf`);
       formData.append('name', displayEmployee.name);
       formData.append('employeeNumber', displayEmployee.employeeNumber);
 
-      // 7. Send to backend
       const res = await axios.post(
         `${API_BASE_URL}/SendPayslipRoute/send-payslip`,
         formData,
@@ -327,15 +432,14 @@ const PayslipOverall = forwardRef(({ employee }, ref) => {
       setModal({
         open: true,
         type: 'error',
-        message: 'An error occurred while sending the payslip.',
+        message: 'An error occurred while sending payslip.',
       });
     } finally {
-      setDisplayEmployee(employee); // Restore to original employee prop
+      setDisplayEmployee(employee);
       setSending(false);
     }
   };
 
-  // For Search
   const handleSearch = () => {
     if (!search.trim()) return;
 
@@ -347,8 +451,8 @@ const PayslipOverall = forwardRef(({ employee }, ref) => {
 
     if (result.length > 0) {
       setFilteredPayroll(result);
-      setDisplayEmployee(null); // don't auto-display
-      setSelectedMonth(''); // reset month filter
+      setDisplayEmployee(null);
+      setSelectedMonth('');
       setHasSearched(true);
     } else {
       setFilteredPayroll([]);
@@ -358,7 +462,6 @@ const PayslipOverall = forwardRef(({ employee }, ref) => {
     }
   };
 
-  // For Clear / Reset
   const clearSearch = () => {
     setSearch('');
     setHasSearched(false);
@@ -371,31 +474,27 @@ const PayslipOverall = forwardRef(({ employee }, ref) => {
     }
   };
 
-  // 📅 Month filter
   const handleMonthSelect = (month) => {
     setSelectedMonth(month);
     const monthIndex = months.indexOf(month);
 
     const result = allPayroll.filter(
-      // Filter from allPayroll, not filteredPayroll
       (emp) =>
         (hasSearched
           ? emp.employeeNumber.toString().includes(search.trim()) ||
             emp.name.toLowerCase().includes(search.trim().toLowerCase())
-          : true) && // Apply search filter if present
+          : true) &&
         new Date(emp.startDate).getMonth() === monthIndex
     );
 
     setDisplayEmployee(result.length > 0 ? result[0] : null);
   };
 
-  // Helper function to format currency, returning blank if 0 or falsy
   const formatCurrency = (value) => {
     const num = parseFloat(value);
     return !isNaN(num) && num !== 0 ? `₱${num.toLocaleString()}` : '';
   };
 
-  // Helper function to format rendered days/hours, returning blank if 0 or falsy
   const formatRenderedDays = (value) => {
     const totalHours = Number(value);
     if (!isNaN(totalHours) && totalHours > 0) {
@@ -407,535 +506,721 @@ const PayslipOverall = forwardRef(({ employee }, ref) => {
   };
 
   return (
-    <Container maxWidth="10%">
-      {/* Header Bar */}
-      <Paper
-        elevation={6}
-        sx={{
-          backgroundColor: 'rgb(109, 35, 35)',
-          color: '#fff',
-          p: 3,
-          borderRadius: 3,
-          borderEndEndRadius: '0',
-          borderEndStartRadius: '0',
-        }}
-      >
-        <Box display="flex" alignItems="center" gap={2}>
-          <WorkIcon fontSize="large" />
-          <Box>
-            <Typography variant="h4" fontWeight="bold">
-              Payslip Records
-            </Typography>
-            <Typography variant="body2" color="rgba(255,255,255,0.7)">
-              Generate and manage all employee payslip records
-            </Typography>
-          </Box>
-        </Box>
-      </Paper>
-
-      <Box
-        mb={2}
-        display="flex"
-        flexDirection="column"
-        gap={2}
-        sx={{
-          backgroundColor: 'white',
-          border: '2px solid #6D2323',
-          borderRadius: 2,
-          borderTopLeftRadius: 0,
-          borderTopRightRadius: 0,
-          p: 3,
-        }}
-      >
-        {/* Search Bar */}
-        <Box display="flex" alignItems="center" gap={2}>
-          <TextField
-            size="small"
-            variant="outlined"
-            placeholder="Search by Employee # or Name"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <Search sx={{ color: '#6D2323', marginRight: 1 }} />
-                </InputAdornment>
-              ),
-            }}
-            sx={{
-              backgroundColor: 'white',
-              borderRadius: 1,
-              flex: 1,
-            }}
-          />
-          <Box display="flex" gap={1}>
-            <Button
-              variant="contained"
-              onClick={handleSearch}
-              disabled={!search.trim()}
-              sx={{
-                backgroundColor: '#6D2323',
-                '&:hover': { backgroundColor: '#B22222' },
-                '&:disabled': { backgroundColor: '#ccc' },
-              }}
-            >
-              Search Employee
-            </Button>
-            <Button
-              variant="outlined"
-              onClick={clearSearch}
-              sx={{
-                borderColor: '#6D2323',
-                color: '#6D2323',
-                '&:hover': {
-                  borderColor: '#B22222',
-                  backgroundColor: '#f5f5f5',
-                },
-              }}
-            >
-              Clear
-            </Button>
-          </Box>
-        </Box>
-
-        {/* Month Filter */}
-        <Typography
-          variant="subtitle2"
-          color={hasSearched ? 'textSecondary' : 'textDisabled'}
-        >
-          Filter By Month {!hasSearched && '(Search for an employee first)'}
-        </Typography>
-        <Box display="flex" flexWrap="wrap" gap={1}>
-          {months.map((m) => (
-            <Button
-              key={m}
-              variant={m === selectedMonth ? 'contained' : 'outlined'}
-              size="small"
-              disabled={!hasSearched}
-              sx={{
-                backgroundColor: m === selectedMonth ? '#6D2323' : '#fff',
-                color:
-                  m === selectedMonth
-                    ? '#fff'
-                    : hasSearched
-                    ? '#6D2323'
-                    : '#ccc',
-                borderColor: hasSearched ? '#6D2323' : '#ccc',
-                '&:hover': {
-                  backgroundColor: hasSearched
-                    ? m === selectedMonth
-                      ? '#B22222'
-                      : '#f5f5f5'
-                    : '#fff',
-                },
-                '&:disabled': {
-                  backgroundColor: '#f5f5f5',
-                  color: '#ccc',
-                  borderColor: '#ccc',
-                },
-              }}
-              onClick={() => handleMonthSelect(m)}
-            >
-              {m}
-            </Button>
-          ))}
-        </Box>
-      </Box>
-
-      {/* Payslip Content */}
-      {loading ? (
-        <Box display="flex" justifyContent="center" mt={10}>
-          <CircularProgress sx={{ color: '#6D2323' }} />
-        </Box>
-      ) : error ? (
-        <Alert severity="error">{error}</Alert>
-      ) : displayEmployee ? (
-        <Paper
-          ref={payslipRef}
-          elevation={4}
-          sx={{
-            p: 4,
-            mt: 2,
-            border: '2px solid black',
-            borderRadius: 1,
-            backgroundColor: '#fff',
-            fontFamily: 'Arial, sans-serif',
-            position: 'relative',
-            overflow: 'hidden',
-          }}
-        >
-          <Box
-            component="img"
-            src={hrisLogo}
-            alt="Watermark"
-            sx={{
-              position: 'absolute',
-              top: '50%',
-              left: '50%',
-              transform: 'translate(-50%, -50%)',
-              opacity: 0.07,
-              width: '100%',
-              pointerEvents: 'none',
-              userSelect: 'none',
-            }}
-          />
-          
-          {/* Header */}
-          <Box
-            display="flex"
-            alignItems="center"
-            justifyContent="space-between"
-            mb={3}
-            sx={{
-              background: 'linear-gradient(to right, #6d2323, #a31d1d)',
-              borderRadius: '2px',
-              p: 2,
-            }}
-          >
-            <Box>
-              <img
-                src={logo}
-                alt="Logo"
-                style={{ width: '60px', marginLeft: '10px' }}
-              />
-            </Box>
-            <Box textAlign="center" flex={1} sx={{ color: 'white' }}>
-              <Typography variant="subtitle2" sx={{ fontStyle: 'italic', fontSize: '14px' }}>
-                Republic of the Philippines
-              </Typography>
-              <Typography
-                variant="h6"
-                fontWeight="bold"
-                sx={{ fontSize: '16px' }}
-              >
-                EULOGIO "AMANG" RODRIGUEZ INSTITUTE OF SCIENCE AND TECHNOLOGY
-              </Typography>
-              <Typography variant="body2" sx={{ fontSize: '12px' }}>
-                Nagtahan, Sampaloc Manila
-              </Typography>
-            </Box>
-            <Box>
-              <img src={hrisLogo} alt="HRIS Logo" style={{ width: '80px' }} />
-            </Box>
-          </Box>
-
-          {/* Employee Information Section */}
-          <Box
-            sx={{
-              border: '2px solid black',
-              mb: 2,
-            }}
-          >
-            <Box
-              sx={{
-                backgroundColor: '#6D2323',
-                color: 'white',
-                p: 1,
-                textAlign: 'center',
-                fontWeight: 'bold',
-                fontSize: '16px',
-              }}
-            >
-              EMPLOYEE INFORMATION
-            </Box>
-            <Box sx={{ p: 2 }}>
-              <Box display="flex" justifyContent="space-between" mb={1}>
-                <Typography sx={{ fontSize: '14px', fontWeight: 'bold' }}>
-                  PERIOD:
-                </Typography>
-                <Typography sx={{ fontSize: '14px', fontWeight: 'bold' }}>
-                  {(() => {
-                    if (!displayEmployee.startDate || !displayEmployee.endDate)
-                      return '—';
-                    const start = new Date(displayEmployee.startDate);
-                    const end = new Date(displayEmployee.endDate);
-                    const month = start
-                      .toLocaleString('en-US', { month: 'long' })
-                      .toUpperCase();
-                    return `${month} ${start.getDate()}-${end.getDate()} ${end.getFullYear()}`;
-                  })()}
-                </Typography>
-              </Box>
-              <Box display="flex" justifyContent="space-between" mb={1}>
-                <Typography sx={{ fontSize: '14px', fontWeight: 'bold' }}>
-                  EMPLOYEE NUMBER:
-                </Typography>
-                <Typography sx={{ fontSize: '14px', color: 'red', fontWeight: 'bold' }}>
-                  {displayEmployee.employeeNumber
-                    ? `${parseFloat(displayEmployee.employeeNumber)}`
-                    : ''}
-                </Typography>
-              </Box>
-              <Box display="flex" justifyContent="space-between" mb={1}>
-                <Typography sx={{ fontSize: '14px', fontWeight: 'bold' }}>
-                  NAME:
-                </Typography>
-                <Typography sx={{ fontSize: '14px', color: 'red', fontWeight: 'bold' }}>
-                  {displayEmployee.name ? `${displayEmployee.name}` : ''}
-                </Typography>
-              </Box>
-              <Box display="flex" justifyContent="space-between">
-                <Typography sx={{ fontSize: '14px', fontWeight: 'bold' }}>
-                  RENDERED DAYS:
-                </Typography>
-                <Typography sx={{ fontSize: '14px' }}>
-                  {formatRenderedDays(displayEmployee.rh)}
-                </Typography>
-              </Box>
-            </Box>
-          </Box>
-
-          {/* Salary Section */}
-          <Box
-            sx={{
-              border: '2px solid black',
-              mb: 2,
-            }}
-          >
-            <Box
-              sx={{
-                backgroundColor: '#6D2323',
-                color: 'white',
-                p: 1,
-                textAlign: 'center',
-                fontWeight: 'bold',
-                fontSize: '16px',
-              }}
-            >
-              SALARY DETAILS
-            </Box>
-            <Box sx={{ p: 2 }}>
-              <Box display="flex" justifyContent="space-between" mb={1}>
-                <Typography sx={{ fontSize: '14px', fontWeight: 'bold' }}>
-                  GROSS SALARY:
-                </Typography>
-                <Typography sx={{ fontSize: '14px' }}>
-                  {formatCurrency(displayEmployee.grossSalary)}
-                </Typography>
-              </Box>
-              <Box display="flex" justifyContent="space-between" mb={1}>
-                <Typography sx={{ fontSize: '14px', fontWeight: 'bold' }}>
-                  TOTAL DEDUCTIONS:
-                </Typography>
-                <Typography sx={{ fontSize: '14px' }}>
-                  {formatCurrency(displayEmployee.totalDeductions)}
-                </Typography>
-              </Box>
+    <Box sx={{ 
+      py: 4,
+      pt: -10,
+      width: '1600px', // Fixed width
+      mx: 'auto', // Center horizontally
+      overflow: 'hidden', // Prevent horizontal scroll
+    }}>
+      {/* Container with fixed width */}
+      <Box sx={{ px: 6 }}>
+        {/* Header */}
+        <Fade in timeout={500}>
+          <Box sx={{ mb: 4 }}>
+            <GlassCard>
               <Box
-                display="flex"
-                justifyContent="space-between"
                 sx={{
-                  borderTop: '2px solid black',
-                  pt: 1,
-                  mt: 1,
+                  p: 5,
+                  background: `linear-gradient(135deg, ${primaryColor} 0%, ${secondaryColor} 100%)`,
+                  color: accentColor,
+                  position: 'relative',
+                  overflow: 'hidden',
                 }}
               >
-                <Typography sx={{ fontSize: '16px', fontWeight: 'bold' }}>
-                  NET SALARY:
-                </Typography>
-                <Typography sx={{ fontSize: '16px', fontWeight: 'bold', color: '#6D2323' }}>
-                  {formatCurrency(displayEmployee.netSalary)}
-                </Typography>
+                {/* Decorative elements */}
+                <Box
+                  sx={{
+                    position: 'absolute',
+                    top: -50,
+                    right: -50,
+                    width: 200,
+                    height: 200,
+                    background: 'radial-gradient(circle, rgba(109,35,35,0.1) 0%, rgba(109,35,35,0) 70%)',
+                  }}
+                />
+                <Box
+                  sx={{
+                    position: 'absolute',
+                    bottom: -30,
+                    left: '30%',
+                    width: 150,
+                    height: 150,
+                    background: 'radial-gradient(circle, rgba(109,35,35,0.08) 0%, rgba(109,35,35,0) 70%)',
+                  }}
+                />
+                
+                <Box display="flex" alignItems="center" justifyContent="space-between" position="relative" zIndex={1}>
+                  <Box display="flex" alignItems="center">
+                    <Avatar 
+                      sx={{ 
+                        bgcolor: 'rgba(109,35,35,0.15)', 
+                        mr: 4, 
+                        width: 64,
+                        height: 64,
+                        boxShadow: '0 8px 24px rgba(109,35,35,0.15)'
+                      }}
+                    >
+                      <WorkIcon sx={{color: accentColor, fontSize: 32 }} />
+                    </Avatar>
+                    <Box>
+                      <Typography variant="h4" component="h1" sx={{ fontWeight: 700, mb: 1, lineHeight: 1.2, color: accentColor }}>
+                        Payslip Records
+                      </Typography>
+                      <Typography variant="body1" sx={{ opacity: 0.8, fontWeight: 400, color: accentDark }}>
+                        Payroll overall records management
+                      </Typography>
+                    </Box>
+                  </Box>
+                  <Box display="flex" alignItems="center" gap={2}>
+                    <Tooltip title="Refresh Data">
+                      <IconButton 
+                        onClick={() => window.location.reload()}
+                        sx={{ 
+                          bgcolor: 'rgba(109,35,35,0.1)', 
+                          '&:hover': { bgcolor: 'rgba(109,35,35,0.2)' },
+                          color: accentColor,
+                          width: 48,
+                          height: 48,
+                        }}
+                      >
+                        <Refresh sx={{ fontSize: 24 }} />
+                      </IconButton>
+                    </Tooltip>
+                  </Box>
+                </Box>
               </Box>
-            </Box>
+            </GlassCard>
           </Box>
+        </Fade>
 
-          {/* Deductions Section */}
-          <Box
-            sx={{
-              border: '2px solid black',
-              mb: 2,
-            }}
-          >
-            <Box
-              sx={{
-                backgroundColor: '#6D2323',
-                color: 'white',
-                p: 1,
-                textAlign: 'center',
-                fontWeight: 'bold',
-                fontSize: '16px',
+        {/* Loading Backdrop */}
+        <Backdrop
+          sx={{ color: primaryColor, zIndex: (theme) => theme.zIndex.drawer + 1 }}
+          open={loading}
+        >
+          <Box sx={{ textAlign: 'center' }}>
+            <CircularProgress color="inherit" size={60} thickness={4} />
+            <Typography variant="h6" sx={{ mt: 2, color: primaryColor }}>
+              Initializing Payroll System...
+            </Typography>
+            <LinearProgress 
+              sx={{ 
+                width: 400, 
+                mt: 3,
+                height: 8,
+                borderRadius: 4,
+                backgroundColor: alpha(accentColor, 0.2)
+              }} 
+            />
+          </Box>
+        </Backdrop>
+
+        {error && (
+          <Fade in timeout={400}>
+            <Alert 
+              severity="error" 
+              sx={{ 
+                mb: 4, 
+                borderRadius: 4,
+                fontSize: '1.1rem',
+                '& .MuiAlert-message': { fontWeight: 600 }
               }}
             >
-              DEDUCTIONS
-            </Box>
-            <Box sx={{ p: 2 }}>
-              <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1 }}>
-                {[
-                  { label: 'Withholding Tax', value: displayEmployee.withholdingTax },
-                  { label: 'L. Ret', value: displayEmployee.personalLifeRetIns },
-                  { label: 'GSIS Salary Loan', value: displayEmployee.gsisSalaryLoan },
-                  { label: 'Policy', value: displayEmployee.gsisPolicyLoan },
-                  { label: 'Housing Loan', value: displayEmployee.gsisHousingLoan },
-                  { label: 'GSIS Arrears', value: displayEmployee.gsisArrears },
-                  { label: 'GFAL', value: displayEmployee.gfal },
-                  { label: 'CPL', value: displayEmployee.cpl },
-                  { label: 'MPL', value: displayEmployee.mpl },
-                  { label: 'MPL Lite', value: displayEmployee.mplLite },
-                  { label: 'ELA', value: displayEmployee.ela },
-                  { label: 'SSS', value: displayEmployee.sss },
-                  { label: 'Pag-IBIG', value: displayEmployee.pagibigFundCont },
-                  { label: 'PhilHealth', value: displayEmployee.PhilHealthContribution },
-                  { label: 'PhilHealth (Diff)', value: displayEmployee.philhealthDiff },
-                  { label: 'Pag-IBIG 2', value: displayEmployee.pagibig2 },
-                  { label: 'LBP Loan', value: displayEmployee.lbpLoan },
-                  { label: 'MTSLAI', value: displayEmployee.mtslai },
-                  { label: 'ECC', value: displayEmployee.ecc },
-                  { label: 'To Be Refunded', value: displayEmployee.toBeRefunded },
-                  { label: 'FEU', value: displayEmployee.feu },
-                  { label: 'ESLAI', value: displayEmployee.eslai },
-                  { label: 'ABS', value: displayEmployee.abs },
-                ].map((item, index) => (
-                  <Box
-                    key={index}
-                    display="flex"
-                    justifyContent="space-between"
-                    sx={{ borderBottom: '1px solid #e0e0e0', pb: 0.5, mb: 0.5 }}
+              {error}
+            </Alert>
+          </Fade>
+        )}
+
+        {/* Controls */}
+        <Fade in timeout={700}>
+          <GlassCard sx={{ mb: 4 }}>
+            <CardContent sx={{ p: 4 }}>
+              <Grid container spacing={4}>
+                <Grid item xs={12} md={9}>
+                  <ModernTextField
+                    fullWidth
+                    label="Search Employee by Name or ID"
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <Person sx={{ color: accentColor, fontSize: 24 }} />
+                        </InputAdornment>
+                      ),
+                    }}
+                    sx={{
+                      '& .MuiInputBase-input': {
+                        fontSize: '1.1rem',
+                        py: 2,
+                      }
+                    }}
+                  />
+                </Grid>
+                <Grid item xs={12} md={3}>
+                  <Stack direction="row" spacing={2}>
+                    <ProfessionalButton
+                      variant="contained"
+                      onClick={handleSearch}
+                      disabled={!search.trim()}
+                      sx={{
+                        backgroundColor: accentColor,
+                        color: primaryColor,
+                        '&:hover': { backgroundColor: accentDark },
+                        '&:disabled': { backgroundColor: grayColor },
+                        flex: 1,
+                        fontSize: '1.1rem'
+                      }}
+                    >
+                      Search
+                    </ProfessionalButton>
+                    <ProfessionalButton
+                      variant="outlined"
+                      onClick={clearSearch}
+                      sx={{
+                        borderColor: accentColor,
+                        color: accentColor,
+                        "&:hover": {
+                          backgroundColor: alpha(accentColor, 0.1),
+                        },
+                        fontSize: '1.1rem'
+                      }}
+                    >
+                      Clear
+                    </ProfessionalButton>
+                  </Stack>
+                </Grid>
+              </Grid>
+
+              <Divider sx={{ my: 4, borderColor: 'rgba(109,35,35,0.1)' }} />
+
+              <Typography variant="h5" sx={{ fontWeight: 600, mb: 3, color: accentColor, display: 'flex', alignItems: 'center' }}>
+                <CalendarToday sx={{ mr: 2, fontSize: 24 }} />
+                Select Month {!hasSearched && <span style={{ marginLeft: '12px', fontWeight: 400, opacity: 0.7 }}>(Search required first)</span>}
+              </Typography>
+              
+              <Box
+                sx={{
+                  display: "grid",
+                  gridTemplateColumns: {
+                    xs: "repeat(3, 1fr)",
+                    sm: "repeat(6, 1fr)",
+                    md: "repeat(12, 1fr)",
+                  },
+                  gap: 1.5,
+                }}
+              >
+                {months.map((month) => (
+                  <ProfessionalButton
+                    key={month}
+                    variant={month === selectedMonth ? 'contained' : 'outlined'}
+                    size="small"
+                    disabled={!hasSearched}
+                    onClick={() => handleMonthSelect(month)}
+                    sx={{
+                      borderColor: hasSearched ? accentColor : grayColor,
+                      color: month === selectedMonth ? primaryColor : (hasSearched ? accentColor : grayColor),
+                      minWidth: "auto",
+                      fontSize: "0.875rem",
+                      fontWeight: 500,
+                      py: 1,
+                      backgroundColor: month === selectedMonth ? accentColor : 'transparent',
+                      "&:hover": {
+                        backgroundColor: hasSearched
+                          ? month === selectedMonth
+                            ? accentDark
+                            : alpha(accentColor, 0.1)
+                          : 'transparent',
+                      },
+                      "&:disabled": {
+                        backgroundColor: 'transparent',
+                        color: grayColor,
+                        borderColor: grayColor,
+                        opacity: 0.5
+                      },
+                    }}
                   >
-                    <Typography sx={{ fontSize: '12px' }}>{item.label}:</Typography>
-                    <Typography sx={{ fontSize: '12px' }}>
-                      {formatCurrency(item.value)}
-                    </Typography>
-                  </Box>
+                    {month}
+                  </ProfessionalButton>
                 ))}
               </Box>
-            </Box>
-          </Box>
+            </CardContent>
+          </GlassCard>
+        </Fade>
 
-          {/* Payment Section */}
-          <Box
-            sx={{
-              border: '2px solid black',
-              mb: 2,
-            }}
-          >
-            <Box
-              sx={{
-                backgroundColor: '#6D2323',
-                color: 'white',
-                p: 1,
-                textAlign: 'center',
-                fontWeight: 'bold',
-                fontSize: '16px',
-              }}
-            >
-              PAYMENT BREAKDOWN
-            </Box>
-            <Box sx={{ p: 2 }}>
-              <Box display="flex" justifyContent="space-between" mb={1}>
-                <Typography sx={{ fontSize: '14px', fontWeight: 'bold' }}>
-                  1st Quincena:
-                </Typography>
-                <Typography sx={{ fontSize: '14px' }}>
-                  {formatCurrency(displayEmployee.pay1st)}
-                </Typography>
+        {/* Payslip Display */}
+        {displayEmployee ? (
+          <Fade in timeout={900}>
+            <GlassCard sx={{ mb: 4 }}>
+              <Box sx={{ 
+                p: 4, 
+                background: `linear-gradient(135deg, ${primaryColor} 0%, ${secondaryColor} 100%)`, 
+                color: accentColor,
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center'
+              }}>
+                <Box>
+                  <Typography variant="body2" sx={{ opacity: 0.8, mb: 1, textTransform: 'uppercase', letterSpacing: '0.1em', color: accentDark }}>
+                    Employee Payslip Record
+                  </Typography>
+                  <Typography variant="h4" sx={{ fontWeight: 600, mb: 1, color: accentColor }}>
+                    {displayEmployee.name}
+                  </Typography>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mt: 2 }}>
+                    <Chip 
+                      icon={<Person sx={{ fontSize: 20 }} />}
+                      label={`ID: ${displayEmployee.employeeNumber}`}
+                      size="small"
+                      sx={{ 
+                        bgcolor: 'rgba(109,35,35,0.15)', 
+                        color: accentColor,
+                        fontWeight: 500
+                      }} 
+                    />
+                    <Chip 
+                      icon={<CalendarToday sx={{ fontSize: 20 }} />}
+                      label={(() => {
+                        if (!displayEmployee.startDate || !displayEmployee.endDate) return '—';
+                        const start = new Date(displayEmployee.startDate);
+                        const end = new Date(displayEmployee.endDate);
+                        const month = start.toLocaleString('en-US', { month: 'short' }).toUpperCase();
+                        return `${month} ${start.getDate()}-${end.getDate()}`;
+                      })()}
+                      size="small"
+                      sx={{ 
+                        bgcolor: 'rgba(109,35,35,0.15)', 
+                        color: accentColor,
+                        fontWeight: 500
+                      }} 
+                    />
+                  </Box>
+                </Box>
+                <Avatar 
+                  sx={{ 
+                    bgcolor: 'rgba(109,35,35,0.15)', 
+                    width: 80, 
+                    height: 80,
+                    fontSize: '2rem',
+                    fontWeight: 600,
+                    color: accentColor
+                  }}
+                >
+                  {displayEmployee.name ? displayEmployee.name.split(' ').map(n => n[0]).join('').toUpperCase() : 'E'}
+                </Avatar>
               </Box>
-              <Box display="flex" justifyContent="space-between">
-                <Typography sx={{ fontSize: '14px', fontWeight: 'bold' }}>
-                  2nd Quincena:
+
+              <Paper
+                ref={payslipRef}
+                elevation={6}
+                sx={{
+                  p: 5,
+                  mt: 3,
+                  border: '3px solid black',
+                  borderRadius: 2,
+                  backgroundColor: '#fff',
+                  fontFamily: 'Arial, sans-serif',
+                  position: 'relative',
+                  overflow: 'hidden',
+                  // Much larger for frontend display
+                  width: '100%',
+                  maxWidth: '100%',
+                  margin: '0 auto',
+                  fontSize: '1.1rem',
+                  boxSizing: 'border-box', // Added to prevent overflow
+                }}
+              >
+                <Box
+                  component="img"
+                  src={hrisLogo}
+                  alt="Watermark"
+                  sx={{
+                    position: 'absolute',
+                    top: '50%',
+                    left: '50%',
+                    transform: 'translate(-50%, -50%)',
+                    opacity: 0.07,
+                    width: '100%',
+                    pointerEvents: 'none',
+                    userSelect: 'none',
+                  }}
+                />
+                
+                {/* Header */}
+                <Box
+                  display="flex"
+                  alignItems="center"
+                  justifyContent="space-between"
+                  mb={3}
+                  sx={{
+                    background: 'linear-gradient(to right, #6d2323, #a31d1d)',
+                    borderRadius: '3px',
+                    p: 2,
+                  }}
+                >
+                  <Box>
+                    <img
+                      src={logo}
+                      alt="Logo"
+                      style={{ width: '80px', marginLeft: '15px' }}
+                    />
+                  </Box>
+                  <Box textAlign="center" flex={1} sx={{ color: 'white' }}>
+                    <Typography variant="h5" sx={{ fontStyle: 'italic', fontSize: '16px' }}>
+                      Republic of the Philippines
+                    </Typography>
+                    <Typography
+                      variant="h4"
+                      fontWeight="bold"
+                      sx={{ fontSize: '18px', lineHeight: 1.3 }}
+                    >
+                      EULOGIO "AMANG" RODRIGUEZ INSTITUTE OF SCIENCE AND TECHNOLOGY
+                    </Typography>
+                    <Typography variant="h6" sx={{ fontSize: '14px' }}>
+                      Nagtahan, Sampaloc Manila
+                    </Typography>
+                  </Box>
+                  <Box>
+                    <img src={hrisLogo} alt="HRIS Logo" style={{ width: '100px' }} />
+                  </Box>
+                </Box>
+
+                {/* Employee Information Section */}
+                <Box sx={{ border: '3px solid black', mb: 3 }}>
+                  <Box sx={{ backgroundColor: '#6D2323', color: 'white', p: 2, textAlign: 'center', fontWeight: 'bold', fontSize: '18px' }}>
+                    EMPLOYEE INFORMATION
+                  </Box>
+                  <Box sx={{ p: 3 }}>
+                    <Grid container spacing={2}>
+                      <Grid item xs={12} md={6}>
+                        <Typography sx={{ fontSize: '16px', fontWeight: 'bold', mb: 1, color: accentColor }}>
+                          PERIOD:
+                        </Typography>
+                        <Typography sx={{ fontSize: '16px', fontWeight: 'bold' }}>
+                          {(() => {
+                            if (!displayEmployee.startDate || !displayEmployee.endDate)
+                              return '—';
+                            const start = new Date(displayEmployee.startDate);
+                            const end = new Date(displayEmployee.endDate);
+                            const month = start
+                              .toLocaleString('en-US', { month: 'long' })
+                              .toUpperCase();
+                            return `${month} ${start.getDate()}-${end.getDate()} ${end.getFullYear()}`;
+                          })()}
+                        </Typography>
+                      </Grid>
+                      <Grid item xs={12} md={6}>
+                        <Typography sx={{ fontSize: '16px', fontWeight: 'bold', mb: 1, color: accentColor }}>
+                          EMPLOYEE NUMBER:
+                        </Typography>
+                        <Typography sx={{ fontSize: '16px', color: 'red', fontWeight: 'bold' }}>
+                          {displayEmployee.employeeNumber
+                            ? `${parseFloat(displayEmployee.employeeNumber)}`
+                            : ''}
+                        </Typography>
+                      </Grid>
+                      <Grid item xs={12} md={6}>
+                        <Typography sx={{ fontSize: '16px', fontWeight: 'bold', mb: 1, color: accentColor }}>
+                          NAME:
+                        </Typography>
+                        <Typography sx={{ fontSize: '16px', color: 'red', fontWeight: 'bold' }}>
+                          {displayEmployee.name ? `${displayEmployee.name}` : ''}
+                        </Typography>
+                      </Grid>
+                      <Grid item xs={12} md={6}>
+                        <Typography sx={{ fontSize: '16px', fontWeight: 'bold', mb: 1, color: accentColor }}>
+                          RENDERED DAYS:
+                        </Typography>
+                        <Typography sx={{ fontSize: '16px' }}>
+                          {formatRenderedDays(displayEmployee.rh)}
+                        </Typography>
+                      </Grid>
+                    </Grid>
+                  </Box>
+                </Box>
+
+                {/* Salary Section */}
+                <Box sx={{ border: '3px solid black', mb: 3 }}>
+                  <Box sx={{ backgroundColor: '#6D2323', color: 'white', p: 2, textAlign: 'center', fontWeight: 'bold', fontSize: '18px' }}>
+                    SALARY DETAILS
+                  </Box>
+                  <Box sx={{ p: 3 }}>
+                    <Grid container spacing={3}>
+                      <Grid item xs={12} md={4}>
+                        <Typography sx={{ fontSize: '16px', fontWeight: 'bold', mb: 1, color: accentColor }}>
+                          GROSS SALARY:
+                        </Typography>
+                        <Typography sx={{ fontSize: '16px' }}>
+                          {formatCurrency(displayEmployee.grossSalary)}
+                        </Typography>
+                      </Grid>
+                      <Grid item xs={12} md={4}>
+                        <Typography sx={{ fontSize: '16px', fontWeight: 'bold', mb: 1, color: accentColor }}>
+                          TOTAL DEDUCTIONS:
+                        </Typography>
+                        <Typography sx={{ fontSize: '16px' }}>
+                          {formatCurrency(displayEmployee.totalDeductions)}
+                        </Typography>
+                      </Grid>
+                      <Grid item xs={12} md={4}>
+                        <Box sx={{ border: '3px solid #6d2323', borderRadius: 2, p: 2, textAlign: 'center', background: 'rgba(109, 35, 35, 0.05)' }}>
+                          <Typography sx={{ fontSize: '18px', fontWeight: 'bold', mb: 1, color: accentColor }}>
+                            NET SALARY:
+                          </Typography>
+                          <Typography sx={{ fontSize: '20px', fontWeight: 'bold', color: '#6d2323' }}>
+                            {formatCurrency(displayEmployee.netSalary)}
+                          </Typography>
+                        </Box>
+                      </Grid>
+                    </Grid>
+                  </Box>
+                </Box>
+
+                {/* Deductions Section */}
+                <Box sx={{ border: '3px solid black', mb: 3 }}>
+                  <Box sx={{ backgroundColor: '#6D2323', color: 'white', p: 2, textAlign: 'center', fontWeight: 'bold', fontSize: '18px' }}>
+                    DEDUCTIONS BREAKDOWN
+                  </Box>
+                  <Box sx={{ p: 3 }}>
+                    <Grid container spacing={2}>
+                      {[
+                        { label: 'Withholding Tax', value: displayEmployee.withholdingTax },
+                        { label: 'Life & Retirement', value: displayEmployee.personalLifeRetIns },
+                        { label: 'GSIS Salary Loan', value: displayEmployee.gsisSalaryLoan },
+                        { label: 'Policy Loan', value: displayEmployee.gsisPolicyLoan },
+                        { label: 'Housing Loan', value: displayEmployee.gsisHousingLoan },
+                        { label: 'GSIS Arrears', value: displayEmployee.gsisArrears },
+                        { label: 'GFAL', value: displayEmployee.gfal },
+                        { label: 'CPL', value: displayEmployee.cpl },
+                        { label: 'MPL', value: displayEmployee.mpl },
+                        { label: 'MPL Lite', value: displayEmployee.mplLite },
+                        { label: 'ELA', value: displayEmployee.ela },
+                        { label: 'SSS', value: displayEmployee.sss },
+                        { label: 'Pag-IBIG', value: displayEmployee.pagibigFundCont },
+                        { label: 'PhilHealth', value: displayEmployee.PhilHealthContribution },
+                        { label: 'PhilHealth Diff', value: displayEmployee.philhealthDiff },
+                        { label: 'Pag-IBIG 2', value: displayEmployee.pagibig2 },
+                        { label: 'LBP Loan', value: displayEmployee.lbpLoan },
+                        { label: 'MTSLAI', value: displayEmployee.mtslai },
+                        { label: 'ECC', value: displayEmployee.ecc },
+                        { label: 'To Be Refunded', value: displayEmployee.toBeRefunded },
+                        { label: 'FEU', value: displayEmployee.feu },
+                        { label: 'ESLAI', value: displayEmployee.eslai },
+                        { label: 'ABS', value: displayEmployee.abs },
+                      ].map((item, index) => (
+                        <Grid item xs={12} sm={6} md={4} key={index}>
+                          <Box sx={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px', borderBottom: '1px solid #e0e0e0', pb: 1, mb: 1 }}>
+                            <Typography sx={{ fontWeight: 600 }}>{item.label}:</Typography>
+                            <Typography>{formatCurrency(item.value)}</Typography>
+                          </Box>
+                        </Grid>
+                      ))}
+                    </Grid>
+                  </Box>
+                </Box>
+
+                {/* Payment Section */}
+                <Box sx={{ border: '3px solid black', mb: 3 }}>
+                  <Box sx={{ backgroundColor: '#6D2323', color: 'white', p: 2, textAlign: 'center', fontWeight: 'bold', fontSize: '18px' }}>
+                    PAYMENT BREAKDOWN
+                  </Box>
+                  <Box sx={{ p: 3 }}>
+                    <Grid container spacing={3}>
+                      <Grid item xs={12} md={6}>
+                        <Typography sx={{ fontSize: '16px', fontWeight: 'bold', mb: 1, color: accentColor }}>
+                          1st Quincena:
+                        </Typography>
+                        <Typography sx={{ fontSize: '16px' }}>
+                          {formatCurrency(displayEmployee.pay1st)}
+                        </Typography>
+                      </Grid>
+                      <Grid item xs={12} md={6}>
+                        <Typography sx={{ fontSize: '16px', fontWeight: 'bold', mb: 1, color: accentColor }}>
+                          2nd Quincena:
+                        </Typography>
+                        <Typography sx={{ fontSize: '16px' }}>
+                          {formatCurrency(displayEmployee.pay2nd)}
+                        </Typography>
+                      </Grid>
+                    </Grid>
+                  </Box>
+                </Box>
+
+                {/* Footer */}
+                <Box textAlign="center" mt={4} p={3}>
+                  <Typography sx={{ fontSize: '16px', fontWeight: 'bold', mb: 2 }}>
+                    Certified Correct:
+                  </Typography>
+                  <Typography sx={{ fontSize: '18px', fontWeight: 'bold', mb: 1 }}>
+                    GIOVANNI L. AHUNIN
+                  </Typography>
+                  <Typography sx={{ fontSize: '14px' }}>
+                    Director, Administrative Services
+                  </Typography>
+                </Box>
+              </Paper>
+            </GlassCard>
+          </Fade>
+        ) : selectedMonth ? (
+          <Fade in timeout={600}>
+            <GlassCard sx={{ mb: 4 }}>
+              <CardContent sx={{ p: 4, textAlign: 'center' }}>
+                <Avatar 
+                  sx={{ 
+                    bgcolor: 'rgba(109,35,35,0.1)', 
+                    mx: 'auto', 
+                    mb: 3,
+                    width: 80, 
+                    height: 80,
+                    fontSize: '2rem',
+                    fontWeight: 600,
+                    color: accentColor
+                  }}
+                >
+                  <CalendarToday sx={{ fontSize: 40 }} />
+                </Avatar>
+                <Typography variant="h5" color={accentColor} gutterBottom sx={{ fontWeight: 600 }}>
+                  No Payslip Found
                 </Typography>
-                <Typography sx={{ fontSize: '14px' }}>
-                  {formatCurrency(displayEmployee.pay2nd)}
+                <Typography variant="body1" color={grayColor} sx={{ mb: 3 }}>
+                  No payslip records found for <b>{selectedMonth}</b>
                 </Typography>
-              </Box>
-            </Box>
-          </Box>
+                <Chip 
+                  label="Please select a different period"
+                  size="medium"
+                  sx={{ 
+                    bgcolor: 'rgba(109,35,35,0.1)', 
+                    color: accentColor,
+                    fontWeight: 600,
+                    fontSize: '1rem'
+                  }} 
+                />
+              </CardContent>
+            </GlassCard>
+          </Fade>
+        ) : hasSearched ? (
+          <Fade in timeout={600}>
+            <GlassCard sx={{ mb: 4 }}>
+              <CardContent sx={{ p: 4, textAlign: 'center' }}>
+                <Avatar 
+                  sx={{ 
+                    bgcolor: 'rgba(109,35,35,0.1)', 
+                    mx: 'auto', 
+                    mb: 3,
+                    width: 80, 
+                    height: 80,
+                    fontSize: '2rem',
+                    fontWeight: 600,
+                    color: accentColor
+                  }}
+                >
+                  <CalendarToday sx={{ fontSize: 40 }} />
+                </Avatar>
+                <Typography variant="h5" color={accentColor} gutterBottom sx={{ fontWeight: 600 }}>
+                  Select Pay Period
+                </Typography>
+                <Typography variant="body1" color={grayColor}>
+                  Please select a month to view payslip
+                </Typography>
+              </CardContent>
+            </GlassCard>
+          </Fade>
+        ) : null}
 
-          {/* Footer */}
-          <Box textAlign="center" mt={3}>
-            <Typography sx={{ fontSize: '14px', fontWeight: 'bold', mb: 1 }}>
-              Certified Correct:
-            </Typography>
-            <Typography sx={{ fontSize: '14px', fontWeight: 'bold' }}>
-              GIOVANNI L. AHUNIN
-            </Typography>
-            <Typography sx={{ fontSize: '12px' }}>
-              Director, Administrative Services
-            </Typography>
-          </Box>
-        </Paper>
-      ) : selectedMonth ? (
-        <Alert
-          severity="info"
-          sx={{
-            mt: 3,
-            backgroundColor: 'rgba(255, 255, 255, 0.8)',
-            border: '1px solid #6d2323',
-            color: '#6d2323',
-            '& .MuiAlert-icon': { color: '#6D2323' },
-          }}
-        >
-          There's no payslip saved for the month of <b>{selectedMonth}.</b>
-        </Alert>
-      ) : hasSearched ? (
-        <Alert
-          severity="info"
-          sx={{
-            mt: 3,
-            backgroundColor: 'rgba(109, 35, 35, 0.1)',
-            color: '#6D2323',
-            '& .MuiAlert-icon': { color: '#6D2323' },
-          }}
-        >
-          Please select a month to view your payslip.
-        </Alert>
-      ) : null}
-
-      {/* Action Buttons */}
-      {displayEmployee && (
-        <Box display="flex" justifyContent="center" mt={2} gap={2} mb={3}>
-          <Button
-            variant="contained"
-            onClick={downloadPDF}
-            sx={{
-              backgroundColor: '#6D2323',
-              '&:hover': { backgroundColor: '#B22222' },
-              px: 4,
-              py: 1.5,
-              fontSize: '1.1rem',
-            }}
-          >
-            Download Payslip | PDF
-          </Button>
-
-          <Button
-            variant="contained"
-            onClick={sendPayslipViaGmail}
-            disabled={sending}
-            sx={{
-              backgroundColor: '#000000',
-              '&:hover': { backgroundColor: '#2f2f2f' },
-              px: 4,
-              py: 1.5,
-              fontSize: '1.1rem',
-            }}
-          >
-            {sending ? (
-              <CircularProgress size={24} sx={{ color: 'white' }} />
-            ) : (
-              'Send via Gmail'
-            )}
-          </Button>
-        </Box>
-      )}
-      <Dialog
-        open={modal.open}
-        onClose={() => setModal({ ...modal, open: false })}
-      >
-        <SuccessfulOverlay
-          open={modal.open && modal.type === 'success'}
-          action={modal.action}
-          onClose={() => setModal({ ...modal, open: false })}
-        />
-
-        {modal.type === 'error' && (
-          <div style={{ color: 'red', padding: '20px' }}>
-            {modal.message || 'An error occurred'}
-          </div>
+        {/* Action Buttons */}
+        {displayEmployee && (
+          <Fade in timeout={1100}>
+            <GlassCard>
+              <CardContent sx={{ p: 5 }}>
+                <Grid container spacing={3}>
+                  <Grid item xs={12} md={6}>
+                    <ProfessionalButton
+                      variant="contained"
+                      fullWidth
+                      startIcon={<Download sx={{ fontSize: 28 }} />}
+                      onClick={downloadPDF}
+                      sx={{
+                        py: 3,
+                        backgroundColor: accentColor,
+                        color: primaryColor,
+                        fontSize: '1.2rem',
+                        '&:hover': {
+                          backgroundColor: accentDark,
+                        }
+                      }}
+                    >
+                      Download PDF Document
+                    </ProfessionalButton>
+                  </Grid>
+                  <Grid item xs={12} md={6}>
+                    <ProfessionalButton
+                      variant="contained"
+                      fullWidth
+                      startIcon={sending ? <CircularProgress size={28} sx={{ color: primaryColor }} /> : <Send sx={{ fontSize: 28 }} />}
+                      onClick={sendPayslipViaGmail}
+                      disabled={sending}
+                      sx={{
+                        py: 3,
+                        backgroundColor: blackColor,
+                        color: primaryColor,
+                        fontSize: '1.2rem',
+                        '&:hover': {
+                          backgroundColor: '#2f2f2f',
+                        }
+                      }}
+                    >
+                      {sending ? 'Processing...' : 'Send via Email'}
+                    </ProfessionalButton>
+                  </Grid>
+                </Grid>
+              </CardContent>
+            </GlassCard>
+          </Fade>
         )}
-      </Dialog>
-    </Container>
+        
+        <Dialog
+          open={modal.open}
+          onClose={() => setModal({ ...modal, open: false })}
+          PaperProps={{
+            sx: {
+              borderRadius: 4,
+              boxShadow: '0 20px 60px rgba(0,0,0,0.3)'
+            }
+          }}
+        >
+          <SuccessfulOverlay
+            open={modal.open && modal.type === 'success'}
+            action={modal.action}
+            onClose={() => setModal({ ...modal, open: false })}
+          />
+
+          {modal.type === 'error' && (
+            <Box sx={{ p: 4, textAlign: 'center' }}>
+              <Avatar 
+                sx={{ 
+                  bgcolor: 'rgba(244, 67, 54, 0.1)', 
+                  mx: 'auto', 
+                  mb: 2,
+                  width: 60, 
+                  height: 60,
+                  color: '#f44336'
+                }}
+              >
+                <Alert severity="error" sx={{ fontSize: 30 }} />
+              </Avatar>
+              <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
+                Error Occurred
+              </Typography>
+              <Typography variant="body1" color="text.secondary">
+                {modal.message || 'An error occurred while processing your request.'}
+              </Typography>
+            </Box>
+          )}
+        </Dialog>
+      </Box>
+    </Box>
   );
 });
 

@@ -888,6 +888,18 @@ const PayrollProcessed = () => {
                     <TableRow>
                       <TableCell padding="checkbox">
                         <Checkbox
+                        sx={{
+                          color: 'white',
+                          '&.Mui-checked': {
+                            color: 'white',
+                          },
+                          '&:hover': {
+                            color: '#F5F5F5',
+                          },
+                          '&.MuiCheckbox-indeterminate': {
+                            color: 'white',
+                          },
+                        }}
                           indeterminate={(() => {
                             const currentPageRows = filteredFinalizedData.slice(
                               page * rowsPerPage,

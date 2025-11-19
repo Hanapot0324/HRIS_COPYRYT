@@ -20,11 +20,14 @@ import {
   List,
   ListItem,
   ListItemText,
-  ListItemIcon,
   Card,
   CardContent,
+  Fade,
   Divider,
-  Avatar
+  Backdrop,
+  styled,
+  Avatar,
+  Tooltip,
 } from "@mui/material";
 import {
   Add as AddIcon,
@@ -41,14 +44,67 @@ import {
   ExpandMore as ExpandMoreIcon,
   ExpandLess as ExpandLessIcon,
   Group as GroupIcon,
-  FamilyRestroom as FamilyRestroomIcon
+  FamilyRestroom as FamilyRestroomIcon,
+  Refresh,
 } from "@mui/icons-material";
 
-import ReorderIcon from '@mui/icons-material/Reorder';
 import LoadingOverlay from '../LoadingOverlay';
 import SuccessfullOverlay from '../SuccessfulOverlay';
 import AccessDenied from '../AccessDenied';
 import { useNavigate } from "react-router-dom";
+
+// Professional styled components
+const GlassCard = styled(Card)(({ theme }) => ({
+  borderRadius: 20,
+  background: 'rgba(254, 249, 225, 0.95)',
+  backdropFilter: 'blur(10px)',
+  boxShadow: '0 8px 40px rgba(109, 35, 35, 0.08)',
+  border: '1px solid rgba(109, 35, 35, 0.1)',
+  overflow: 'hidden',
+  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+  '&:hover': {
+    boxShadow: '0 12px 48px rgba(109, 35, 35, 0.15)',
+    transform: 'translateY(-4px)',
+  },
+}));
+
+const ProfessionalButton = styled(Button)(({ theme, variant, color = 'primary' }) => ({
+  borderRadius: 12,
+  fontWeight: 600,
+  padding: '12px 24px',
+  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+  textTransform: 'none',
+  fontSize: '0.95rem',
+  letterSpacing: '0.025em',
+  boxShadow: variant === 'contained' ? '0 4px 14px rgba(254, 249, 225, 0.25)' : 'none',
+  '&:hover': {
+    transform: 'translateY(-2px)',
+    boxShadow: variant === 'contained' ? '0 6px 20px rgba(254, 249, 225, 0.35)' : 'none',
+  },
+  '&:active': {
+    transform: 'translateY(0)',
+  },
+}));
+
+const ModernTextField = styled(TextField)(({ theme }) => ({
+  '& .MuiOutlinedInput-root': {
+    borderRadius: 12,
+    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+    backgroundColor: 'rgba(255, 255, 255, 0.8)',
+    '&:hover': {
+      transform: 'translateY(-1px)',
+      backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    },
+    '&.Mui-focused': {
+      transform: 'translateY(-1px)',
+      boxShadow: '0 4px 20px rgba(254, 249, 225, 0.25)',
+      backgroundColor: 'rgba(255, 255, 255, 1)',
+    },
+  },
+  '& .MuiInputLabel-root': {
+    fontWeight: 500,
+  },
+}));
 
 // Auth header helper
 const getAuthHeaders = () => {
@@ -214,7 +270,7 @@ const EmployeeAutocomplete = ({
 
   return (
     <Box sx={{ position: 'relative', width: '100%' }} ref={dropdownRef}>
-      <TextField
+      <ModernTextField
         ref={inputRef}
         value={query}
         onChange={handleInputChange}
@@ -241,21 +297,6 @@ const EmployeeAutocomplete = ({
             </IconButton>
           ),
         }}
-        sx={{
-          '& .MuiOutlinedInput-root': {
-            height: '40px',
-            '& fieldset': {
-              borderColor: error ? 'red' : '#6D2323',
-              borderWidth: '1.5px'
-            },
-            '&:hover fieldset': {
-              borderColor: error ? 'red' : '#6D2323',
-            },
-            '&.Mui-focused fieldset': {
-              borderColor: error ? 'red' : '#6D2323',
-            },
-          },
-        }}
       />
 
       {showDropdown && (
@@ -270,6 +311,7 @@ const EmployeeAutocomplete = ({
             maxHeight: 300,
             overflow: 'auto',
             mt: 1,
+            borderRadius: 2,
           }}
         >
           {isLoading ? (
@@ -346,7 +388,6 @@ const Children = () => {
   const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [selectedEditEmployee, setSelectedEditEmployee] = useState(null);
   
-  // New state for the employee children modal
   const [employeeChildrenModal, setEmployeeChildrenModal] = useState({
     open: false,
     employeeId: null,
@@ -366,6 +407,13 @@ const Children = () => {
 
   const [hasAccess, setHasAccess] = useState(null);
   const navigate = useNavigate();
+  
+  // Color scheme
+  const primaryColor = '#FEF9E1';
+  const secondaryColor = '#FFF8E7';
+  const accentColor = '#6d2323';
+  const accentDark = '#8B3333';
+  const grayColor = '#6c757d';
   
   useEffect(() => {
     const userId = localStorage.getItem('employeeNumber');
@@ -406,7 +454,6 @@ const Children = () => {
       const result = await axios.get(`${API_BASE_URL}/childrenRoute/children-table`);
       setChildren(result.data);
       
-      // Fetch employee names for all records
       const uniqueEmployeeIds = [...new Set(result.data.map(c => c.person_id).filter(Boolean))];
       const namesMap = {};
       
@@ -431,7 +478,6 @@ const Children = () => {
     }
   };
 
-  // Group children by employee
   const groupChildrenByEmployee = () => {
     const grouped = {};
     
@@ -578,7 +624,6 @@ const Children = () => {
     setIsEditing(false);
   };
 
-  // New function to open employee children modal
   const handleOpenEmployeeChildrenModal = (employeeId, employeeName, children) => {
     setEmployeeChildrenModal({
       open: true,
@@ -588,7 +633,6 @@ const Children = () => {
     });
   };
 
-  // New function to close employee children modal
   const handleCloseEmployeeChildrenModal = () => {
     setEmployeeChildrenModal({
       open: false,
@@ -652,8 +696,8 @@ const Children = () => {
     return (
       <Container maxWidth="md" sx={{ py: 8 }}>
         <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-          <CircularProgress sx={{ color: "#6d2323", mb: 2 }} />
-          <Typography variant="h6" sx={{ color: "#6d2323" }}>
+          <CircularProgress sx={{ color: accentColor, mb: 2 }} />
+          <Typography variant="h6" sx={{ color: accentColor }}>
             Loading access information...
           </Typography>
         </Box>
@@ -672,10 +716,8 @@ const Children = () => {
     );
   }
 
-  // Get grouped children data
   const groupedChildren = groupChildrenByEmployee();
   
-  // Filter grouped children based on search term
   const filteredGroupedChildren = groupedChildren.filter((group) => {
     const employeeName = group.employeeName.toLowerCase();
     const employeeId = group.employeeId?.toString() || "";
@@ -689,76 +731,157 @@ const Children = () => {
 
   return (
     <Box sx={{ 
-      minHeight: '100vh', 
-      display: 'flex', 
-      flexDirection: 'column',
-      pt: 2,
-      mt: -5
+      py: 4,
+      mt: -5,
+      width: '1600px',
+      mx: 'auto',
+      overflow: 'hidden',
     }}>
-      <LoadingOverlay open={loading} message="Adding child record..." />
-      <SuccessfullOverlay open={successOpen} action={successAction} />
-      
-      <Box sx={{ textAlign: 'center', mb: 3, px: 2 }}>
-        <Typography variant="h4" sx={{ color: "#6D2323", fontWeight: 'bold', mb: 0.5 }}>
-          Children Information Management
-        </Typography>
-        <Typography variant="body2" sx={{ color: "#666" }}>
-          Add and manage children records for employees
-        </Typography>
-      </Box>
-
-      <Container maxWidth="xl" sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
-        <Grid container spacing={3} sx={{ flexGrow: 1 }}>
-          <Grid item xs={12} lg={6} sx={{ display: 'flex', flexDirection: 'column' }}>
-            <Paper 
-              elevation={4}
-              sx={{
-                display: 'flex',
-                flexDirection: 'column',
-                borderRadius: 2,
-                overflow: 'hidden',
-                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-                border: '1px solid rgba(109, 35, 35, 0.1)',
-                height: { xs: 'auto', lg: 'calc(100vh - 200px)' },
-                maxHeight: { xs: 'none', lg: 'calc(100vh - 200px)' }
-              }}
-            >
+      <Box sx={{ px: 6 }}>
+        {/* Header */}
+        <Fade in timeout={500}>
+          <Box sx={{ mb: 4 }}>
+            <GlassCard>
               <Box
                 sx={{
-                  backgroundColor: "#6D2323",
-                  color: "#ffffff",
-                  p: 2,
-                  display: "flex",
-                  alignItems: "center",
-                  boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                  p: 5,
+                  background: `linear-gradient(135deg, ${primaryColor} 0%, ${secondaryColor} 100%)`,
+                  color: accentColor,
+                  position: 'relative',
+                  overflow: 'hidden',
                 }}
               >
-                <ChildCareIcon sx={{ fontSize: "1.8rem", mr: 2 }} />
-                <Box>
-                  <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
-                    Add New Child
-                  </Typography>
-                  <Typography variant="caption" sx={{ opacity: 0.9 }}>
-                    Fill in the child's information
-                  </Typography>
+                <Box
+                  sx={{
+                    position: 'absolute',
+                    top: -50,
+                    right: -50,
+                    width: 200,
+                    height: 200,
+                    background: 'radial-gradient(circle, rgba(109,35,35,0.1) 0%, rgba(109,35,35,0) 70%)',
+                  }}
+                />
+                <Box
+                  sx={{
+                    position: 'absolute',
+                    bottom: -30,
+                    left: '30%',
+                    width: 150,
+                    height: 150,
+                    background: 'radial-gradient(circle, rgba(109,35,35,0.08) 0%, rgba(109,35,35,0) 70%)',
+                  }}
+                />
+                
+                <Box display="flex" alignItems="center" justifyContent="space-between" position="relative" zIndex={1}>
+                  <Box display="flex" alignItems="center">
+                    <Avatar 
+                      sx={{ 
+                        bgcolor: 'rgba(109,35,35,0.15)', 
+                        mr: 4, 
+                        width: 64,
+                        height: 64,
+                        boxShadow: '0 8px 24px rgba(109,35,35,0.15)'
+                      }}
+                    >
+                      <FamilyRestroomIcon sx={{color: accentColor, fontSize: 32 }} />
+                    </Avatar>
+                    <Box>
+                      <Typography variant="h4" component="h1" sx={{ fontWeight: 700, mb: 1, lineHeight: 1.2, color: accentColor }}>
+                        Children Information Management
+                      </Typography>
+                      <Typography variant="body1" sx={{ opacity: 0.8, fontWeight: 400, color: accentDark }}>
+                        Add and manage children records for employees
+                      </Typography>
+                    </Box>
+                  </Box>
+                  <Box display="flex" alignItems="center" gap={2}>
+                    <Chip 
+                      label="Enterprise Grade" 
+                      size="small" 
+                      sx={{ 
+                        bgcolor: 'rgba(109,35,35,0.15)', 
+                        color: accentColor,
+                        fontWeight: 500,
+                        '& .MuiChip-label': { px: 1 }
+                      }} 
+                    />
+                    <Tooltip title="Refresh Data">
+                      <IconButton 
+                        onClick={() => window.location.reload()}
+                        sx={{ 
+                          bgcolor: 'rgba(109,35,35,0.1)', 
+                          '&:hover': { bgcolor: 'rgba(109,35,35,0.2)' },
+                          color: accentColor,
+                          width: 48,
+                          height: 48,
+                        }}
+                      >
+                        <Refresh sx={{ fontSize: 24 }} />
+                      </IconButton>
+                    </Tooltip>
+                  </Box>
                 </Box>
               </Box>
+            </GlassCard>
+          </Box>
+        </Fade>
 
-              <Box sx={{ 
-                p: 3, 
-                flexGrow: 1, 
-                display: 'flex', 
-                flexDirection: 'column',
-                overflowY: 'auto'
-              }}>
-                <Grid container spacing={2}>
-                  <Grid item xs={12}>
-                    <Typography variant="subtitle2" sx={{ fontWeight: "bold", mb: 1.5, color: "#6D2323" }}>
-                      Employee Information <span style={{ color: 'red' }}>*</span>
+        {/* Loading Backdrop */}
+        <Backdrop
+          sx={{ color: primaryColor, zIndex: (theme) => theme.zIndex.drawer + 1 }}
+          open={loading}
+        >
+          <Box sx={{ textAlign: 'center' }}>
+            <CircularProgress color="inherit" size={60} thickness={4} />
+            <Typography variant="h6" sx={{ mt: 2, color: primaryColor }}>
+              Processing child record...
+            </Typography>
+          </Box>
+        </Backdrop>
+
+        {/* Main Content */}
+        <Grid container spacing={4}>
+          {/* Add New Child Section */}
+          <Grid item xs={12} lg={6}>
+            <Fade in timeout={700}>
+              <GlassCard sx={{ height: 'calc(100vh - 200px)', display: 'flex', flexDirection: 'column' }}>
+                <Box
+                  sx={{
+                    p: 4,
+                    background: `linear-gradient(135deg, ${primaryColor} 0%, ${secondaryColor} 100%)`,
+                    color: accentColor,
+                    display: "flex",
+                    alignItems: "center",
+                    boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                  }}
+                >
+                  <ChildCareIcon sx={{ fontSize: "1.8rem", mr: 2 }} />
+                  <Box>
+                    <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
+                      Add New Child
                     </Typography>
+                    <Typography variant="caption" sx={{ opacity: 0.9 }}>
+                      Fill in the child's information
+                    </Typography>
+                  </Box>
+                </Box>
+
+                <Box sx={{ 
+                  p: 4, 
+                  flexGrow: 1, 
+                  display: 'flex', 
+                  flexDirection: 'column',
+                  overflowY: 'auto'
+                }}>
+                  <Box sx={{ mb: 3 }}>
+                    <Typography variant="h5" sx={{ fontWeight: 600, mb: 2, color: accentColor, display: 'flex', alignItems: 'center' }}>
+                      <PersonIcon sx={{ mr: 2, fontSize: 24 }} />
+                      Employee Information <span style={{ marginLeft: '12px', fontWeight: 400, opacity: 0.7, color: 'red' }}>*</span>
+                    </Typography>
+                    
                     <Grid container spacing={2}>
                       <Grid item xs={12} sm={6}>
-                        <Typography variant="caption" sx={{ fontWeight: "bold", mb: 0.5, color: "#333", display: 'block' }}>
+                        <Typography variant="body2" sx={{ fontWeight: 500, mb: 1, color: accentColor }}>
                           Search Employee
                         </Typography>
                         <EmployeeAutocomplete
@@ -774,7 +897,7 @@ const Children = () => {
                       </Grid>
 
                       <Grid item xs={12} sm={6}>
-                        <Typography variant="caption" sx={{ fontWeight: "bold", mb: 0.5, color: "#333", display: 'block' }}>
+                        <Typography variant="body2" sx={{ fontWeight: 500, mb: 1, color: accentColor }}>
                           Selected Employee
                         </Typography>
                         {selectedEmployee ? (
@@ -782,22 +905,21 @@ const Children = () => {
                             sx={{
                               display: 'flex',
                               alignItems: 'center',
-                              backgroundColor: '#f8f9fa',
-                              border: '1px solid #6D2323',
-                              borderRadius: '4px',
-                              padding: '8px 12px',
+                              backgroundColor: 'rgba(254, 249, 225, 0.8)',
+                              border: '1px solid rgba(109, 35, 35, 0.3)',
+                              borderRadius: 2,
+                              paddingLeft: '10px',
                               gap: 1.5,
-                              height: '21px'
                             }}
                           >
-                            <PersonIcon sx={{ color: '#6D2323', fontSize: '20px' }} />
+                            <PersonIcon sx={{ color: accentColor, fontSize: 20 }} />
                             <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
                               <Typography
                                 variant="body2"
                                 sx={{
                                   fontWeight: 'bold',
-                                  color: '#6D2323',
-                                  fontSize: '13px',
+                                  color: accentColor,
+                                  fontSize: '14px',
                                   lineHeight: 1.2,
                                 }}
                               >
@@ -806,8 +928,8 @@ const Children = () => {
                               <Typography
                                 variant="caption"
                                 sx={{
-                                  color: '#666',
-                                  fontSize: '11px',
+                                  color: grayColor,
+                                  fontSize: '12px',
                                   lineHeight: 1.2,
                                 }}
                               >
@@ -821,19 +943,18 @@ const Children = () => {
                               display: 'flex',
                               alignItems: 'center',
                               justifyContent: 'center',
-                              backgroundColor: '#f5f5f5',
-                              border: '2px dashed #ccc',
-                              borderRadius: '8px',
-                              padding: '8px 12px',
-                              height: '21px',
+                              backgroundColor: 'rgba(0, 0, 0, 0.05)',
+                              border: '2px dashed rgba(109, 35, 35, 0.3)',
+                              borderRadius: 2,
+                              minHeight: '30px',
                             }}
                           >
                             <Typography
                               variant="body2"
                               sx={{
-                                color: '#999',
+                                color: grayColor,
                                 fontStyle: 'italic',
-                                fontSize: '13px',
+                                fontSize: '14px',
                               }}
                             >
                               No employee selected
@@ -842,683 +963,534 @@ const Children = () => {
                         )}
                       </Grid>
                     </Grid>
-                  </Grid>
-
-                  <Grid item xs={12}>
-                    <Box sx={{ 
-                      borderBottom: '2px solid #e0e0e0', 
-                      my: 2,
-                      '&::before': {
-                        content: '"Child Details"',
-                        position: 'absolute',
-                        left: 20,
-                        top: -10,
-                        backgroundColor: '#fff',
-                        px: 1,
-                        color: '#6D2323',
-                        fontWeight: 'bold',
-                        fontSize: '0.875rem'
-                      },
-                      position: 'relative'
-                    }} />
-                  </Grid>
-
-                  <Grid item xs={12}>
-                    <Typography variant="caption" sx={{ fontWeight: "bold", mb: 0.5, color: "#333", display: 'block' }}>
-                      First Name <span style={{ color: 'red' }}>*</span>
-                    </Typography>
-                    <TextField
-                      value={newChild.childrenFirstName}
-                      onChange={(e) => handleChange("childrenFirstName", e.target.value)}
-                      fullWidth
-                      size="small"
-                      error={!!errors.childrenFirstName}
-                      helperText={errors.childrenFirstName || ''}
-                      sx={{
-                        '& .MuiOutlinedInput-root': {
-                              '& fieldset': {
-                                borderColor: errors.childrenFirstName ? 'red' : '#6D2323',
-                                borderWidth: '1.5px'
-                              },
-                              '&:hover fieldset': {
-                                borderColor: errors.childrenFirstName ? 'red' : '#6D2323',
-                              },
-                              '&.Mui-focused fieldset': {
-                                borderColor: errors.childrenFirstName ? 'red' : '#6D2323',
-                              },
-                            },
-                      }}
-                    />
-                  </Grid>
-
-                  <Grid item xs={12}>
-                    <Typography variant="caption" sx={{ fontWeight: "bold", mb: 0.5, color: "#333", display: 'block' }}>
-                      Middle Name
-                    </Typography>
-                    <TextField
-                      value={newChild.childrenMiddleName}
-                      onChange={(e) => handleChange("childrenMiddleName", e.target.value)}
-                      fullWidth
-                      size="small"
-                      sx={{
-                        '& .MuiOutlinedInput-root': {
-                              '& fieldset': {
-                                borderColor: '#6D2323',
-                                borderWidth: '1.5px'
-                              },
-                              '&:hover fieldset': {
-                                borderColor: '#6D2323',
-                              },
-                              '&.Mui-focused fieldset': {
-                                borderColor: '#6D2323',
-                              },
-                            },
-                      }}
-                    />
-                  </Grid>
-
-                  <Grid item xs={12}>
-                    <Typography variant="caption" sx={{ fontWeight: "bold", mb: 0.5, color: "#333", display: 'block' }}>
-                      Last Name <span style={{ color: 'red' }}>*</span>
-                    </Typography>
-                    <TextField
-                      value={newChild.childrenLastName}
-                      onChange={(e) => handleChange("childrenLastName", e.target.value)}
-                      fullWidth
-                      size="small"
-                      error={!!errors.childrenLastName}
-                      helperText={errors.childrenLastName || ''}
-                      sx={{
-                        '& .MuiOutlinedInput-root': {
-                              '& fieldset': {
-                                borderColor: errors.childrenLastName ? 'red' : '#6D2323',
-                                borderWidth: '1.5px'
-                              },
-                              '&:hover fieldset': {
-                                borderColor: errors.childrenLastName ? 'red' : '#6D2323',
-                              },
-                              '&.Mui-focused fieldset': {
-                                borderColor: errors.childrenLastName ? 'red' : '#6D2323',
-                              },
-                            },
-                      }}
-                    />
-                  </Grid>
-
-                  <Grid item xs={12}>
-                    <Typography variant="caption" sx={{ fontWeight: "bold", mb: 0.5, color: "#333", display: 'block' }}>
-                      Name Extension
-                    </Typography>
-                    <TextField
-                      value={newChild.childrenNameExtension}
-                      onChange={(e) => handleChange("childrenNameExtension", e.target.value)}
-                      fullWidth
-                      size="small"
-                      placeholder="e.g., Jr., Sr., III"
-                      sx={{
-                        '& .MuiOutlinedInput-root': {
-                              '& fieldset': {
-                                borderColor: '#6D2323',
-                                borderWidth: '1.5px'
-                              },
-                              '&:hover fieldset': {
-                                borderColor: '#6D2323',
-                              },
-                              '&.Mui-focused fieldset': {
-                                borderColor: '#6D2323',
-                              },
-                            },
-                      }}
-                    />
-                  </Grid>
-
-                  <Grid item xs={12}>
-                    <Typography variant="caption" sx={{ fontWeight: "bold", mb: 0.5, color: "#333", display: 'block' }}>
-                      Date of Birth <span style={{ color: 'red' }}>*</span>
-                    </Typography>
-                    <TextField
-                      type="date"
-                      value={newChild.dateOfBirth}
-                      onChange={(e) => handleChange("dateOfBirth", e.target.value)}
-                      fullWidth
-                      size="small"
-                      InputLabelProps={{ shrink: true }}
-                      error={!!errors.dateOfBirth}
-                      helperText={errors.dateOfBirth || ''}
-                      sx={{
-                        '& .MuiOutlinedInput-root': {
-                              '& fieldset': {
-                                borderColor: errors.dateOfBirth ? 'red' : '#6D2323',
-                                borderWidth: '1.5px'
-                              },
-                              '&:hover fieldset': {
-                                borderColor: errors.dateOfBirth ? 'red' : '#6D2323',
-                              },
-                              '&.Mui-focused fieldset': {
-                                borderColor: errors.dateOfBirth ? 'red' : '#6D2323',
-                              },
-                            },
-                      }}
-                    />
-                  </Grid>
-                </Grid>
-
-                <Box sx={{ mt: 'auto', pt: 2 }}>
-                  <Button
-                    onClick={handleAdd}
-                    variant="contained"
-                    startIcon={<AddIcon />}
-                    fullWidth
-                    sx={{
-                      backgroundColor: "#6D2323",
-                      color: "#FEF9E1",
-                      py: 1.2,
-                      fontWeight: 'bold',
-                      "&:hover": { 
-                        backgroundColor: "#5a1d1d",
-                      },
-                    }}
-                  >
-                    Add Child Record
-                  </Button>
-                </Box>
-              </Box>
-            </Paper>
-          </Grid>
-
-          <Grid item xs={12} lg={6} sx={{ display: 'flex', flexDirection: 'column' }}>
-            <Paper 
-              elevation={4}
-              sx={{
-                display: 'flex',
-                flexDirection: 'column',
-                borderRadius: 2,
-                overflow: 'hidden',
-                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-                border: '1px solid rgba(109, 35, 35, 0.1)',
-                height: { xs: 'auto', lg: 'calc(100vh - 200px)' },
-                maxHeight: { xs: 'none', lg: 'calc(100vh - 200px)' }
-              }}
-            >
-              <Box
-                sx={{
-                  backgroundColor: "#6D2323",
-                  color: "#ffffff",
-                  p: 2,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-                }}
-              >
-                <Box sx={{ display: "flex", alignItems: "center" }}>
-                  <FamilyRestroomIcon sx={{ fontSize: "1.8rem", mr: 2 }} />
-                  <Box>
-                    <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
-                      Employee Children Records
-                    </Typography>
-                    <Typography variant="caption" sx={{ opacity: 0.9 }}>
-                      View and manage children records by employee
-                    </Typography>
                   </Box>
-                </Box>
-                
-                <ToggleButtonGroup
-                  value={viewMode}
-                  exclusive
-                  onChange={handleViewModeChange}
-                  aria-label="view mode"
-                  size="small"
-                  sx={{
-                    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-                    '& .MuiToggleButton-root': {
-                      color: 'white',
-                      borderColor: 'rgba(255, 255, 255, 0.5)',
-                      padding: '4px 8px',
-                      '&.Mui-selected': {
-                        backgroundColor: 'rgba(255, 255, 255, 0.3)',
-                        color: 'white'
-                      },
-                    }
-                  }}
-                >
-                  <ToggleButton value="grid" aria-label="grid view">
-                    <ViewModuleIcon fontSize="small" />
-                  </ToggleButton>
-                  <ToggleButton value="list" aria-label="list view">
-                    <ViewListIcon fontSize="small" />
-                  </ToggleButton>
-                </ToggleButtonGroup>
-              </Box>
 
-              <Box sx={{ 
-                p: 3, 
-                flexGrow: 1, 
-                display: 'flex', 
-                flexDirection: 'column',
-                overflow: 'hidden'
-              }}>
-                <Box sx={{ mb: 2 }}>
-                  <TextField
-                    size="small"
-                    variant="outlined"
-                    placeholder="Search by Employee ID, Name, or Child Name"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    fullWidth
-                    sx={{
-                      "& .MuiOutlinedInput-root": {
-                        "& fieldset": {
-                          borderColor: "#6D2323",
-                          borderWidth: '1.5px'
-                        },
-                        "&:hover fieldset": {
-                          borderColor: "#6D2323",
-                        },
-                        "&.Mui-focused fieldset": {
-                          borderColor: "#6D2323",
-                        },
-                      },
-                    }}
-                    InputProps={{
-                      startAdornment: (
-                        <SearchIcon sx={{ color: "#6D2323", mr: 1 }} />
-                      ),
-                    }}
-                  />
-                </Box>
+                  <Divider sx={{ my: 3, borderColor: 'rgba(109,35,35,0.1)' }} />
 
-                <Box 
-                  sx={{ 
-                    flexGrow: 1, 
-                    overflowY: 'auto',
-                    pr: 1,
-                    '&::-webkit-scrollbar': {
-                      width: '6px',
-                    },
-                    '&::-webkit-scrollbar-track': {
-                      background: '#f1f1f1',
-                      borderRadius: '3px',
-                    },
-                    '&::-webkit-scrollbar-thumb': {
-                      background: '#6D2323',
-                      borderRadius: '3px',
-                    },
-                  }}
-                >
-                  {viewMode === 'grid' ? (
-                    <Grid container spacing={1.5}>
-                      {filteredGroupedChildren.map((group) => (
-                        <Grid item xs={12} sm={6} md={4} key={group.employeeId}>
-                          <Card
-                            onClick={() => handleOpenEmployeeChildrenModal(group.employeeId, group.employeeName, group.children)}
-                            sx={{
-                              cursor: "pointer",
-                              border: "1px solid #e0e0e0",
-                              height: "100%",
-                              display: 'flex',
-                              flexDirection: 'column',
-                              "&:hover": { 
-                                borderColor: "#6d2323",
-                                transform: 'translateY(-2px)',
-                                transition: 'all 0.2s ease',
-                                boxShadow: '0 4px 8px rgba(0,0,0,0.15)'
-                              },
-                            }}
-                          >
-                            <CardContent sx={{ p: 1.5, flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
-                              <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                                <FamilyRestroomIcon sx={{ fontSize: 18, color: '#6d2323', mr: 0.5 }} />
-                                <Typography variant="caption" sx={{ 
-                                  color: '#666', 
-                                  px: 0.5, 
-                                  py: 0.2, 
-                                  borderRadius: 0.5,
-                                  fontSize: '0.7rem',
-                                  fontWeight: 'bold'
-                                }}>
-                                  ID: {group.employeeId}
-                                </Typography>
-                              </Box>
-                              
-                              <Typography variant="body2" fontWeight="bold" color="#333" mb={0.5} noWrap>
-                                {group.employeeName}
-                              </Typography>
-                              
-                              <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                                <GroupIcon sx={{ fontSize: 16, color: '#6d2323', mr: 0.5 }} />
-                                <Typography variant="body2" color="#666">
-                                  {group.children.length} {group.children.length === 1 ? 'Child' : 'Children'}
-                                </Typography>
-                              </Box>
-                              
-                              <Box sx={{ flexGrow: 1, overflow: 'hidden' }}>
-                                {group.children.slice(0, 2).map((child, index) => (
-                                  <Typography key={child.id} variant="caption" color="#666" sx={{ display: 'block', mb: 0.5 }}>
-                                    {index + 1}. {child.childrenFirstName} {child.childrenMiddleName} {child.childrenLastName}
-                                  </Typography>
-                                ))}
-                                {group.children.length > 2 && (
-                                  <Typography variant="caption" color="#666" sx={{ fontStyle: 'italic' }}>
-                                    +{group.children.length - 2} more
-                                  </Typography>
-                                )}
-                              </Box>
-                            </CardContent>
-                          </Card>
-                        </Grid>
-                      ))}
+                  <Typography variant="h5" sx={{ fontWeight: 600, mb: 3, color: accentColor, display: 'flex', alignItems: 'center' }}>
+                    <ChildCareIcon sx={{ mr: 2, fontSize: 24 }} />
+                    Child Details
+                  </Typography>
+
+                  <Grid container spacing={2}>
+                    <Grid item xs={12}>
+                      <Typography variant="body2" sx={{ fontWeight: 500, mb: 1, color: accentColor }}>
+                        First Name <span style={{ color: 'red' }}>*</span>
+                      </Typography>
+                      <ModernTextField
+                        value={newChild.childrenFirstName}
+                        onChange={(e) => handleChange("childrenFirstName", e.target.value)}
+                        fullWidth
+                        size="small"
+                        error={!!errors.childrenFirstName}
+                        helperText={errors.childrenFirstName || ''}
+                      />
                     </Grid>
-                  ) : (
-                    filteredGroupedChildren.map((group) => (
-                      <Card
-                        key={group.employeeId}
-                        onClick={() => handleOpenEmployeeChildrenModal(group.employeeId, group.employeeName, group.children)}
-                        sx={{
-                          cursor: "pointer",
-                          border: "1px solid #e0e0e0",
-                          mb: 1,
-                          "&:hover": { 
-                            borderColor: "#6d2323",
-                            backgroundColor: '#fafafa'
-                          },
-                        }}
-                      >
-                        <Box sx={{ p: 1.5 }}>
-                          <Box sx={{ display: 'flex', alignItems: 'flex-start' }}>
-                            <Box sx={{ mr: 1.5, mt: 0.2 }}>
-                              <FamilyRestroomIcon sx={{ fontSize: 20, color: '#6d2323' }} />
-                            </Box>
-                            
-                            <Box sx={{ flexGrow: 1 }}>
-                              <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
-                                <Typography variant="caption" sx={{ 
-                                  color: '#666',
-                                  fontSize: '0.7rem',
-                                  fontWeight: 'bold',
-                                  mr: 1
-                                }}>
-                                  ID: {group.employeeId}
-                                </Typography>
-                                <Typography variant="body2" fontWeight="bold" color="#333">
-                                  {group.employeeName}
-                                </Typography>
-                              </Box>
-                              
-                              <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
-                                <GroupIcon sx={{ fontSize: 16, color: '#6d2323', mr: 0.5 }} />
-                                <Typography variant="body2" color="#666">
-                                  {group.children.length} {group.children.length === 1 ? 'Child' : 'Children'}
-                                </Typography>
-                              </Box>
-                              
-                              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                                {group.children.slice(0, 3).map((child) => (
-                                  <Chip
-                                    key={child.id}
-                                    label={`${child.childrenFirstName} ${child.childrenLastName}`}
-                                    size="small"
-                                    variant="outlined"
-                                    sx={{ fontSize: '0.7rem', height: '24px' }}
-                                  />
-                                ))}
-                                {group.children.length > 3 && (
-                                  <Chip
-                                    label={`+${group.children.length - 3} more`}
-                                    size="small"
-                                    variant="outlined"
-                                    sx={{ fontSize: '0.7rem', height: '24px', fontStyle: 'italic' }}
-                                  />
-                                )}
-                              </Box>
-                            </Box>
-                          </Box>
-                        </Box>
-                      </Card>
-                    ))
-                  )}
-                  
-                  {filteredGroupedChildren.length === 0 && (
-                    <Box textAlign="center" py={4}>
-                      <Typography variant="body1" color="#555" fontWeight="bold">
-                        No Records Found
-                      </Typography>
-                      <Typography variant="body2" color="#666" sx={{ mt: 0.5 }}>
-                        Try adjusting your search criteria
-                      </Typography>
-                    </Box>
-                  )}
-                </Box>
-              </Box>
-            </Paper>
-          </Grid>
-        </Grid>
-      </Container>
 
-      {/* Employee Children Modal */}
-      <Modal
-        open={employeeChildrenModal.open}
-        onClose={handleCloseEmployeeChildrenModal}
-        sx={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
-        <Paper
-          sx={{
-            width: "90%",
-            maxWidth: "800px",
-            maxHeight: "90vh",
-            display: "flex",
-            flexDirection: "column",
-            borderRadius: 2,
-            boxShadow: '0 8px 24px rgba(0, 0, 0, 0.3)',
-            overflow: 'hidden',
-          }}
-        >
-          {/* Modal Header */}
-          <Box
-            sx={{
-              backgroundColor: "#6D2323",
-              color: "#ffffff",
-              p: 2,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-            }}
-          >
-            <Box sx={{ display: "flex", alignItems: "center" }}>
-              <FamilyRestroomIcon sx={{ fontSize: "1.8rem", mr: 2 }} />
-              <Box>
-                <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
-                  Children of {employeeChildrenModal.employeeName}
-                </Typography>
-                <Typography variant="caption" sx={{ opacity: 0.9 }}>
-                  Employee ID: {employeeChildrenModal.employeeId} | {employeeChildrenModal.children.length} {employeeChildrenModal.children.length === 1 ? 'Child' : 'Children'}
-                </Typography>
-              </Box>
-            </Box>
-            <IconButton onClick={handleCloseEmployeeChildrenModal} sx={{ color: "#fff" }}>
-              <Close />
-            </IconButton>
-          </Box>
+                    <Grid item xs={12}>
+                      <Typography variant="body2" sx={{ fontWeight: 500, mb: 1, color: accentColor }}>
+                        Middle Name
+                      </Typography>
+                      <ModernTextField
+                        value={newChild.childrenMiddleName}
+                        onChange={(e) => handleChange("childrenMiddleName", e.target.value)}
+                        fullWidth
+                        size="small"
+                      />
+                    </Grid>
 
-          {/* Modal Content */}
-          <Box sx={{ 
-            p: 3, 
-            flexGrow: 1, 
-            overflowY: 'auto',
-            '&::-webkit-scrollbar': {
-              width: '6px',
-            },
-            '&::-webkit-scrollbar-track': {
-              background: '#f1f1f1',
-              borderRadius: '3px',
-            },
-            '&::-webkit-scrollbar-thumb': {
-              background: '#6D2323',
-              borderRadius: '3px',
-            },
-          }}>
-            {employeeChildrenModal.children.length > 0 ? (
-              <Grid container spacing={2}>
-                {employeeChildrenModal.children.map((child) => (
-                  <Grid item xs={12} sm={6} md={4} key={child.id}>
-                    <Card
-                      onClick={() => handleOpenModal(child)}
+                    <Grid item xs={12}>
+                      <Typography variant="body2" sx={{ fontWeight: 500, mb: 1, color: accentColor }}>
+                        Last Name <span style={{ color: 'red' }}>*</span>
+                      </Typography>
+                      <ModernTextField
+                        value={newChild.childrenLastName}
+                        onChange={(e) => handleChange("childrenLastName", e.target.value)}
+                        fullWidth
+                        size="small"
+                        error={!!errors.childrenLastName}
+                        helperText={errors.childrenLastName || ''}
+                      />
+                    </Grid>
+
+                    <Grid item xs={12}>
+                      <Typography variant="body2" sx={{ fontWeight: 500, mb: 1, color: accentColor }}>
+                        Name Extension
+                      </Typography>
+                      <ModernTextField
+                        value={newChild.childrenNameExtension}
+                        onChange={(e) => handleChange("childrenNameExtension", e.target.value)}
+                        fullWidth
+                        size="small"
+                        placeholder="e.g., Jr., Sr., III"
+                      />
+                    </Grid>
+
+                    <Grid item xs={12}>
+                      <Typography variant="body2" sx={{ fontWeight: 500, mb: 1, color: accentColor }}>
+                        Date of Birth <span style={{ color: 'red' }}>*</span>
+                      </Typography>
+                      <ModernTextField
+                        type="date"
+                        value={newChild.dateOfBirth}
+                        onChange={(e) => handleChange("dateOfBirth", e.target.value)}
+                        fullWidth
+                        size="small"
+                        InputLabelProps={{ shrink: true }}
+                        error={!!errors.dateOfBirth}
+                        helperText={errors.dateOfBirth || ''}
+                      />
+                    </Grid>
+                  </Grid>
+
+                  <Box sx={{ mt: 'auto', pt: 3 }}>
+                    <ProfessionalButton
+                      onClick={handleAdd}
+                      variant="contained"
+                      startIcon={<AddIcon />}
+                      fullWidth
                       sx={{
-                        cursor: "pointer",
-                        border: "1px solid #e0e0e0",
-                        height: "100%",
-                        display: 'flex',
-                        flexDirection: 'column',
+                        backgroundColor: accentColor,
+                        color: primaryColor,
+                        py: 1.5,
+                        fontSize: '1rem',
                         "&:hover": { 
-                          borderColor: "#6d2323",
-                          transform: 'translateY(-2px)',
-                          transition: 'all 0.2s ease',
-                          boxShadow: '0 4px 8px rgba(0,0,0,0.15)'
+                          backgroundColor: accentDark,
                         },
                       }}
                     >
-                      <CardContent sx={{ p: 1.5, flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
-                        <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                          <ChildCareIcon sx={{ fontSize: 18, color: '#6d2323', mr: 0.5 }} />
-                          <Typography variant="caption" sx={{ 
-                            color: '#666', 
-                            px: 0.5, 
-                            py: 0.2, 
-                            borderRadius: 0.5,
-                            fontSize: '0.7rem',
-                            fontWeight: 'bold'
-                          }}>
-                            ID: {child.id}
-                          </Typography>
-                        </Box>
-                        
-                        <Typography variant="body2" fontWeight="bold" color="#333" mb={0.5} noWrap>
-                          {child.childrenFirstName} {child.childrenMiddleName} {child.childrenLastName}
+                      Add Child Record
+                    </ProfessionalButton>
+                  </Box>
+                </Box>
+              </GlassCard>
+            </Fade>
+          </Grid>
+
+          {/* Employee Children Records Section */}
+          <Grid item xs={12} lg={6}>
+            <Fade in timeout={900}>
+              <GlassCard sx={{ height: 'calc(100vh - 200px)', display: 'flex', flexDirection: 'column' }}>
+                <Box
+                  sx={{
+                    p: 4,
+                    background: `linear-gradient(135deg, ${primaryColor} 0%, ${secondaryColor} 100%)`,
+                    color: accentColor,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                  }}
+                >
+                  <Box sx={{ display: "flex", alignItems: "center" }}>
+                    <FamilyRestroomIcon sx={{ fontSize: "1.8rem", mr: 2 }} />
+                    <Box>
+                      <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
+                        Employee Children Records
+                      </Typography>
+                      <Typography variant="caption" sx={{ opacity: 0.9 }}>
+                        View and manage children records by employee
+                      </Typography>
+                    </Box>
+                  </Box>
+                  
+                  <ToggleButtonGroup
+                    value={viewMode}
+                    exclusive
+                    onChange={handleViewModeChange}
+                    aria-label="view mode"
+                    size="small"
+                    sx={{
+                      backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                      '& .MuiToggleButton-root': {
+                        color: accentColor,
+                        borderColor: 'rgba(109, 35, 35, 0.5)',
+                        padding: '4px 8px',
+                        '&.Mui-selected': {
+                          backgroundColor: 'rgba(255, 255, 255, 0.3)',
+                          color: accentColor
+                        },
+                      }
+                    }}
+                  >
+                    <ToggleButton value="grid" aria-label="grid view">
+                      <ViewModuleIcon fontSize="small" />
+                    </ToggleButton>
+                    <ToggleButton value="list" aria-label="list view">
+                      <ViewListIcon fontSize="small" />
+                    </ToggleButton>
+                  </ToggleButtonGroup>
+                </Box>
+
+                <Box sx={{ 
+                  p: 4, 
+                  flexGrow: 1, 
+                  display: 'flex', 
+                  flexDirection: 'column',
+                  overflow: 'hidden'
+                }}>
+                  <Box sx={{ mb: 3 }}>
+                    <ModernTextField
+                      size="small"
+                      variant="outlined"
+                      placeholder="Search by Employee ID, Name, or Child Name"
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      fullWidth
+                      InputProps={{
+                        startAdornment: (
+                          <SearchIcon sx={{ color: accentColor, mr: 1 }} />
+                        ),
+                      }}
+                    />
+                  </Box>
+
+                  <Box 
+                    sx={{ 
+                      flexGrow: 1, 
+                      overflowY: 'auto',
+                      pr: 1,
+                      '&::-webkit-scrollbar': {
+                        width: '6px',
+                      },
+                      '&::-webkit-scrollbar-track': {
+                        background: '#f1f1f1',
+                        borderRadius: '3px',
+                      },
+                      '&::-webkit-scrollbar-thumb': {
+                        background: accentColor,
+                        borderRadius: '3px',
+                      },
+                    }}
+                  >
+                    {viewMode === 'grid' ? (
+                      <Grid container spacing={2}>
+                        {filteredGroupedChildren.map((group) => (
+                          <Grid item xs={12} sm={6} md={4} key={group.employeeId}>
+                            <Card
+                              onClick={() => handleOpenEmployeeChildrenModal(group.employeeId, group.employeeName, group.children)}
+                              sx={{
+                                cursor: "pointer",
+                                border: "1px solid rgba(109, 35, 35, 0.1)",
+                                height: "100%",
+                                display: 'flex',
+                                flexDirection: 'column',
+                                "&:hover": { 
+                                  borderColor: accentColor,
+                                  transform: 'translateY(-2px)',
+                                  transition: 'all 0.2s ease',
+                                  boxShadow: '0 4px 8px rgba(109,35,35,0.15)'
+                                },
+                              }}
+                            >
+                              <CardContent sx={{ p: 2, flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
+                                <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                                  <FamilyRestroomIcon sx={{ fontSize: 18, color: accentColor, mr: 0.5 }} />
+                                  <Typography variant="caption" sx={{ 
+                                    color: accentColor, 
+                                    px: 0.5, 
+                                    py: 0.2, 
+                                    borderRadius: 0.5,
+                                    fontSize: '0.7rem',
+                                    fontWeight: 'bold'
+                                  }}>
+                                    ID: {group.employeeId}
+                                  </Typography>
+                                </Box>
+                                
+                                <Typography variant="body2" fontWeight="bold" color="#333" mb={0.5} noWrap>
+                                  {group.employeeName}
+                                </Typography>
+                                
+                                <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                                  <GroupIcon sx={{ fontSize: 16, color: accentColor, mr: 0.5 }} />
+                                  <Typography variant="body2" color={grayColor}>
+                                    {group.children.length} {group.children.length === 1 ? 'Child' : 'Children'}
+                                  </Typography>
+                                </Box>
+                                
+                                <Box sx={{ flexGrow: 1, overflow: 'hidden' }}>
+                                  {group.children.slice(0, 2).map((child, index) => (
+                                    <Typography key={child.id} variant="caption" color={grayColor} sx={{ display: 'block', mb: 0.5 }}>
+                                      {index + 1}. {child.childrenFirstName} {child.childrenMiddleName} {child.childrenLastName}
+                                    </Typography>
+                                  ))}
+                                  {group.children.length > 2 && (
+                                    <Typography variant="caption" color={grayColor} sx={{ fontStyle: 'italic' }}>
+                                      +{group.children.length - 2} more
+                                    </Typography>
+                                  )}
+                                </Box>
+                              </CardContent>
+                            </Card>
+                          </Grid>
+                        ))}
+                      </Grid>
+                    ) : (
+                      filteredGroupedChildren.map((group) => (
+                        <Card
+                          key={group.employeeId}
+                          onClick={() => handleOpenEmployeeChildrenModal(group.employeeId, group.employeeName, group.children)}
+                          sx={{
+                            cursor: "pointer",
+                            border: "1px solid rgba(109, 35, 35, 0.1)",
+                            mb: 1,
+                            "&:hover": { 
+                              borderColor: accentColor,
+                              backgroundColor: 'rgba(254, 249, 225, 0.3)'
+                            },
+                          }}
+                        >
+                          <Box sx={{ p: 2 }}>
+                            <Box sx={{ display: 'flex', alignItems: 'flex-start' }}>
+                              <Box sx={{ mr: 1.5, mt: 0.2 }}>
+                                <FamilyRestroomIcon sx={{ fontSize: 20, color: accentColor }} />
+                              </Box>
+                              
+                              <Box sx={{ flexGrow: 1 }}>
+                                <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
+                                  <Typography variant="caption" sx={{ 
+                                    color: accentColor,
+                                    fontSize: '0.7rem',
+                                    fontWeight: 'bold',
+                                    mr: 1
+                                  }}>
+                                    ID: {group.employeeId}
+                                  </Typography>
+                                  <Typography variant="body2" fontWeight="bold" color="#333">
+                                    {group.employeeName}
+                                  </Typography>
+                                </Box>
+                                
+                                <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
+                                  <GroupIcon sx={{ fontSize: 16, color: accentColor, mr: 0.5 }} />
+                                  <Typography variant="body2" color={grayColor}>
+                                    {group.children.length} {group.children.length === 1 ? 'Child' : 'Children'}
+                                  </Typography>
+                                </Box>
+                                
+                                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                                  {group.children.slice(0, 3).map((child) => (
+                                    <Chip
+                                      key={child.id}
+                                      label={`${child.childrenFirstName} ${child.childrenLastName}`}
+                                      size="small"
+                                      variant="outlined"
+                                      sx={{ fontSize: '0.7rem', height: '24px' }}
+                                    />
+                                  ))}
+                                  {group.children.length > 3 && (
+                                    <Chip
+                                      label={`+${group.children.length - 3} more`}
+                                      size="small"
+                                      variant="outlined"
+                                      sx={{ fontSize: '0.7rem', height: '24px', fontStyle: 'italic' }}
+                                    />
+                                  )}
+                                </Box>
+                              </Box>
+                            </Box>
+                          </Box>
+                        </Card>
+                      ))
+                    )}
+                    
+                    {filteredGroupedChildren.length === 0 && (
+                      <Box textAlign="center" py={4}>
+                        <Typography variant="h6" color={accentColor} fontWeight="bold" sx={{ mb: 1 }}>
+                          No Records Found
                         </Typography>
-                        
-                        {child.childrenNameExtension && (
-                          <Typography variant="caption" color="#666" mb={0.5}>
-                            {child.childrenNameExtension}
-                          </Typography>
-                        )}
-                        
-                        {child.dateOfBirth && (
-                          <Box
-                            sx={{
-                              display: 'inline-block',
-                              px: 1,
-                              py: 0.3,
-                              borderRadius: 0.5,
-                              backgroundColor: '#f5f5f5',
-                              border: '1px solid #ddd',
-                              alignSelf: 'flex-start',
-                              mt: 'auto'
-                            }}
-                          >
+                        <Typography variant="body2" color={grayColor}>
+                          Try adjusting your search criteria
+                        </Typography>
+                      </Box>
+                    )}
+                  </Box>
+                </Box>
+              </GlassCard>
+            </Fade>
+          </Grid>
+        </Grid>
+
+        {/* Employee Children Modal */}
+        <Modal
+          open={employeeChildrenModal.open}
+          onClose={handleCloseEmployeeChildrenModal}
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <GlassCard
+            sx={{
+              width: "90%",
+              maxWidth: "800px",
+              maxHeight: "90vh",
+              overflowY: 'auto',
+            }}
+          >
+            <Box
+              sx={{
+                p: 4,
+                background: `linear-gradient(135deg, ${primaryColor} 0%, ${secondaryColor} 100%)`,
+                color: accentColor,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+              }}
+            >
+              <Box sx={{ display: "flex", alignItems: "center" }}>
+                <FamilyRestroomIcon sx={{ fontSize: "1.8rem", mr: 2 }} />
+                <Box>
+                  <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
+                    Children of {employeeChildrenModal.employeeName}
+                  </Typography>
+                  <Typography variant="caption" sx={{ opacity: 0.9 }}>
+                    Employee ID: {employeeChildrenModal.employeeId} | {employeeChildrenModal.children.length} {employeeChildrenModal.children.length === 1 ? 'Child' : 'Children'}
+                  </Typography>
+                </Box>
+              </Box>
+              <IconButton onClick={handleCloseEmployeeChildrenModal} sx={{ color: accentColor }}>
+                <Close />
+              </IconButton>
+            </Box>
+
+            <Box sx={{ p: 4 }}>
+              {employeeChildrenModal.children.length > 0 ? (
+                <Grid container spacing={2}>
+                  {employeeChildrenModal.children.map((child) => (
+                    <Grid item xs={12} sm={6} md={4} key={child.id}>
+                      <Card
+                        onClick={() => handleOpenModal(child)}
+                        sx={{
+                          cursor: "pointer",
+                          border: "1px solid rgba(109, 35, 35, 0.1)",
+                          height: "100%",
+                          display: 'flex',
+                          flexDirection: 'column',
+                          "&:hover": { 
+                            borderColor: accentColor,
+                            transform: 'translateY(-2px)',
+                            transition: 'all 0.2s ease',
+                            boxShadow: '0 4px 8px rgba(109,35,35,0.15)'
+                          },
+                        }}
+                      >
+                        <CardContent sx={{ p: 2, flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
+                          <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                            <ChildCareIcon sx={{ fontSize: 18, color: accentColor, mr: 0.5 }} />
                             <Typography variant="caption" sx={{ 
-                              color: '#666',
+                              color: accentColor, 
+                              px: 0.5, 
+                              py: 0.2, 
+                              borderRadius: 0.5,
                               fontSize: '0.7rem',
                               fontWeight: 'bold'
                             }}>
-                              Age: {getAge(child.dateOfBirth)} years
+                              ID: {child.id}
                             </Typography>
                           </Box>
-                        )}
-                      </CardContent>
-                    </Card>
-                  </Grid>
-                ))}
-              </Grid>
-            ) : (
-              <Box textAlign="center" py={4}>
-                <Typography variant="body1" color="#555" fontWeight="bold">
-                  No Children Records Found
-                </Typography>
-                <Typography variant="body2" color="#666" sx={{ mt: 0.5 }}>
-                  This employee doesn't have any children records yet.
-                </Typography>
-              </Box>
-            )}
-          </Box>
-        </Paper>
-      </Modal>
+                          
+                          <Typography variant="body2" fontWeight="bold" color="#333" mb={0.5} noWrap>
+                            {child.childrenFirstName} {child.childrenMiddleName} {child.childrenLastName}
+                          </Typography>
+                          
+                          {child.childrenNameExtension && (
+                            <Typography variant="caption" color={grayColor} mb={0.5}>
+                              {child.childrenNameExtension}
+                            </Typography>
+                          )}
+                          
+                          {child.dateOfBirth && (
+                            <Box
+                              sx={{
+                                display: 'inline-block',
+                                px: 1,
+                                py: 0.3,
+                                borderRadius: 0.5,
+                                backgroundColor: 'rgba(109, 35, 35, 0.1)',
+                                border: '1px solid rgba(109, 35, 35, 0.2)',
+                                alignSelf: 'flex-start',
+                                mt: 'auto'
+                              }}
+                            >
+                              <Typography variant="caption" sx={{ 
+                                color: accentColor,
+                                fontSize: '0.7rem',
+                                fontWeight: 'bold'
+                              }}>
+                                Age: {getAge(child.dateOfBirth)} years
+                              </Typography>
+                            </Box>
+                          )}
+                        </CardContent>
+                      </Card>
+                    </Grid>
+                  ))}
+                </Grid>
+              ) : (
+                <Box textAlign="center" py={4}>
+                  <Typography variant="h6" color={accentColor} fontWeight="bold" sx={{ mb: 1 }}>
+                    No Children Records Found
+                  </Typography>
+                  <Typography variant="body2" color={grayColor}>
+                    This employee doesn't have any children records yet.
+                  </Typography>
+                </Box>
+              )}
+            </Box>
+          </GlassCard>
+        </Modal>
 
-      {/* Edit Child Modal */}
-      <Modal
-        open={!!editChild}
-        onClose={handleCloseModal}
-        sx={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
-        <Paper
+        {/* Edit Child Modal */}
+        <Modal
+          open={!!editChild}
+          onClose={handleCloseModal}
           sx={{
-            width: "90%",
-            maxWidth: "600px",
-            maxHeight: "90vh",
             display: "flex",
-            flexDirection: "column",
-            borderRadius: 2,
-            boxShadow: '0 8px 24px rgba(0, 0, 0, 0.3)',
-            overflow: 'hidden',
+            alignItems: "center",
+            justifyContent: "center",
           }}
         >
-          {editChild && (
-            <>
-              {/* Modal Header */}
-              <Box
-                sx={{
-                  backgroundColor: "#6D2323",
-                  color: "#ffffff",
-                  p: 2,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  position: 'sticky',
-                  top: 0,
-                  zIndex: 10,
-                }}
-              >
-                <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
-                  {isEditing ? "Edit Child Information" : "Child Details"}
-                </Typography>
-                <IconButton onClick={handleCloseModal} sx={{ color: "#fff" }}>
-                  <Close />
-                </IconButton>
-              </Box>
+          <GlassCard
+            sx={{
+              width: "90%",
+              maxWidth: "600px",
+              maxHeight: "90vh",
+              overflowY: 'auto',
+            }}
+          >
+            {editChild && (
+              <>
+                <Box
+                  sx={{
+                    p: 4,
+                    background: `linear-gradient(135deg, ${primaryColor} 0%, ${secondaryColor} 100%)`,
+                    color: accentColor,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                  }}
+                >
+                  <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
+                    {isEditing ? "Edit Child Information" : "Child Details"}
+                  </Typography>
+                  <IconButton onClick={handleCloseModal} sx={{ color: accentColor }}>
+                    <Close />
+                  </IconButton>
+                </Box>
 
-              {/* Modal Content with Scroll */}
-              <Box sx={{ 
-                p: 3, 
-                flexGrow: 1, 
-                overflowY: 'auto',
-                maxHeight: 'calc(90vh - 140px)', // Account for header and sticky footer
-                '&::-webkit-scrollbar': {
-                  width: '6px',
-                },
-                '&::-webkit-scrollbar-track': {
-                  background: '#f1f1f1',
-                  borderRadius: '3px',
-                },
-                '&::-webkit-scrollbar-thumb': {
-                  background: '#6D2323',
-                  borderRadius: '3px',
-                },
-              }}>
-                <Grid container spacing={2}>
-                  <Grid item xs={12}>
-                    <Typography variant="subtitle2" sx={{ fontWeight: "bold", mb: 1.5, color: "#6D2323" }}>
+                <Box sx={{ p: 4 }}>
+                  <Box sx={{ mb: 3 }}>
+                    <Typography variant="h5" sx={{ fontWeight: 600, mb: 2, color: accentColor, display: 'flex', alignItems: 'center' }}>
+                      <PersonIcon sx={{ mr: 2, fontSize: 24 }} />
                       Employee Information
                     </Typography>
+                    
                     <Grid container spacing={2}>
                       <Grid item xs={12} sm={6}>
-                        <Typography variant="caption" sx={{ fontWeight: "bold", mb: 0.5, color: "#333", display: 'block' }}>
+                        <Typography variant="body2" sx={{ fontWeight: 500, mb: 1, color: accentColor }}>
                           Search Employee
                         </Typography>
                         <EmployeeAutocomplete
@@ -1535,7 +1507,7 @@ const Children = () => {
                           <Typography
                             variant="caption"
                             sx={{
-                              color: '#666',
+                              color: grayColor,
                               fontStyle: 'italic',
                               display: 'block',
                               mt: 0.5,
@@ -1547,7 +1519,7 @@ const Children = () => {
                       </Grid>
 
                       <Grid item xs={12} sm={6}>
-                        <Typography variant="caption" sx={{ fontWeight: "bold", mb: 0.5, color: "#333", display: 'block' }}>
+                        <Typography variant="body2" sx={{ fontWeight: 500, mb: 1, color: accentColor }}>
                           Selected Employee
                         </Typography>
                         {selectedEditEmployee ? (
@@ -1555,22 +1527,21 @@ const Children = () => {
                             sx={{
                               display: 'flex',
                               alignItems: 'center',
-                              backgroundColor: '#f8f9fa',
-                              border: '2px solid #6D2323',
-                              borderRadius: '8px',
-                              padding: '8px 12px',
+                              backgroundColor: 'rgba(254, 249, 225, 0.8)',
+                              border: '1px solid rgba(109, 35, 35, 0.3)',
+                              borderRadius: 2,
+                              padding: '12px',
                               gap: 1.5,
-                              height: '21px',
                             }}
                           >
-                            <PersonIcon sx={{ color: '#6D2323', fontSize: '20px' }} />
+                            <PersonIcon sx={{ color: accentColor, fontSize: 20 }} />
                             <Box sx={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
                               <Typography
                                 variant="body2"
                                 sx={{
                                   fontWeight: 'bold',
-                                  color: '#6D2323',
-                                  fontSize: '13px',
+                                  color: accentColor,
+                                  fontSize: '14px',
                                   lineHeight: 1.2,
                                 }}
                               >
@@ -1579,8 +1550,8 @@ const Children = () => {
                               <Typography
                                 variant="caption"
                                 sx={{
-                                  color: '#666',
-                                  fontSize: '11px',
+                                  color: grayColor,
+                                  fontSize: '12px',
                                   lineHeight: 1.2,
                                 }}
                               >
@@ -1594,19 +1565,19 @@ const Children = () => {
                               display: 'flex',
                               alignItems: 'center',
                               justifyContent: 'center',
-                              backgroundColor: '#f5f5f5',
-                              border: '2px dashed #ccc',
-                              borderRadius: '8px',
-                              padding: '8px 12px',
-                              height: '21px',
+                              backgroundColor: 'rgba(0, 0, 0, 0.05)',
+                              border: '2px dashed rgba(109, 35, 35, 0.3)',
+                              borderRadius: 2,
+                              padding: '12px',
+                              minHeight: '48px',
                             }}
                           >
                             <Typography
                               variant="body2"
                               sx={{
-                                color: '#999',
+                                color: grayColor,
                                 fontStyle: 'italic',
-                                fontSize: '13px',
+                                fontSize: '14px',
                               }}
                             >
                               No employee selected
@@ -1615,287 +1586,235 @@ const Children = () => {
                         )}
                       </Grid>
                     </Grid>
-                  </Grid>
+                  </Box>
 
-                  <Grid item xs={12}>
-                    <Box sx={{ 
-                      borderBottom: '2px solid #e0e0e0', 
-                      my: 2,
-                      '&::before': {
-                        content: '"Child Details"',
-                        position: 'absolute',
-                        left: 20,
-                        top: -10,
-                        backgroundColor: '#fff',
-                        px: 1,
-                        color: '#6D2323',
-                        fontWeight: 'bold',
-                        fontSize: '0.875rem'
-                      },
-                      position: 'relative'
-                    }} />
-                  </Grid>
+                  <Divider sx={{ my: 3, borderColor: 'rgba(109,35,35,0.1)' }} />
 
-                  <Grid item xs={12}>
-                    <Typography variant="caption" sx={{ fontWeight: "bold", mb: 0.5, color: "#333", display: 'block' }}>
-                      First Name
-                    </Typography>
-                    {isEditing ? (
-                      <TextField
-                        value={editChild.childrenFirstName}
-                        onChange={(e) => handleChange("childrenFirstName", e.target.value, true)}
-                        fullWidth
-                        size="small"
-                        sx={{
-                          '& .MuiOutlinedInput-root': {
-                            '& fieldset': {
-                              borderColor: "#6D2323",
-                            },
-                            '&:hover fieldset': {
-                              borderColor: "#6D2323",
-                            },
-                            '&.Mui-focused fieldset': {
-                              borderColor: "#6D2323",
-                            },
-                          },
-                        }}
-                      />
-                    ) : (
-                      <Typography variant="body2" sx={{ p: 1, bgcolor: '#f5f5f5', borderRadius: 1 }}>
-                        {editChild.childrenFirstName}
+                  <Typography variant="h5" sx={{ fontWeight: 600, mb: 3, color: accentColor, display: 'flex', alignItems: 'center' }}>
+                    <ChildCareIcon sx={{ mr: 2, fontSize: 24 }} />
+                    Child Details
+                  </Typography>
+
+                  <Grid container spacing={2}>
+                    <Grid item xs={12}>
+                      <Typography variant="body2" sx={{ fontWeight: 500, mb: 1, color: accentColor }}>
+                        First Name
                       </Typography>
-                    )}
-                  </Grid>
+                      {isEditing ? (
+                        <ModernTextField
+                          value={editChild.childrenFirstName}
+                          onChange={(e) => handleChange("childrenFirstName", e.target.value, true)}
+                          fullWidth
+                          size="small"
+                        />
+                      ) : (
+                        <Box sx={{ 
+                          p: 1.5, 
+                          bgcolor: 'rgba(254, 249, 225, 0.5)', 
+                          borderRadius: 1,
+                          border: '1px solid rgba(109, 35, 35, 0.2)'
+                        }}>
+                          <Typography variant="body2">
+                            {editChild.childrenFirstName}
+                          </Typography>
+                        </Box>
+                      )}
+                    </Grid>
 
-                  <Grid item xs={12}>
-                    <Typography variant="caption" sx={{ fontWeight: "bold", mb: 0.5, color: "#333", display: 'block' }}>
-                      Middle Name
-                    </Typography>
-                    {isEditing ? (
-                      <TextField
-                        value={editChild.childrenMiddleName}
-                        onChange={(e) => handleChange("childrenMiddleName", e.target.value, true)}
-                        fullWidth
-                        size="small"
-                        sx={{
-                          '& .MuiOutlinedInput-root': {
-                            '& fieldset': {
-                              borderColor: "#6D2323",
-                            },
-                            '&:hover fieldset': {
-                              borderColor: "#6D2323",
-                            },
-                            '&.Mui-focused fieldset': {
-                              borderColor: "#6D2323",
-                            },
-                          },
-                        }}
-                      />
-                    ) : (
-                      <Typography variant="body2" sx={{ p: 1, bgcolor: '#f5f5f5', borderRadius: 1 }}>
-                        {editChild.childrenMiddleName || 'N/A'}
+                    <Grid item xs={12}>
+                      <Typography variant="body2" sx={{ fontWeight: 500, mb: 1, color: accentColor }}>
+                        Middle Name
                       </Typography>
-                    )}
-                  </Grid>
+                      {isEditing ? (
+                        <ModernTextField
+                          value={editChild.childrenMiddleName}
+                          onChange={(e) => handleChange("childrenMiddleName", e.target.value, true)}
+                          fullWidth
+                          size="small"
+                        />
+                      ) : (
+                        <Box sx={{ 
+                          p: 1.5, 
+                          bgcolor: 'rgba(254, 249, 225, 0.5)', 
+                          borderRadius: 1,
+                          border: '1px solid rgba(109, 35, 35, 0.2)'
+                        }}>
+                          <Typography variant="body2">
+                            {editChild.childrenMiddleName || 'N/A'}
+                          </Typography>
+                        </Box>
+                      )}
+                    </Grid>
 
-                  <Grid item xs={12}>
-                    <Typography variant="caption" sx={{ fontWeight: "bold", mb: 0.5, color: "#333", display: 'block' }}>
-                      Last Name
-                    </Typography>
-                    {isEditing ? (
-                      <TextField
-                        value={editChild.childrenLastName}
-                        onChange={(e) => handleChange("childrenLastName", e.target.value, true)}
-                        fullWidth
-                        size="small"
-                        sx={{
-                          '& .MuiOutlinedInput-root': {
-                            '& fieldset': {
-                              borderColor: "#6D2323",
-                            },
-                            '&:hover fieldset': {
-                              borderColor: "#6D2323",
-                            },
-                            '&.Mui-focused fieldset': {
-                              borderColor: "#6D2323",
-                            },
-                          },
-                        }}
-                      />
-                    ) : (
-                      <Typography variant="body2" sx={{ p: 1, bgcolor: '#f5f5f5', borderRadius: 1 }}>
-                        {editChild.childrenLastName}
+                    <Grid item xs={12}>
+                      <Typography variant="body2" sx={{ fontWeight: 500, mb: 1, color: accentColor }}>
+                        Last Name
                       </Typography>
-                    )}
-                  </Grid>
+                      {isEditing ? (
+                        <ModernTextField
+                          value={editChild.childrenLastName}
+                          onChange={(e) => handleChange("childrenLastName", e.target.value, true)}
+                          fullWidth
+                          size="small"
+                        />
+                      ) : (
+                        <Box sx={{ 
+                          p: 1.5, 
+                          bgcolor: 'rgba(254, 249, 225, 0.5)', 
+                          borderRadius: 1,
+                          border: '1px solid rgba(109, 35, 35, 0.2)'
+                        }}>
+                          <Typography variant="body2">
+                            {editChild.childrenLastName}
+                          </Typography>
+                        </Box>
+                      )}
+                    </Grid>
 
-                  <Grid item xs={12}>
-                    <Typography variant="caption" sx={{ fontWeight: "bold", mb: 0.5, color: "#333", display: 'block' }}>
-                      Name Extension
-                    </Typography>
-                    {isEditing ? (
-                      <TextField
-                        value={editChild.childrenNameExtension}
-                        onChange={(e) => handleChange("childrenNameExtension", e.target.value, true)}
-                        fullWidth
-                        size="small"
-                        sx={{
-                          '& .MuiOutlinedInput-root': {
-                            '& fieldset': {
-                              borderColor: "#6D2323",
-                            },
-                            '&:hover fieldset': {
-                              borderColor: "#6D2323",
-                            },
-                            '&.Mui-focused fieldset': {
-                              borderColor: "#6D2323",
-                            },
-                          },
-                        }}
-                      />
-                    ) : (
-                      <Typography variant="body2" sx={{ p: 1, bgcolor: '#f5f5f5', borderRadius: 1 }}>
-                        {editChild.childrenNameExtension || 'N/A'}
+                    <Grid item xs={12}>
+                      <Typography variant="body2" sx={{ fontWeight: 500, mb: 1, color: accentColor }}>
+                        Name Extension
                       </Typography>
-                    )}
-                  </Grid>
+                      {isEditing ? (
+                        <ModernTextField
+                          value={editChild.childrenNameExtension}
+                          onChange={(e) => handleChange("childrenNameExtension", e.target.value, true)}
+                          fullWidth
+                          size="small"
+                        />
+                      ) : (
+                        <Box sx={{ 
+                          p: 1.5, 
+                          bgcolor: 'rgba(254, 249, 225, 0.5)', 
+                          borderRadius: 1,
+                          border: '1px solid rgba(109, 35, 35, 0.2)'
+                        }}>
+                          <Typography variant="body2">
+                            {editChild.childrenNameExtension || 'N/A'}
+                          </Typography>
+                        </Box>
+                      )}
+                    </Grid>
 
-                  <Grid item xs={12}>
-                    <Typography variant="caption" sx={{ fontWeight: "bold", mb: 0.5, color: "#333", display: 'block' }}>
-                      Date of Birth
-                    </Typography>
-                    {isEditing ? (
-                      <TextField
-                        type="date"
-                        value={editChild.dateOfBirth?.split('T')[0] || ''}
-                        onChange={(e) => handleChange("dateOfBirth", e.target.value, true)}
-                        fullWidth
-                        size="small"
-                        sx={{
-                          '& .MuiOutlinedInput-root': {
-                            '& fieldset': {
-                              borderColor: "#6D2323",
-                            },
-                            '&:hover fieldset': {
-                              borderColor: "#6D2323",
-                            },
-                            '&.Mui-focused fieldset': {
-                              borderColor: "#6D2323",
-                            },
-                          },
-                        }}
-                      />
-                    ) : (
-                      <Typography variant="body2" sx={{ p: 1, bgcolor: '#f5f5f5', borderRadius: 1 }}>
-                        {editChild.dateOfBirth?.split('T')[0] || 'N/A'}
+                    <Grid item xs={12}>
+                      <Typography variant="body2" sx={{ fontWeight: 500, mb: 1, color: accentColor }}>
+                        Date of Birth
                       </Typography>
-                    )}
+                      {isEditing ? (
+                        <ModernTextField
+                          type="date"
+                          value={editChild.dateOfBirth?.split('T')[0] || ''}
+                          onChange={(e) => handleChange("dateOfBirth", e.target.value, true)}
+                          fullWidth
+                          size="small"
+                        />
+                      ) : (
+                        <Box sx={{ 
+                          p: 1.5, 
+                          bgcolor: 'rgba(254, 249, 225, 0.5)', 
+                          borderRadius: 1,
+                          border: '1px solid rgba(109, 35, 35, 0.2)'
+                        }}>
+                          <Typography variant="body2">
+                            {editChild.dateOfBirth?.split('T')[0] || 'N/A'}
+                          </Typography>
+                        </Box>
+                      )}
+                    </Grid>
                   </Grid>
-                </Grid>
-              </Box>
 
-              {/* Sticky Action Buttons */}
-              <Box
-                sx={{
-                  backgroundColor: "#ffffff",
-                  borderTop: "1px solid #e0e0e0",
-                  p: 2,
-                  display: "flex",
-                  justifyContent: "flex-end",
-                  gap: 2,
-                  position: 'sticky',
-                  bottom: 0,
-                  zIndex: 10,
-                  boxShadow: '0 -2px 8px rgba(0, 0, 0, 0.1)',
-                }}
-              >
-                {!isEditing ? (
-                  <>
-                    <Button
-                      onClick={() => handleDelete(editChild.id)}
-                      variant="outlined"
-                      startIcon={<DeleteIcon />}
-                      sx={{
-                        color: "#d32f2f",
-                        borderColor: "#d32f2f",
-                        "&:hover": {
-                          backgroundColor: "#d32f2f",
-                          color: "#fff"
-                        }
-                      }}
-                    >
-                      Delete
-                    </Button>
-                    <Button
-                      onClick={handleStartEdit}
-                      variant="contained"
-                      startIcon={<EditIcon />}
-                      sx={{ 
-                        backgroundColor: "#6D2323", 
-                        color: "#FEF9E1",
-                        "&:hover": { backgroundColor: "#5a1d1d" }
-                      }}
-                    >
-                      Edit
-                    </Button>
-                  </>
-                ) : (
-                  <>
-                    <Button
-                      onClick={handleCancelEdit}
-                      variant="outlined"
-                      startIcon={<CancelIcon />}
-                      sx={{
-                        color: "#666",
-                        borderColor: "#666",
-                        "&:hover": {
-                          backgroundColor: "#f5f5f5"
-                        }
-                      }}
-                    >
-                      Cancel
-                    </Button>
-                    <Button
-                      onClick={handleUpdate}
-                      variant="contained"
-                      startIcon={<SaveIcon />}
-                      disabled={!hasChanges()}
-                      sx={{ 
-                        backgroundColor: hasChanges() ? "#6D2323" : "#ccc", 
-                        color: "#FEF9E1",
-                        "&:hover": { 
-                          backgroundColor: hasChanges() ? "#5a1d1d" : "#ccc"
-                        },
-                        "&:disabled": {
-                          backgroundColor: "#ccc",
-                          color: "#999"
-                        }
-                      }}
-                    >
-                      Save
-                    </Button>
-                  </>
-                )}
-              </Box>
-            </>
-          )}
-        </Paper>
-      </Modal>
+                  <Box sx={{ display: 'flex', gap: 2, mt: 4, justifyContent: 'flex-end' }}>
+                    {!isEditing ? (
+                      <>
+                        <ProfessionalButton
+                          onClick={() => handleDelete(editChild.id)}
+                          variant="outlined"
+                          startIcon={<DeleteIcon />}
+                          sx={{
+                            color: "#d32f2f",
+                            borderColor: "#d32f2f",
+                            "&:hover": {
+                              backgroundColor: "#d32f2f",
+                              color: "#fff"
+                            }
+                          }}
+                        >
+                          Delete
+                        </ProfessionalButton>
+                        <ProfessionalButton
+                          onClick={handleStartEdit}
+                          variant="contained"
+                          startIcon={<EditIcon />}
+                          sx={{ 
+                            backgroundColor: accentColor, 
+                            color: primaryColor,
+                            "&:hover": { backgroundColor: accentDark }
+                          }}
+                        >
+                          Edit
+                        </ProfessionalButton>
+                      </>
+                    ) : (
+                      <>
+                        <ProfessionalButton
+                          onClick={handleCancelEdit}
+                          variant="outlined"
+                          startIcon={<CancelIcon />}
+                          sx={{
+                            color: grayColor,
+                            borderColor: grayColor,
+                            "&:hover": {
+                              backgroundColor: 'rgba(108, 117, 125, 0.1)'
+                            }
+                          }}
+                        >
+                          Cancel
+                        </ProfessionalButton>
+                        <ProfessionalButton
+                          onClick={handleUpdate}
+                          variant="contained"
+                          startIcon={<SaveIcon />}
+                          disabled={!hasChanges()}
+                          sx={{ 
+                            backgroundColor: hasChanges() ? accentColor : grayColor, 
+                            color: primaryColor,
+                            "&:hover": { 
+                              backgroundColor: hasChanges() ? accentDark : grayColor
+                            },
+                            "&:disabled": {
+                              backgroundColor: grayColor,
+                              color: "#999"
+                            }
+                          }}
+                        >
+                          Save
+                        </ProfessionalButton>
+                      </>
+                    )}
+                  </Box>
+                </Box>
+              </>
+            )}
+          </GlassCard>
+        </Modal>
 
-      <Snackbar
-        open={snackbar.open}
-        autoHideDuration={3000}
-        onClose={() => setSnackbar({ ...snackbar, open: false })}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-      >
-        <Alert
+        <SuccessfullOverlay open={successOpen} action={successAction} />
+        
+        <Snackbar
+          open={snackbar.open}
+          autoHideDuration={3000}
           onClose={() => setSnackbar({ ...snackbar, open: false })}
-          severity={snackbar.severity}
-          sx={{ width: '100%' }}
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
         >
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
+          <Alert
+            onClose={() => setSnackbar({ ...snackbar, open: false })}
+            severity={snackbar.severity}
+            sx={{ width: '100%' }}
+          >
+            {snackbar.message}
+          </Alert>
+        </Snackbar>
+      </Box>
     </Box>
   );
 };

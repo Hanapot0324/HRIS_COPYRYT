@@ -1943,12 +1943,11 @@ app.post('/send-2fa-code', async (req, res) => {
         subject: 'Login Verification Code',
         html: `
       <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; background-color: #f4f4f4; padding: 20px;">
-       
+      
         <div style="background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
          
           <!-- HEADER -->
           <div style="background: linear-gradient(135deg, #8b3a3a 0%, #6d2323 100%); color: #ffffff; text-align: center; padding: 20px 20px;">
-            <h2 style="margin: 0 0 8px 0; font-size: 28px; font-weight: 600; letter-spacing: 1px;">HRIS</h2>
             <p style="margin: 0; font-size: 15px; opacity: 0.95; font-weight: 300;">Login Verification</p>
           </div>
          
@@ -1968,13 +1967,6 @@ app.post('/send-2fa-code', async (req, res) => {
            
             <p style="color: #555555; margin: 0; font-size: 14px; line-height: 1.6;">If this login attempt wasn't made by you, we recommend securing your account immediately.</p>
           </div>
-         
-          <!-- FOOTER -->
-          <div style="background: linear-gradient(135deg, #6d2323 0%, #4a1818 100%); color: #ffffff; text-align: center; padding: 15px 20px; font-size: 13px;">
-            <p style="margin: 0 0 8px 0; font-weight: 500; opacity: 0.95; color: #ffffff; ">Human Resource Information System</p>
-            <p style="margin: 0; opacity: 0.85; font-size: 12px; line-height: 1;  #ffffff; ">© Eulogio "Amang" Rodriguez Institute of Science and Technology (EARIST).<br>All Rights Reserved.</p>
-          </div>
-         
         </div>
        
         <!-- EXTRA FOOTER NOTE -->

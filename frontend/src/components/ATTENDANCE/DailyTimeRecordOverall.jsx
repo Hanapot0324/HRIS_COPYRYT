@@ -1,9 +1,76 @@
-import API_BASE_URL from '../../apiConfig';
-import React, { useState } from 'react';
+import { AccessTime, CalendarToday, Print } from '@mui/icons-material';
+import {
+  Avatar,
+  Box,
+  Button,
+  Card,
+  Chip,
+  Container,
+  Fade,
+  IconButton,
+  Paper,
+  styled,
+  TextField,
+  Tooltip,
+  Typography
+} from "@mui/material";
 import axios from 'axios';
-import { TextField, Button, Grid, Container, Box, Typography} from "@mui/material";
+import { useState } from 'react';
+import API_BASE_URL from '../../apiConfig';
 import earistLogo from '../../assets/earistLogo.jpg';
-import { AccessTime } from '@mui/icons-material';
+
+// Professional styled components
+const GlassCard = styled(Card)(({ theme }) => ({
+  borderRadius: 20,
+  background: 'rgba(254, 249, 225, 0.95)',
+  backdropFilter: 'blur(10px)',
+  boxShadow: '0 8px 40px rgba(109, 35, 35, 0.08)',
+  border: '1px solid rgba(109, 35, 35, 0.1)',
+  overflow: 'hidden',
+  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+  '&:hover': {
+    boxShadow: '0 12px 48px rgba(109, 35, 35, 0.15)',
+    transform: 'translateY(-4px)',
+  },
+}));
+
+const ProfessionalButton = styled(Button)(({ theme, variant, color = 'primary' }) => ({
+  borderRadius: 12,
+  fontWeight: 600,
+  padding: '12px 24px',
+  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+  textTransform: 'none',
+  fontSize: '0.95rem',
+  letterSpacing: '0.025em',
+  boxShadow: variant === 'contained' ? '0 4px 14px rgba(254, 249, 225, 0.25)' : 'none',
+  '&:hover': {
+    transform: 'translateY(-2px)',
+    boxShadow: variant === 'contained' ? '0 6px 20px rgba(254, 249, 225, 0.35)' : 'none',
+  },
+  '&:active': {
+    transform: 'translateY(0)',
+  },
+}));
+
+const ModernTextField = styled(TextField)(({ theme }) => ({
+  '& .MuiOutlinedInput-root': {
+    borderRadius: 12,
+    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+    backgroundColor: 'rgba(255, 255, 255, 0.8)',
+    '&:hover': {
+      transform: 'translateY(-1px)',
+      backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    },
+    '&.Mui-focused': {
+      transform: 'translateY(-1px)',
+      boxShadow: '0 4px 20px rgba(254, 249, 225, 0.25)',
+      backgroundColor: 'rgba(255, 255, 255, 1)',
+    },
+  },
+  '& .MuiInputLabel-root': {
+    fontWeight: 500,
+  },
+}));
 
 const DailyTimeRecordFaculty = () => {
   const [personID, setPersonID] = useState("");
@@ -11,6 +78,13 @@ const DailyTimeRecordFaculty = () => {
   const [endDate, setEndDate] = useState("");
   const [records, setRecords] = useState([]);
   const [employeeName, setEmployeeName] = useState("");
+  
+  // Color scheme
+  const primaryColor = '#FEF9E1';
+  const secondaryColor = '#FFF8E7';
+  const accentColor = '#6d2323';
+  const accentDark = '#8B3333';
+  const grayColor = '#6c757d';
 
   const getAuthHeaders = () => {
     const token = localStorage.getItem('token');
@@ -21,6 +95,7 @@ const DailyTimeRecordFaculty = () => {
       },
     };
   };
+  
   const fetchRecords = async () => {
     try {
       const response = await axios.post(
@@ -36,10 +111,10 @@ const DailyTimeRecordFaculty = () => {
       const data = response.data;
 
       if (data.length > 0) {
-        // Set the records
+        // Set records
         setRecords(data);
 
-        // Extract and set the employee name from the first record
+        // Extract and set employee name from first record
         const { firstName, lastName } = data[0];
         setEmployeeName(`${firstName} ${lastName}`);
       } else {
@@ -74,18 +149,18 @@ const DailyTimeRecordFaculty = () => {
 
   const formatMonth = (dateString) => {
     const date = new Date(dateString);
-    const options = { month: "long" }; // Only include the month name
+    const options = { month: "long" }; // Only include month name
     return date.toLocaleDateString(undefined, options).toUpperCase();
   };
 
-  const currentYear =  new Date().getFullYear();
+  const currentYear = new Date().getFullYear();
   const months = [
-     "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+    "JAN", "FEB", "MAR", "APR", "MAY", "JUN",
+    "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"
   ];
 
-   const handleMonthClick = (monthIndex) => {
-    const year =  new Date().getFullYear();
+  const handleMonthClick = (monthIndex) => {
+    const year = new Date().getFullYear();
     const start = new Date(Date.UTC(year, monthIndex, 1));
     const end = new Date(Date.UTC(year, monthIndex + 1, 0)); 
 
@@ -97,7 +172,7 @@ const DailyTimeRecordFaculty = () => {
   };
 
   return (
-    <div className="container faculty">
+    <Container maxWidth="xl" sx={{ py: 4, mt: -5 }}>
       <style>
         {`
           @media print {
@@ -155,352 +230,472 @@ const DailyTimeRecordFaculty = () => {
         `}
       </style>
       
-      <div 
-  style={{
-    backgroundColor: '#6D2323',
-    color: '#ffffff',
-    padding: '20px',
-    width: '95.4%',
-    borderRadius: '8px',
-    borderBottomLeftRadius: '0px',
-    borderBottomRightRadius: '0px',
-   
-  }}>
-    <div className="search-container no-print">
-        <div  style={{ display: 'flex', alignItems: 'center', color: '#ffffff', }}>
-          <AccessTime sx={{ fontSize: '3rem', marginRight: '16px', marginTop: '5px', marginLeft: '5px' }} />
-          <div >
-            <h4  style={{ margin: 0, fontSize: '150%', marginBottom: '2px' }}>
-              Overall Daily Time Record
-            </h4>
-            <p style={{ margin: 0, fontSize: '85%' }}>
-              Manage and filters overall DTR records
-            </p>
-          </div>
-          </div>     
-        </div>
-        </div>
-      <Container sx={{ bgcolor: 'white', borderBottomLeftRadius: '5px', borderBottomRightRadius: '5px', paddingBottom: '50px', paddingTop:'25px'}}>
-      <div className="search-container no-print">
-
-         {/* Month Buttons */}
-                  <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5, mb: 2, ml: 1.3 }}>
-                    {months.map((month, index) => (
-                      <Button key={month} variant="contained" onClick={() => handleMonthClick(index)} sx={{ backgroundColor: "#6D2323", color: "white", "&:hover": { backgroundColor: "#d4bd99" } }}>
-                        {month}
-                      </Button>
-                    ))}
-                  </Box>
-
-        <div className='textfield-container'>
-          <TextField
-            sx={{ width: "200px", paddingRight: "12px" }}
-            m
-            label="Employee Number"
-            value={personID}
-            onChange={(e) => setPersonID(e.target.value)}
-            variant="outlined"
-          />
-
-          <TextField
-            sx={{ width: "200px", paddingRight: "12px" }}
-            fullWidth
-            label="Start Date"
-            type="date"
-            value={startDate}
-            onChange={(e) => setStartDate(e.target.value)}
-            variant="outlined"
-            InputLabelProps={{ shrink: true }}
-          />
-
-          <TextField
-            sx={{ width: "200px", paddingRight: "12px" }}
-            label="End Date"
-            type="date"
-            value={endDate}
-            onChange={(e) => setEndDate(e.target.value)}
-            variant="outlined"
-            InputLabelProps={{ shrink: true }}
-          />
-
-          <Button
-            sx={{
-              width: "200px",
-              height: "55px",
-              marginleft: "10px",
-              margintopt: "10px",
-              bgcolor: "#6D2323"
-            }}
-            variant="contained"
-            color="primary"
-            onClick={fetchRecords}
-            fullWidth
-          >
-            Search
-          </Button>
-        </div>
-      </div>
-      </Container>
-      <Container sx={{bgcolor: 'white', marginTop: '20px', marginBottom: '20px'}}>
-      <br />
-      <div className="table-container" style={{marginBottom: '5%'}}>
-        <div className="table-wrapper">
-          <div>
-            <table
-              style={{
-                border: "1px solid black",
-                borderCollapse: "collapse",
-                width: "52rem",
-              }}
-              className="table side-by-side"
-            >
-             <thead style={{ textAlign: "center", position: 'relative' }}>
-                            <tr>
-                              <div
-                                style={{
-                                  position: "absolute",
-                                  top: "1.5rem",
-                                  left: "50%",
-                                  transform: "translateX(-50%)",
-                                  fontWeight: "bold",
-                                  fontSize: '13px'
-                                }}
-                              >
-                                Republic of the Philippines
-                              </div>
-                          
-                              <td
-                                colSpan="1"
-                                style={{
-                                  position: 'relative',
-                                  padding: "0",
-                                  lineHeight: "0",
-                                  height: "0px",
-                                  textAlign: "right",
-                                  marginRight: "0",
-                                }}
-                              >
-                                <img src={earistLogo} alt="EARIST Logo" width="55" height="55"  style={{position: 'absolute', marginTop: '-14%', left: '60%'}}/>
-                              </td>
-                              <td colSpan="3">
-                                  <p
-                                  style={{
-                                    marginTop: '15%',
-                                    fontSize: "15px",
-                                    fontWeight: "bold",
-                                    textAlign: "center",
-                                    marginLeft: '5%'
-                                  }}
-                                >
-                                  EULOGIO "AMANG" RODRIGUEZ <br /> INSTITUTE OF SCIENCE & TECHNOLOGY
-                                </p>
-                              </td>
-                              <td></td>
-                              <td></td>
-                              <td></td>
-                              <td></td>
-                              <td></td>
-                            </tr>
-                            <tr>
-                              <td colSpan="9">
-                                <p
-                                  style={{
-                                    fontSize: "14px",
-                                    fontWeight: "bold",
-                                    lineHeight: "0",
-                                  }}
-                                >
-                                  Nagtahan, Sampaloc Manila
-                                </p>
-                              </td>
-                            </tr>
-                            <tr>
-                              <td colSpan="9">
-                                <p
-                                  style={{
-                                    fontSize: "12px",
-                                    fontWeight: "bold",
-                                    lineHeight: "0",
-                                  }}
-                                >
-                                  Civil Service Form No. 48
-                                </p>
-                              </td>
-                            </tr>
-            
-                            <tr>
-                              <td colSpan="9" style={{ padding: "2", lineHeight: "0" }}>
-                                <h4>DAILY TIME RECORD</h4>
-                              </td>
-                            </tr>
+      <Box sx={{ px: { xs: 2, sm: 4, md: 6 } }}>
+        {/* Header */}
+        <Fade in timeout={500}>
+          <Box sx={{ mb: 4 }}>
+            <GlassCard>
+              <Box
+                sx={{
+                  p: 5,
+                  background: `linear-gradient(135deg, ${primaryColor} 0%, ${secondaryColor} 100%)`,
+                  color: accentColor,
+                  position: 'relative',
+                  overflow: 'hidden',
+                }}
+              >
+                <Box
+                  sx={{
+                    position: 'absolute',
+                    top: -50,
+                    right: -50,
+                    width: 200,
+                    height: 200,
+                    background: 'radial-gradient(circle, rgba(109,35,35,0.1) 0%, rgba(109,35,35,0) 70%)',
+                  }}
+                />
+                <Box
+                  sx={{
+                    position: 'absolute',
+                    bottom: -30,
+                    left: '30%',
+                    width: 150,
+                    height: 150,
+                    background: 'radial-gradient(circle, rgba(109,35,35,0.08) 0%, rgba(109,35,35,0) 70%)',
+                  }}
+                />
                 
-                  <tr >
-                    <td colSpan="9" style={{ padding: "2", lineHeight: "0" }}>
-                      <p
-                        style={{
-                          fontSize: "15px",
-                          margin: "0",
-                          height: "20px",
-                          textAlign: "left",
-                          padding: '0 1rem',
-                        }}
-                      >
-                        NAME: <b>{employeeName}</b>
-                      </p>
-                    </td>
-                  </tr>
-
-                  <tr>
-                    <td colSpan="9" style={{ padding: "2", lineHeight: "0" }}>
-                      <p
-                        style={{
-                          fontSize: "15px",
-                          margin: "0",
-                          height: "10px",
-                          textAlign: "left",
-                          paddingLeft: '15px'
-                        }}
-                      >
-                        Covered Dates: <b> {startDate ? formatDate(startDate) : ""} -{" "}
-                        {endDate ? formatDate(endDate) : ""} </b>
-                      </p>
-                    </td>
-                  </tr>
-
-                  <tr>
-                    <td
-                      colSpan="3"
-                      style={{ padding: "2", lineHeight: "2", textAlign: "left", padding: '0rem 1rem' }}
+                <Box display="flex" alignItems="center" justifyContent="space-between" position="relative" zIndex={1}>
+                  <Box display="flex" alignItems="center">
+                    <Avatar 
+                      sx={{ 
+                        bgcolor: 'rgba(109,35,35,0.15)', 
+                        mr: 4, 
+                        width: 64,
+                        height: 64,
+                        boxShadow: '0 8px 24px rgba(109,35,35,0.15)'
+                      }}
                     >
-                      <p
-                        style={{
-                          fontSize: "15px",
-                          margin: "0",
+                      <AccessTime sx={{color: accentColor, fontSize: 32 }} />
+                    </Avatar>
+                    <Box>
+                      <Typography variant="h4" component="h1" sx={{ fontWeight: 700, mb: 1, lineHeight: 1.2, color: accentColor }}>
+                        Daily Time Record
+                      </Typography>
+                      <Typography variant="body1" sx={{ opacity: 0.8, fontWeight: 400, color: accentDark }}>
+                        Manage and filter overall DTR records
+                      </Typography>
+                    </Box>
+                  </Box>
+                  <Box display="flex" alignItems="center" gap={2}>
+                    <Chip 
+                      label="Faculty Records" 
+                      size="small" 
+                      sx={{ 
+                        bgcolor: 'rgba(109,35,35,0.15)', 
+                        color: accentColor,
+                        fontWeight: 500,
+                        '& .MuiChip-label': { px: 1 }
+                      }} 
+                    />
+                    <Tooltip title="Refresh Data">
+                      <IconButton 
+                        onClick={() => window.location.reload()}
+                        sx={{ 
+                          bgcolor: 'rgba(109,35,35,0.1)', 
+                          '&:hover': { bgcolor: 'rgba(109,35,35,0.2)' },
+                          color: accentColor,
+                          width: 48,
+                          height: 48,
                         }}
                       >
-                        For the month of: <b>{" "}
-                        {startDate ? formatMonth(startDate) : ""}</b>
-                      </p>
-                    </td>
-                  </tr>
-                
-              </thead>
-              <tr>
-                 <th
-                  rowSpan="2"
-                  style={{
-                    textAlign: "center",
-                    verticalAlign: "middle",
-                    border: "1px solid black",
+                        <AccessTime sx={{ fontSize: 24 }} />
+                      </IconButton>
+                    </Tooltip>
+                  </Box>
+                </Box>
+              </Box>
+            </GlassCard>
+          </Box>
+        </Fade>
+
+        {/* Search Section */}
+        <Fade in timeout={700}>
+          <GlassCard sx={{ mb: 4 }}>
+            <Box
+              sx={{
+                p: 4,
+                background: `linear-gradient(135deg, ${primaryColor} 0%, ${secondaryColor} 100%)`,
+                color: accentColor,
+                display: "flex",
+                alignItems: "center",
+                boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+              }}
+            >
+              <CalendarToday sx={{ fontSize: "1.8rem", mr: 2 }} />
+              <Box>
+                <Typography variant="h7" sx={{ opacity: 0.9 }}>
+                  Select employee and date range to view records
+                </Typography>
+              </Box>
+            </Box>
+
+            <Box sx={{ p: 4 }}>
+              {/* Month Buttons */}
+              <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, mb: 3 }}>
+                {months.map((month, index) => (
+                  <ProfessionalButton
+                    key={month}
+                    variant="contained"
+                    onClick={() => handleMonthClick(index)}
+                    sx={{ 
+                      backgroundColor: accentColor, 
+                      color: primaryColor,
+                      "&:hover": { backgroundColor: accentDark },
+                      py: 0.5,
+                      px: 1.5,
+                      fontSize: '0.8rem'
+                    }}
+                  >
+                    {month}
+                  </ProfessionalButton>
+                ))}
+              </Box>
+
+              <Box sx={{ display: 'flex', gap: 2, alignItems: 'flex-end', flexWrap: 'wrap' }}>
+                <Box sx={{ minWidth: 225 }}>
+                  <Typography variant="body2" sx={{ fontWeight: 500, mb: 1, color: accentColor }}>
+                    Employee Number
+                  </Typography>
+                  <ModernTextField
+                    label="Employee Number"
+                    value={personID}
+                    onChange={(e) => setPersonID(e.target.value)}
+                    variant="outlined"
+                    fullWidth
+                  />
+                </Box>
+
+                <Box sx={{ minWidth: 225 }}>
+                  <Typography variant="body2" sx={{ fontWeight: 500, mb: 1, color: accentColor }}>
+                    Start Date
+                  </Typography>
+                  <ModernTextField
+                    label="Start Date"
+                    type="date"
+                    value={startDate}
+                    onChange={(e) => setStartDate(e.target.value)}
+                    variant="outlined"
+                    InputLabelProps={{ shrink: true }}
+                    fullWidth
+                  />
+                </Box>
+
+                <Box sx={{ minWidth: 225 }}>
+                  <Typography variant="body2" sx={{ fontWeight: 500, mb: 1, color: accentColor }}>
+                    End Date
+                  </Typography>
+                  <ModernTextField
+                    label="End Date"
+                    type="date"
+                    value={endDate}
+                    onChange={(e) => setEndDate(e.target.value)}
+                    variant="outlined"
+                    InputLabelProps={{ shrink: true }}
+                    fullWidth
+                  />
+                </Box>
+
+                <ProfessionalButton
+                  variant="contained"
+                  onClick={fetchRecords}
+                  startIcon={<AccessTime />}
+                  sx={{ 
+                    backgroundColor: accentColor, 
+                    color: primaryColor,
+                    "&:hover": { backgroundColor: accentDark },
+                    py: 1.5,
+                    px: 3
                   }}
                 >
-                  DAY
-                </th>
-                <th colSpan="2" style={{ border: "1px solid black" }}>
-                  A.M.
-                </th>
-                <th colSpan="2" style={{ border: "1px solid black" }}>
-                  P.M.
-                </th>
-                <th style={{ border: "1px solid black" }}>Late</th>
-                <th colSpan="1" style={{ border: "1px solid black" }}>
-                  Undertime
-                </th>
-              </tr>
-              <tr>
-                <td style={{ border: "1px solid black",  textAlign: "center"}}>ARRIVAL</td>
-                <td style={{ border: "1px solid black",  textAlign: "center" }}>DEPARTURE</td>
-                <td style={{ border: "1px solid black",  textAlign: "center" }}>ARRIVAL</td>
-                <td style={{ border: "1px solid black",  textAlign: "center" }}>DEPARTURE</td>
-                <td style={{ border: "1px solid black",  textAlign: "center" }}>Hours</td>
-                <td style={{ border: "1px solid black", textAlign: "center" }}>Minutes</td>
-              </tr>
+                  Search
+                </ProfessionalButton>
+              </Box>
+            </Box>
+          </GlassCard>
+        </Fade>
 
-              <tbody>
-                {Array.from({ length: 31 }, (_, i) => {
-                  const day = (i + 1).toString().padStart(2, "0");
-                  const record = records.find((r) =>
-                    r.date.endsWith(`-${day}`)
-                  );
+        {/* Records Table */}
+        <Fade in timeout={900}>
+          <Paper
+            elevation={4}
+            sx={{
+              borderRadius: 2,
+              overflow: 'hidden',
+              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+              border: '1px solid rgba(109, 35, 35, 0.1)',
+              mb: 4,
+            }}
+          >
+           
 
-                  return (
-                    <tr key={i}>
-                      <td style={{ border: "1px solid black", textAlign: 'center'}}>{day}</td>
-                      <td style={{ border: "1px solid black", textAlign: 'center' }}>{record?.timeIN || ""}</td>
-                      <td style={{ border: "1px solid black", textAlign: 'center' }}>{record?.timeOUT || ""}</td>
-                      <td style={{ border: "1px solid black", textAlign: 'center' }}>{record?.breaktimeIN || ""}</td>
-                      <td style={{ border: "1px solid black", textAlign: 'center' }}>{record?.breaktimeOUT || ""}</td>
-                      <td style={{ border: "1px solid black", textAlign: 'center' }}>{record?.hours || ""}</td>
-                      <td style={{ border: "1px solid black", textAlign: 'center' }}>{record?.minutes || ""}</td>
-                    </tr>
-                  );
-                })}
-                <tr>
-                  <td colspan="9">
-                    <div className="">
-
-                      <p
-                        style={{
-                          textAlign: "justify",
-                          width: "95%",
-                          margin: "0 auto",
-                          marginTop: "10px",
-                        }}
-                      >
-                        I certify on my honor that the above is a true and correct report of the hours of work performed, record of which was made daily at the time of arrival and departure from office.
-                      </p>
-                      <br />
-                
-                      <hr
-                        style={{
-                          borderTop: "1px double black",
-                          width: "94%",
-                          margin: "0 auto",
-                        }}
-                      />
-                      <p style={{ textAlign: "center", marginTop: "12px" }}>Verified as to prescribe office hours.</p>
-                      <br />
-                      <hr
-                        style={{
-                          textAlign: "right",
-                          borderTop: "1px solid black",
-                          width: "94%",
-                          marginBottom: "20px",
-                        }}
-                      />
-                    </div>
-                  </td>
-                </tr>
-              </tbody>
-              <div>
+            <Box sx={{ p: 5, overflowX: 'auto' }}>
+              <div className="table-container">
+                <div className="table-wrapper">
+                  <div>
+                    <table
+                      style={{
+                        border: "1px solid black",
+                        borderCollapse: "collapse",
+                        width: "52rem",
+                      }}
+                      className="table side-by-side"
+                    >
+                      <thead style={{ textAlign: "center", position: 'relative' }}>
+                        <tr>
+                          <div
+                            style={{
+                              position: "absolute",
+                              top: "1.5rem",
+                              left: "50%",
+                              transform: "translateX(-50%)",
+                              fontWeight: "bold",
+                              fontSize: '13px'
+                            }}
+                          >
+                            Republic of the Philippines
+                          </div>
+                        
+                          <td
+                            colSpan="1"
+                            style={{
+                              position: 'relative',
+                              padding: "0",
+                              lineHeight: "0",
+                              height: "0px",
+                              textAlign: "right",
+                              marginRight: "0",
+                            }}
+                          >
+                            <img src={earistLogo} alt="EARIST Logo" width="55" height="55"  style={{position: 'absolute', marginTop: '-14%', left: '60%'}}/>
+                          </td>
+                          <td colSpan="3">
+                              <p
+                              style={{
+                                marginTop: '15%',
+                                fontSize: "15px",
+                                fontWeight: "bold",
+                                textAlign: "center",
+                                marginLeft: '5%'
+                              }}
+                            >
+                              EULOGIO "AMANG" RODRIGUEZ <br /> INSTITUTE OF SCIENCE & TECHNOLOGY
+                            </p>
+                          </td>
+                          <td></td>
+                          <td></td>
+                          <td></td>
+                          <td></td>
+                        </tr>
+                        <tr>
+                          <td colSpan="9">
+                            <p
+                              style={{
+                                fontSize: "14px",
+                                fontWeight: "bold",
+                                lineHeight: "0",
+                              }}
+                            >
+                              Nagtahan, Sampaloc Manila
+                            </p>
+                          </td>
+                        </tr>
+                        <tr>
+                          <td colSpan="9">
+                            <p
+                              style={{
+                                fontSize: "12px",
+                                fontWeight: "bold",
+                                lineHeight: "0",
+                              }}
+                            >
+                              Civil Service Form No. 48
+                            </p>
+                          </td>
+                        </tr>
+          
+                        <tr>
+                          <td colSpan="9" style={{ padding: "2", lineHeight: "0" }}>
+                            <h4>DAILY TIME RECORD</h4>
+                          </td>
+                        </tr>
               
-              </div>
-            </table>            
-          </div>
-        </div>
-      </div>
-       </Container>
+                        <tr >
+                          <td colSpan="9" style={{ padding: "2", lineHeight: "0" }}>
+                            <p
+                              style={{
+                                fontSize: "15px",
+                                margin: "0",
+                                height: "20px",
+                                textAlign: "left",
+                                padding: '0 1rem',
+                              }}
+                            >
+                              NAME: <b>{employeeName}</b>
+                            </p>
+                          </td>
+                        </tr>
 
-      <Button
-        sx={{
-          width: "200px",
-          height: "55px",
-          marginleft: "10px",
-          margintopt: "10px",
-          marginBottom: "100px",
-          bgcolor: "#6D2323",
-        }}
-        className="no-print"
-        variant="contained"
-        color="primary"
-        onClick={printPage}
-        fullWidth
-      >
-        Print
-      </Button>
-    </div>
-    
+                        <tr>
+                          <td colSpan="9" style={{ padding: "2", lineHeight: "0" }}>
+                            <p
+                              style={{
+                                fontSize: "15px",
+                                margin: "0",
+                                height: "10px",
+                                textAlign: "left",
+                                paddingLeft: '15px'
+                              }}
+                            >
+                              Covered Dates: <b> {startDate ? formatDate(startDate) : ""} -{" "}
+                              {endDate ? formatDate(endDate) : ""} </b>
+                            </p>
+                          </td>
+                        </tr>
+
+                        <tr>
+                          <td
+                            colSpan="3"
+                            style={{ padding: "2", lineHeight: "2", textAlign: "left", padding: '0rem 1rem' }}
+                          >
+                            <p
+                              style={{
+                                fontSize: "15px",
+                                margin: "0",
+                              }}
+                            >
+                              For the month of: <b>{" "}
+                              {startDate ? formatMonth(startDate) : ""}</b>
+                            </p>
+                          </td>
+                        </tr>
+                    
+                      </thead>
+                      <tr>
+                         <th
+                            rowSpan="2"
+                            style={{
+                              textAlign: "center",
+                              verticalAlign: "middle",
+                              border: "1px solid black",
+                            }}
+                          >
+                            DAY
+                          </th>
+                          <th colSpan="2" style={{ border: "1px solid black" }}>
+                            A.M.
+                          </th>
+                          <th colSpan="2" style={{ border: "1px solid black" }}>
+                            P.M.
+                          </th>
+                          <th style={{ border: "1px solid black" }}>Late</th>
+                          <th colSpan="1" style={{ border: "1px solid black" }}>
+                            Undertime
+                          </th>
+                      </tr>
+                      <tr>
+                        <td style={{ border: "1px solid black",  textAlign: "center"}}>Arrival</td>
+                        <td style={{ border: "1px solid black",  textAlign: "center" }}>Departure</td>
+                        <td style={{ border: "1px solid black",  textAlign: "center" }}>Arrival</td>
+                        <td style={{ border: "1px solid black",  textAlign: "center" }}>Departure</td>
+                        <td style={{ border: "1px solid black",  textAlign: "center" }}>Minutes</td>
+                        <td style={{ border: "1px solid black",  textAlign: "center" }}>Minutes</td>
+                      </tr>
+
+                      <tbody>
+                        {Array.from({ length: 31 }, (_, i) => {
+                          const day = (i + 1).toString().padStart(2, "0");
+                          const record = records.find((r) =>
+                            r.date.endsWith(`-${day}`)
+                          );
+
+                          return (
+                            <tr key={i}>
+                              <td style={{ border: "1px solid black", textAlign: 'center'}}>{day}</td>
+                              <td style={{ border: "1px solid black", textAlign: 'center' }}>{record?.timeIN || ""}</td>
+                              <td style={{ border: "1px solid black", textAlign: 'center' }}>{record?.breaktimeIN || ""}</td>
+                              <td style={{ border: "1px solid black", textAlign: 'center' }}>{record?.breaktimeOUT || ""}</td>
+                              <td style={{ border: "1px solid black", textAlign: 'center' }}>{record?.timeOUT || ""}</td>
+                              <td style={{ border: "1px solid black", textAlign: 'center' }}>{record?.minutes || ""}</td>
+                              <td style={{ border: "1px solid black", textAlign: 'center' }}>{record?.minutes || ""}</td>
+                            </tr>
+                          );
+                        })}
+                        <tr>
+                          <td colspan="9">
+                            <div className="">
+                              <p
+                                style={{
+                                  textAlign: "justify",
+                                  width: "95%",
+                                  margin: "0 auto",
+                                  marginTop: "10px",
+                                }}
+                              >
+                                I certify on my honor that the above is a true and correct report of the hours of work performed, a record of which was made daily at the time of arrival and departure from the office.
+                              </p>
+                              <br />
+                            
+                              <hr
+                                style={{
+                                  borderTop: "1px double black",
+                                  width: "94%",
+                                  margin: "0 auto",
+                                }}
+                              />
+                              <p style={{ textAlign: "center", marginTop: "12px" }}>Verified as to prescribed office hours.</p>
+                              <br />
+                              <hr
+                                style={{
+                                  textAlign: "right",
+                                  borderTop: "1px solid black",
+                                  width: "94%",
+                                  marginBottom: "20px",
+                                }}
+                              />
+                            </div>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>            
+                  </div>
+                </div>
+              </div>
+            </Box>
+          </Paper>
+        </Fade>
+
+        {/* Print Button */}
+        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2, mb: 4 }}>
+          <ProfessionalButton
+            variant="contained"
+            onClick={printPage}
+            startIcon={<Print />}
+            className="no-print"
+            sx={{ 
+              backgroundColor: accentColor, 
+              color: primaryColor,
+              "&:hover": { backgroundColor: accentDark },
+              py: 1.5,
+              px: 4
+            }}
+          >
+            Print
+          </ProfessionalButton>
+        </Box>
+      </Box>
+    </Container>
   );
 };
 
-export default DailyTimeRecordFaculty;  
+export default DailyTimeRecordFaculty;

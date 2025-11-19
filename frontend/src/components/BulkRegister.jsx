@@ -9,31 +9,27 @@ import {
   Box,
   Chip,
   CircularProgress,
-  Card,
-  CardContent,
   Grid,
   Fade,
-  Avatar,
-  IconButton,
-  Tooltip,
   Divider,
   alpha,
+  Zoom,
+  Grow,
 } from "@mui/material";
 import * as XLSX from "xlsx";
 import { useNavigate } from "react-router-dom";
 import {
   GroupAdd,
   CloudUpload,
-  TableChart,
   CheckCircleOutline,
   ErrorOutline,
   InfoOutlined,
-  Warning,
   FileUpload,
   People,
   ArrowBack,
-  Refresh,
-  Clear,
+  AccountBalanceWallet,
+  Business,
+  AssignmentOutlined,
 } from "@mui/icons-material";
 import AccessDenied from "./AccessDenied";
 
@@ -42,6 +38,11 @@ const BulkRegister = () => {
   const [success, setSuccess] = useState([]);
   const [errors, setErrors] = useState([]);
   const [errMessage, setErrMessage] = useState("");
+  const [completedSteps, setCompletedSteps] = useState({
+    remittance: false,
+    department: false,
+    itemTable: false,
+  });
 
   const navigate = useNavigate();
 
@@ -50,6 +51,14 @@ const BulkRegister = () => {
   const creamColor = '#FEF9E1';
   const blackColor = '#000000';
   const whiteColor = '#FFFFFF';
+
+  // Load completed steps from localStorage
+  useEffect(() => {
+    const saved = localStorage.getItem('setupCompletedSteps');
+    if (saved) {
+      setCompletedSteps(JSON.parse(saved));
+    }
+  }, []);
 
   // Page access control states
   const [hasAccess, setHasAccess] = useState(null);
@@ -104,11 +113,11 @@ const BulkRegister = () => {
         }
 
         const firstRow = worksheet[0];
-        const requiredFields = ['employeeNumber', 'firstName', 'lastName', 'email', 'employmentCategory', 'password'];
+        const requiredFields = ['employeeNumber', 'firstName', 'lastName', 'email', 'employmentCategory'];
         const missingFields = requiredFields.filter(field => !(field in firstRow));
         
         if (missingFields.length > 0) {
-          setErrMessage(`Missing required columns: ${missingFields.join(', ')}. Expected columns: employeeNumber, firstName, lastName, email, employmentCategory, password, middleName (optional), nameExtension (optional)`);
+          setErrMessage(`Missing required columns: ${missingFields.join(', ')}. Expected columns: employeeNumber, firstName, lastName, email, employmentCategory, middleName (optional), nameExtension (optional)`);
           return;
         }
 
@@ -122,6 +131,13 @@ const BulkRegister = () => {
             employmentCategoryValue = "0";
           }
 
+          // Generate password from lastName if not provided
+          let password = user.password?.toString().trim() || "";
+          if (!password && user.lastName) {
+            // Convert to uppercase and remove all spaces
+            password = user.lastName.toString().trim().toUpperCase().replace(/\s+/g, '');
+          }
+
           const processedUser = {
             firstName: user.firstName?.toString().trim() || "",
             middleName: user.middleName?.toString().trim() || null,
@@ -130,7 +146,7 @@ const BulkRegister = () => {
             employmentCategory: employmentCategoryValue,
             email: user.email?.toString().trim() || "",
             employeeNumber: user.employeeNumber?.toString().trim() || "",
-            password: user.password?.toString().trim() || "",
+            password: password,
             role: "staff",
             access_level: "user"
           };
@@ -208,16 +224,14 @@ const BulkRegister = () => {
   // Loading state
   if (hasAccess === null) {
     return (
-      <Box sx={{ bgcolor: creamColor, minHeight: '100vh', py: 8 }}>
-        <Container maxWidth="md">
-          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-            <CircularProgress sx={{ color: primaryColor, mb: 2 }} />
-            <Typography variant="h6" sx={{ color: primaryColor }}>
-              Loading access information...
-            </Typography>
-          </Box>
-        </Container>
-      </Box>
+      <Container maxWidth="md" sx={{ py: 8 }}>
+        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          <CircularProgress sx={{ color: primaryColor, mb: 2 }} />
+          <Typography variant="h6" sx={{ color: primaryColor, fontWeight: 600 }}>
+            Loading access information...
+          </Typography>
+        </Box>
+      </Container>
     );
   }
 
@@ -234,401 +248,720 @@ const BulkRegister = () => {
   }
 
   return (
-    <Box sx={{ minHeight: '100vh', py: 3 }}>
-      <Container maxWidth="lg">
-        {/* Header */}
-        <Fade in timeout={500}>
-          <Box sx={{ mb: 4 }}>
+    <Container
+      maxWidth="xl"
+      sx={{
+        py: 3,
+        px: { xs: 2, sm: 3, md: 4 },
+        position: "relative",
+        "&::before": {
+          content: '""',
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background:
+            "radial-gradient(circle at 20% 50%, rgba(109, 35, 35, 0.03) 0%, transparent 50%), radial-gradient(circle at 80% 80%, rgba(245, 230, 230, 0.4) 0%, transparent 50%)",
+          pointerEvents: "none",
+        },
+      }}
+    >
+      <Grid container spacing={2.5} sx={{ position: "relative", zIndex: 1 }}>
+        {/* Setup Information Card - Left Side */}
+        <Grid item xs={12} lg={4}>
+          <Fade in={true} timeout={700}>
             <Paper
               elevation={0}
               sx={{
-                p: 3,
-                background: `linear-gradient(135deg, ${primaryColor} 0%, ${primaryColor}dd 100%)`,
-                color: whiteColor,
+                height: "100%",
                 borderRadius: 3,
-                position: 'relative',
-                overflow: 'hidden',
-                '&::before': {
+                border: "2px solid #f5e6e6",
+                overflow: "hidden",
+                boxShadow: "0 8px 32px rgba(109, 35, 35, 0.12)",
+                background: "linear-gradient(135deg, #ffffff 0%, #fffef9 100%)",
+                position: "relative",
+                transition: "all 0.3s ease",
+                "&:hover": {
+                  boxShadow: "0 12px 48px rgba(109, 35, 35, 0.18)",
+                  transform: "translateY(-4px)",
+                },
+                "&::before": {
                   content: '""',
-                  position: 'absolute',
+                  position: "absolute",
                   top: 0,
                   left: 0,
                   right: 0,
-                  bottom: 0,
-                  background: 'url("data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%23ffffff" fill-opacity="0.05"%3E%3Cpath d="M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")',
-                }
+                  height: 4,
+                  background:
+                    "linear-gradient(90deg, #6d2323 0%, #8a4747 50%, #6d2323 100%)",
+                },
               }}
             >
-              <Box display="flex" alignItems="center" justifyContent="space-between" position="relative" zIndex={1}>
-                <Box display="flex" alignItems="center">
-                  <Avatar sx={{ bgcolor: 'rgba(255,255,255,0.2)', mr: 3, width: 56, height: 56 }}>
-                    <GroupAdd sx={{ fontSize: 32 }} />
-                  </Avatar>
-                  <Box>
-                    <Typography variant="h4" component="h1" sx={{ fontWeight: 600, mb: 0.5 }}>
-                      Bulk Users Registration
-                    </Typography>
-                    <Typography variant="body1" sx={{ opacity: 0.9 }}>
-                      Register multiple users using Excel file
-                    </Typography>
+              <Box sx={{ p: 2.5, pt: 3.5 }}>
+                <Box display="flex" alignItems="center" mb={2}>
+                  <Box
+                    sx={{
+                      bgcolor: "rgba(109, 35, 35, 0.1)",
+                      p: 1.2,
+                      borderRadius: 2,
+                      display: "flex",
+                      mr: 1.5,
+                      boxShadow: "0 2px 8px rgba(109, 35, 35, 0.15)",
+                    }}
+                  >
+                    <InfoOutlined sx={{ color: "#6d2323", fontSize: 24 }} />
                   </Box>
+                  <Typography
+                    variant="subtitle1"
+                    sx={{ fontWeight: 700, color: "#6d2323", fontSize: "1rem" }}
+                  >
+                    Initial Setup Requirements
+                  </Typography>
                 </Box>
-                <Box display="flex" alignItems="center" gap={1}>
-                  <Tooltip title="Clear All">
-                    <IconButton 
-                      onClick={handleClearAll}
-                      sx={{ 
-                        bgcolor: 'rgba(255,255,255,0.1)', 
-                        '&:hover': { bgcolor: 'rgba(255,255,255,0.2)' },
-                        color: whiteColor
+
+                <Divider
+                  sx={{ mb: 2, borderColor: "rgba(109, 35, 35, 0.1)" }}
+                />
+
+                <Typography
+                  variant="body2"
+                  sx={{
+                    color: "#666",
+                    mb: 2,
+                    fontSize: "0.875rem",
+                    lineHeight: 1.5,
+                  }}
+                >
+                  Before registering users, ensure the following tables are
+                  properly configured:
+                </Typography>
+
+                <Grid container spacing={1.5}>
+                  {[
+                    {
+                      title: "Remittances",
+                      desc: "Configure employee remittance settings",
+                      route: "/remittance-table",
+                      icon: AccountBalanceWallet,
+                    },
+                    {
+                      title: "Department Assignment",
+                      desc: "Set up department designations",
+                      route: "/department-assignment",
+                      icon: Business,
+                    },
+                    {
+                      title: "Item Table",
+                      desc: "Configure Plantilla items",
+                      route: "/item-table",
+                      icon: AssignmentOutlined,
+                    },
+                  ].map((item, idx) => (
+                    <Grid item xs={12} key={idx}>
+                      <Fade in={true} timeout={900 + idx * 200}>
+                        <Box
+                          sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "space-between",
+                            p: 1.5,
+                            borderRadius: 2,
+                            bgcolor: "rgba(109, 35, 35, 0.03)",
+                            border: "1px solid rgba(109, 35, 35, 0.1)",
+                            transition: "all 0.3s ease",
+                            cursor: "pointer",
+                            "&:hover": {
+                              bgcolor: "rgba(109, 35, 35, 0.06)",
+                              borderColor: "rgba(109, 35, 35, 0.3)",
+                              transform: "translateX(4px)",
+                              boxShadow: "0 4px 12px rgba(109, 35, 35, 0.12)",
+                            },
+                          }}
+                          onClick={() => navigate(item.route)}
+                        >
+                          <Box display="flex" alignItems="center" flex={1}>
+                            <Box
+                              sx={{
+                                mr: 1.5,
+                                width: 36,
+                                height: 36,
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                borderRadius: 1.5,
+                                bgcolor: "rgba(109, 35, 35, 0.1)",
+                                color: "#6d2323",
+                              }}
+                            >
+                              <item.icon sx={{ fontSize: 20 }} />
+                            </Box>
+                            <Box>
+                              <Typography
+                                variant="body2"
+                                sx={{
+                                  fontWeight: 700,
+                                  color: "#6d2323",
+                                  mb: 0.25,
+                                  fontSize: "0.875rem",
+                                }}
+                              >
+                                {item.title}
+                              </Typography>
+                              <Typography
+                                variant="caption"
+                                sx={{
+                                  color: "#666",
+                                  fontSize: "0.75rem",
+                                  lineHeight: 1.3,
+                                }}
+                              >
+                                {item.desc}
+                              </Typography>
+                            </Box>
+                          </Box>
+                          <Button
+                            variant="contained"
+                            size="small"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              navigate(item.route);
+                            }}
+                            sx={{
+                              bgcolor: "#6d2323",
+                              color: "#fff",
+                              textTransform: "none",
+                              fontWeight: 600,
+                              fontSize: "0.7rem",
+                              px: 2,
+                              py: 0.6,
+                              whiteSpace: "nowrap",
+                              borderRadius: 1.5,
+                              boxShadow: "0 2px 8px rgba(109, 35, 35, 0.25)",
+                              "&:hover": {
+                                bgcolor: "#5a1e1e",
+                                boxShadow: "0 4px 12px rgba(109, 35, 35, 0.35)",
+                                transform: "translateY(-2px)",
+                              },
+                              transition: "all 0.2s ease",
+                            }}
+                          >
+                            Configure
+                          </Button>
+                        </Box>
+                      </Fade>
+                    </Grid>
+                  ))}
+                </Grid>
+
+                <Box
+                  sx={{
+                    mt: 2.5,
+                    p: 2,
+                    borderRadius: 2,
+                    bgcolor: "rgba(255, 193, 7, 0.08)",
+                    borderLeft: "4px solid #ffc107",
+                    display: "flex",
+                    alignItems: "flex-start",
+                    gap: 1.5,
+                  }}
+                >
+                  <Box
+                    sx={{
+                      bgcolor: "rgba(255, 193, 7, 0.2)",
+                      p: 0.6,
+                      borderRadius: 1,
+                      display: "flex",
+                      mt: 0.25,
+                    }}
+                  >
+                    <InfoOutlined sx={{ fontSize: 18, color: "#f57c00" }} />
+                  </Box>
+                  <Box>
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        fontWeight: 600,
+                        color: "#f57c00",
+                        mb: 0.5,
+                        fontSize: "0.85rem",
                       }}
                     >
-                      <Clear />
-                    </IconButton>
-                  </Tooltip>
+                      Important Note
+                    </Typography>
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        color: "#666",
+                        lineHeight: 1.4,
+                        display: "block",
+                        fontSize: "0.75rem",
+                      }}
+                    >
+                      These tables are essential for proper Payroll Management
+                      Records. Complete setup before registering users.
+                    </Typography>
+                  </Box>
                 </Box>
               </Box>
             </Paper>
-          </Box>
-        </Fade>
-
-        {/* Instructions Card */}
-        <Fade in timeout={700}>
-          <Card sx={{ mb: 3, borderRadius: 3, boxShadow: '0 4px 20px rgba(0,0,0,0.08)' }}>
-            <CardContent sx={{ p: 3 }}>
-              <Box display="flex" alignItems="center" mb={2}>
-                <InfoOutlined sx={{ color: primaryColor, mr: 1, fontSize: 28 }} />
-                <Typography variant="h6" sx={{ fontWeight: 600, color: blackColor }}>
-                  Excel File Requirements
-                </Typography>
-              </Box>
-              
-              <Divider sx={{ mb: 2 }} />
-              
-              <Grid container spacing={2}>
-                <Grid item xs={12} md={6}>
-                  <Typography variant="subtitle2" sx={{ fontWeight: 600, color: blackColor, mb: 1 }}>
-                    Required Columns:
-                  </Typography>
-                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                    {['employeeNumber', 'firstName', 'lastName', 'email', 'employmentCategory', 'password'].map((field) => (
-                      <Chip 
-                        key={field} 
-                        label={field} 
-                        size="small" 
-                        sx={{ 
-                          bgcolor: primaryColor, 
-                          color: whiteColor,
-                          fontSize: '0.75rem',
-                          fontWeight: 500
-                        }} 
-                      />
-                    ))}
-                  </Box>
-                </Grid>
-                <Grid item xs={12} md={6}>
-                  <Typography variant="subtitle2" sx={{ fontWeight: 600, color: blackColor, mb: 1 }}>
-                    Optional Columns:
-                  </Typography>
-                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                    {['middleName', 'nameExtension'].map((field) => (
-                      <Chip 
-                        key={field} 
-                        label={field} 
-                        size="small" 
-                        variant="outlined"
-                        sx={{ 
-                          borderColor: primaryColor, 
-                          color: primaryColor,
-                          fontSize: '0.75rem'
-                        }} 
-                      />
-                    ))}
-                  </Box>
-                </Grid>
-              </Grid>
-              
-              <Alert 
-                severity="warning"
-                sx={{ 
-                  mt: 2,
-                  borderRadius: 2,
-                  bgcolor: alpha(primaryColor, 0.05),
-                  color: primaryColor,
-                  '& .MuiAlert-icon': { color: primaryColor }
-                }}
-              >
-                <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                  <strong>Note:</strong> employmentCategory must be either "Regular" or "JO"
-                </Typography>
-              </Alert>
-            </CardContent>
-          </Card>
-        </Fade>
-
-        {/* Error Message */}
-        {errMessage && (
-          <Fade in timeout={300}>
-            <Alert 
-              severity="error" 
-              sx={{ 
-                mb: 3, 
-                borderRadius: 2,
-                whiteSpace: "pre-line"
-              }}
-              onClose={() => setErrMessage("")}
-            >
-              {errMessage}
-            </Alert>
           </Fade>
-        )}
+        </Grid>
 
-        {/* Upload Card */}
-        <Fade in timeout={900}>
-          <Card sx={{ mb: 3, borderRadius: 3, boxShadow: '0 4px 20px rgba(0,0,0,0.08)' }}>
-            <CardContent sx={{ p: 4 }}>
-              <Box 
-                sx={{ 
-                  p: 4,
-                  border: `2px dashed ${alpha(primaryColor, 0.3)}`,
+        {/* Main Content - Right Side */}
+        <Grid item xs={12} lg={8}>
+          <Box sx={{ height: "100%" }}>
+            <Grow in={true} timeout={600}>
+              <Paper
+                elevation={0}
+                sx={{
+                  padding: { xs: 2.5, sm: 3, md: 3.5 },
                   borderRadius: 3,
-                  backgroundColor: alpha(creamColor, 0.3),
-                  textAlign: 'center',
-                  transition: 'all 0.3s ease',
-                  '&:hover': {
-                    borderColor: primaryColor,
-                    backgroundColor: alpha(creamColor, 0.5),
-                    transform: 'translateY(-2px)',
-                  }
+                  border: "2px solid #f5e6e6",
+                  background: "linear-gradient(135deg, #ffffff 0%, #fffef9 100%)",
+                  boxShadow: "0 8px 32px rgba(109, 35, 35, 0.12)",
+                  position: "relative",
+                  overflow: "hidden",
+                  transition: "all 0.3s ease",
+                  "&:hover": {
+                    boxShadow: "0 12px 48px rgba(109, 35, 35, 0.18)",
+                    transform: "translateY(-4px)",
+                  },
+                  "&::before": {
+                    content: '""',
+                    position: "absolute",
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    height: 4,
+                    background: "linear-gradient(90deg, #6d2323 0%, #8a4747 50%, #6d2323 100%)",
+                  },
                 }}
               >
-                <FileUpload sx={{ fontSize: 64, color: primaryColor, mb: 2 }} />
-                <Typography variant="h6" sx={{ color: blackColor, mb: 2, fontWeight: 600 }}>
-                  Upload Excel File
-                </Typography>
-                <input
-                  type="file"
-                  accept=".xlsx, .xls"
-                  onChange={handleFileUpload}
-                  style={{ display: 'none' }}
-                  id="file-upload"
-                />
-                <label htmlFor="file-upload">
-                  <Button
-                    component="span"
-                    variant="contained"
-                    startIcon={<CloudUpload />}
+                {/* Header */}
+                <Box sx={{ textAlign: "center", mb: 3, pt: 1.5 }}>
+                  <Zoom in={true} timeout={400}>
+                    <Box
+                      sx={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        mb: 1.5,
+                      }}
+                    >
+                      <Box
+                        sx={{
+                          bgcolor: "rgba(109, 35, 35, 0.1)",
+                          p: 1.5,
+                          borderRadius: 3,
+                          display: "flex",
+                          boxShadow: "0 4px 16px rgba(109, 35, 35, 0.2)",
+                          transition: "all 0.3s ease",
+                          "&:hover": {
+                            transform: "scale(1.05) rotate(5deg)",
+                            boxShadow: "0 8px 24px rgba(109, 35, 35, 0.3)",
+                          },
+                        }}
+                      >
+                        <GroupAdd sx={{ fontSize: 40, color: "#6d2323" }} />
+                      </Box>
+                    </Box>
+                  </Zoom>
+                  <Typography
+                    variant="h5"
                     sx={{
-                      bgcolor: primaryColor,
-                      color: whiteColor,
-                      py: 1.5,
-                      px: 4,
-                      fontWeight: 600,
-                      borderRadius: 2,
-                      '&:hover': {
-                        bgcolor: alpha(primaryColor, 0.8),
-                        transform: 'translateY(-2px)',
-                        boxShadow: '0 4px 12px rgba(109, 35, 35, 0.3)'
-                      },
-                      transition: 'all 0.2s ease'
+                      color: "#6d2323",
+                      fontWeight: 800,
+                      mb: 0.5,
+                      background: "linear-gradient(135deg, #6d2323 0%, #8a4747 100%)",
+                      WebkitBackgroundClip: "text",
+                      WebkitTextFillColor: "transparent",
+                      letterSpacing: "-0.5px",
                     }}
                   >
-                    Choose File
-                  </Button>
-                </label>
-              </Box>
-            </CardContent>
-          </Card>
-        </Fade>
+                    Bulk Users Registration
+                  </Typography>
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      color: "#8a4747",
+                      fontSize: "0.95rem",
+                      fontWeight: 500,
+                      maxWidth: 500,
+                      mx: "auto",
+                    }}
+                  >
+                    Register multiple users using Excel file
+                  </Typography>
+                </Box>
 
-        {/* Users Loaded Status */}
-        {users.length > 0 && (
-          <Fade in timeout={500}>
-            <Card sx={{ mb: 3, borderRadius: 3, boxShadow: '0 4px 20px rgba(0,0,0,0.08)' }}>
-              <Box sx={{ 
-                p: 3, 
-                background: `linear-gradient(135deg, ${primaryColor} 0%, ${primaryColor}dd 100%)`, 
-                color: whiteColor,
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                borderRadius: '12px 12px 0 0'
-              }}>
-                <Box display="flex" alignItems="center">
-                  <People sx={{ fontSize: 32, mr: 2 }} />
-                  <Box>
-                    <Typography variant="body2" sx={{ opacity: 0.9 }}>
-                      Users Ready
-                    </Typography>
-                    <Typography variant="h5" sx={{ fontWeight: 600 }}>
-                      {users.length} user{users.length !== 1 ? 's' : ''} loaded
-                    </Typography>
+                {/* Error Message */}
+                {errMessage && (
+                  <Fade in timeout={300}>
+                    <Alert
+                      icon={<ErrorOutline fontSize="inherit" />}
+                      severity="error"
+                      sx={{
+                        mb: 2.5,
+                        backgroundColor: "#fff",
+                        color: "#d32f2f",
+                        border: "2px solid #d32f2f",
+                        borderRadius: 2,
+                        fontWeight: 500,
+                        fontSize: "0.875rem",
+                        boxShadow: "0 4px 12px rgba(211, 47, 47, 0.2)",
+                        whiteSpace: "pre-line",
+                        "& .MuiAlert-icon": {
+                          color: "#d32f2f",
+                        },
+                      }}
+                      onClose={() => setErrMessage("")}
+                    >
+                      {errMessage}
+                    </Alert>
+                  </Fade>
+                )}
+
+                {/* Instructions Card */}
+                <Fade in timeout={700}>
+                  <Box sx={{ mb: 2.5 }}>
+                    <Box display="flex" alignItems="center" mb={1.5}>
+                      <InfoOutlined sx={{ color: primaryColor, mr: 1, fontSize: 24 }} />
+                      <Typography variant="h6" sx={{ fontWeight: 600, color: blackColor, fontSize: "1rem" }}>
+                        Excel File Requirements
+                      </Typography>
+                    </Box>
+
+                    <Divider sx={{ mb: 1.5, borderColor: "rgba(109, 35, 35, 0.1)" }} />
+
+                    <Grid container spacing={2}>
+                      <Grid item xs={12} md={6}>
+                        <Typography variant="subtitle2" sx={{ fontWeight: 600, color: blackColor, mb: 0.75, fontSize: "0.875rem" }}>
+                          Required Columns:
+                        </Typography>
+                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                          {['employeeNumber', 'firstName', 'lastName', 'email', 'employmentCategory'].map((field) => (
+                            <Chip
+                              key={field}
+                              label={field}
+                              size="small"
+                              sx={{
+                                bgcolor: primaryColor,
+                                color: whiteColor,
+                                fontSize: '0.7rem',
+                                fontWeight: 500,
+                                height: 22
+                              }}
+                            />
+                          ))}
+                        </Box>
+                      </Grid>
+                      <Grid item xs={12} md={6}>
+                        <Typography variant="subtitle2" sx={{ fontWeight: 600, color: blackColor, mb: 0.75, fontSize: "0.875rem" }}>
+                          Optional Columns:
+                        </Typography>
+                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                          {['middleName', 'nameExtension', 'password'].map((field) => (
+                            <Chip
+                              key={field}
+                              label={field}
+                              size="small"
+                              variant="outlined"
+                              sx={{
+                                borderColor: primaryColor,
+                                color: primaryColor,
+                                fontSize: '0.7rem',
+                                height: 22
+                              }}
+                            />
+                          ))}
+                        </Box>
+                      </Grid>
+                    </Grid>
+
+                    <Alert
+                      severity="warning"
+                      sx={{
+                        mt: 1.5,
+                        borderRadius: 2,
+                        bgcolor: alpha(primaryColor, 0.05),
+                        color: primaryColor,
+                        fontSize: "0.85rem",
+                        '& .MuiAlert-icon': { color: primaryColor }
+                      }}
+                    >
+                      <Typography variant="body2" sx={{ fontWeight: 500, fontSize: "0.85rem" }}>
+                        <strong>Note:</strong><br />
+                        <strong>EmploymentCategory</strong> must be either <strong>"Regular"</strong> or <strong>"JO"</strong><br />
+                        <strong>Password</strong> is automatically set to the <strong>last name</strong> in <strong>all caps with no spaces.</strong>
+                      </Typography>
+                    </Alert>
+                  </Box>
+                </Fade>
+
+                {/* Upload Card */}
+                <Fade in timeout={900}>
+                  <Box sx={{ mb: 2.5 }}>
+                    <Box
+                      sx={{
+                        p: 3,
+                        border: `2px dashed ${alpha(primaryColor, 0.3)}`,
+                        borderRadius: 3,
+                        backgroundColor: alpha(creamColor, 0.3),
+                        textAlign: 'center',
+                        transition: 'all 0.3s ease',
+                        '&:hover': {
+                          borderColor: primaryColor,
+                          backgroundColor: alpha(creamColor, 0.5),
+                          transform: 'translateY(-2px)',
+                        }
+                      }}
+                    >
+                      <FileUpload sx={{ fontSize: 52, color: primaryColor, mb: 1.5 }} />
+                      <Typography variant="h6" sx={{ color: blackColor, mb: 1.5, fontWeight: 600, fontSize: "1rem" }}>
+                        Upload Excel File
+                      </Typography>
+                      <input
+                        type="file"
+                        accept=".xlsx, .xls"
+                        onChange={handleFileUpload}
+                        style={{ display: 'none' }}
+                        id="file-upload"
+                      />
+                      <label htmlFor="file-upload">
+                        <Button
+                          component="span"
+                          variant="contained"
+                          startIcon={<CloudUpload />}
+                          sx={{
+                            bgcolor: primaryColor,
+                            color: whiteColor,
+                            py: 1.2,
+                            px: 3.5,
+                            fontWeight: 600,
+                            borderRadius: 2,
+                            fontSize: "0.9rem",
+                            '&:hover': {
+                              bgcolor: alpha(primaryColor, 0.8),
+                              transform: 'translateY(-2px)',
+                              boxShadow: '0 4px 12px rgba(109, 35, 35, 0.3)'
+                            },
+                            transition: 'all 0.2s ease'
+                          }}
+                        >
+                          Choose File
+                        </Button>
+                      </label>
+                    </Box>
+                  </Box>
+                </Fade>
+
+                {/* Users Loaded Status */}
+                {users.length > 0 && (
+                  <Fade in timeout={500}>
+                    <Box sx={{ mb: 2.5 }}>
+                      <Box sx={{
+                        p: 2.5,
+                        background: `linear-gradient(135deg, ${primaryColor} 0%, ${primaryColor}dd 100%)`,
+                        color: whiteColor,
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        borderRadius: 3,
+                      }}>
+                        <Box display="flex" alignItems="center">
+                          <People sx={{ fontSize: 28, mr: 1.5 }} />
+                          <Box>
+                            <Typography variant="caption" sx={{ opacity: 0.9 }}>
+                              Users Ready
+                            </Typography>
+                            <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                              {users.length} user{users.length !== 1 ? 's' : ''} loaded
+                            </Typography>
+                          </Box>
+                        </Box>
+                        <CheckCircleOutline sx={{ fontSize: 40, opacity: 0.3 }} />
+                      </Box>
+                    </Box>
+                  </Fade>
+                )}
+
+                {/* Action Buttons */}
+                <Box sx={{ mt: 3, pt: 2.5, borderTop: "2px dashed rgba(109, 35, 35, 0.15)" }}>
+                  <Box sx={{ display: "flex", gap: 2, flexDirection: { xs: "column", sm: "row" } }}>
+                    <Button
+                      variant="contained"
+                      fullWidth
+                      startIcon={<CloudUpload sx={{ fontSize: 22 }} />}
+                      onClick={handleRegister}
+                      disabled={users.length === 0}
+                      sx={{
+                        bgcolor: "#6d2323",
+                        py: 1.5,
+                        fontSize: "0.95rem",
+                        fontWeight: 700,
+                        borderRadius: 2,
+                        textTransform: "none",
+                        boxShadow: "0 4px 20px rgba(109, 35, 35, 0.3)",
+                        position: "relative",
+                        overflow: "hidden",
+                        "&::before": {
+                          content: '""',
+                          position: "absolute",
+                          top: 0,
+                          left: "-100%",
+                          width: "100%",
+                          height: "100%",
+                          background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent)",
+                          transition: "left 0.6s ease",
+                        },
+                        "&:hover::before": {
+                          left: "100%",
+                        },
+                        "&:hover": {
+                          bgcolor: "#5a1e1e",
+                          transform: "translateY(-3px)",
+                          boxShadow: "0 8px 32px rgba(109, 35, 35, 0.45)",
+                        },
+                        "&:disabled": {
+                          bgcolor: alpha("#6d2323", 0.3),
+                          color: alpha(whiteColor, 0.5)
+                        },
+                        transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+                      }}
+                    >
+                      Upload & Register Users
+                    </Button>
+
+                    <Button
+                      type="button"
+                      variant="outlined"
+                      fullWidth
+                      startIcon={<ArrowBack sx={{ fontSize: 22 }} />}
+                      sx={{
+                        borderColor: "#6d2323",
+                        color: "#6d2323",
+                        py: 1.5,
+                        fontSize: "0.95rem",
+                        fontWeight: 700,
+                        borderRadius: 2,
+                        borderWidth: 2,
+                        textTransform: "none",
+                        position: "relative",
+                        overflow: "hidden",
+                        "&:hover": {
+                          borderColor: "#5a1e1e",
+                          borderWidth: 2,
+                          bgcolor: "rgba(109, 35, 35, 0.08)",
+                          transform: "translateY(-3px)",
+                          boxShadow: "0 8px 32px rgba(109, 35, 35, 0.25)",
+                        },
+                        transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+                      }}
+                      onClick={() => navigate("/registration")}
+                    >
+                      Back to User Registration
+                    </Button>
                   </Box>
                 </Box>
-                <CheckCircleOutline sx={{ fontSize: 48, opacity: 0.3 }} />
-              </Box>
-            </Card>
-          </Fade>
-        )}
 
-        {/* Action Buttons */}
-        <Fade in timeout={1100}>
-          <Card sx={{ mb: 3, borderRadius: 3, boxShadow: '0 4px 20px rgba(0,0,0,0.08)' }}>
-            <CardContent sx={{ p: 3 }}>
-              <Grid container spacing={2}>
-                <Grid item xs={12} md={6}>
-                  <Button
-                    variant="contained"
-                    fullWidth
-                    startIcon={<CloudUpload />}
-                    onClick={handleRegister}
-                    disabled={users.length === 0}
-                    sx={{
-                      py: 1.5,
-                      bgcolor: primaryColor,
-                      color: whiteColor,
-                      fontWeight: 600,
-                      fontSize: '1rem',
-                      borderRadius: 2,
-                      '&:hover': {
-                        bgcolor: alpha(primaryColor, 0.8),
-                        transform: 'translateY(-2px)',
-                        boxShadow: '0 4px 12px rgba(109, 35, 35, 0.3)'
-                      },
-                      '&:disabled': {
-                        bgcolor: alpha(primaryColor, 0.3),
-                        color: alpha(whiteColor, 0.5)
-                      },
-                      transition: 'all 0.2s ease'
-                    }}
-                  >
-                    Upload & Register Users
-                  </Button>
-                </Grid>
-                <Grid item xs={12} md={6}>
-                  <Button
-                    variant="outlined"
-                    fullWidth
-                    startIcon={<ArrowBack />}
-                    onClick={() => navigate("/registration")}
-                    sx={{
-                      py: 1.5,
-                      borderColor: primaryColor,
-                      color: primaryColor,
-                      fontWeight: 600,
-                      fontSize: '1rem',
-                      borderRadius: 2,
-                      borderWidth: 2,
-                      '&:hover': {
-                        borderColor: primaryColor,
-                        borderWidth: 2,
-                        bgcolor: alpha(primaryColor, 0.04),
-                        transform: 'translateY(-2px)',
-                      },
-                      transition: 'all 0.2s ease'
-                    }}
-                  >
-                    Back to User Registration
-                  </Button>
-                </Grid>
-              </Grid>
-            </CardContent>
-          </Card>
-        </Fade>
-
-        {/* Success Results */}
-        {success.length > 0 && (
-          <Fade in timeout={500}>
-            <Card sx={{ mb: 3, borderRadius: 3, boxShadow: '0 4px 20px rgba(0,0,0,0.08)' }}>
-              <Box sx={{ 
-                p: 2, 
-                bgcolor: '#4caf50',
-                color: whiteColor,
-                borderRadius: '12px 12px 0 0',
-                display: 'flex',
-                alignItems: 'center'
-              }}>
-                <CheckCircleOutline sx={{ mr: 1 }} />
-                <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                  Successful Registrations ({success.length})
-                </Typography>
-              </Box>
-              <CardContent sx={{ maxHeight: '300px', overflow: 'auto' }}>
-                {success.map((user, index) => (
-                  <Box 
-                    key={index} 
-                    sx={{ 
-                      p: 1.5, 
-                      mb: 1,
-                      borderRadius: 2,
-                      bgcolor: alpha('#4caf50', 0.05),
-                      display: 'flex',
-                      alignItems: 'center',
-                      '&:last-child': { mb: 0 }
-                    }}
-                  >
-                    <Chip 
-                      label={user.employeeNumber} 
-                      size="small" 
-                      sx={{ mr: 2, bgcolor: primaryColor, color: whiteColor, fontWeight: 600 }} 
-                    />
-                    <Typography variant="body2" sx={{ color: blackColor }}>
-                      {user.name}
-                    </Typography>
-                  </Box>
-                ))}
-              </CardContent>
-            </Card>
-          </Fade>
-        )}
-
-        {/* Error Results */}
-        {errors.length > 0 && (
-          <Fade in timeout={500}>
-            <Card sx={{ mb: 3, borderRadius: 3, boxShadow: '0 4px 20px rgba(0,0,0,0.08)' }}>
-              <Box sx={{ 
-                p: 2, 
-                bgcolor: '#f44336',
-                color: whiteColor,
-                borderRadius: '12px 12px 0 0',
-                display: 'flex',
-                alignItems: 'center'
-              }}>
-                <ErrorOutline sx={{ mr: 1 }} />
-                <Typography variant="h6" sx={{ fontWeight: 600 }}>
-                  Registration Errors ({errors.length})
-                </Typography>
-              </Box>
-              <CardContent sx={{ maxHeight: '300px', overflow: 'auto' }}>
-                {errors.slice(0, 10).map((err, index) => (
-                  <Box 
-                    key={index} 
-                    sx={{ 
-                      p: 1.5, 
-                      mb: 1,
-                      borderRadius: 2,
-                      bgcolor: alpha('#f44336', 0.05),
-                      '&:last-child': { mb: 0 }
-                    }}
-                  >
-                    <Typography variant="body2" sx={{ color: blackColor }}>
-                      • {err}
-                    </Typography>
-                  </Box>
-                ))}
-                {errors.length > 10 && (
-                  <Box sx={{ p: 1.5, textAlign: 'center' }}>
-                    <Typography variant="body2" sx={{ fontStyle: 'italic', color: alpha(blackColor, 0.6) }}>
-                      ...and {errors.length - 10} more errors
-                    </Typography>
-                  </Box>
+                {/* Success Results */}
+                {success.length > 0 && (
+                  <Fade in timeout={500}>
+                    <Box sx={{ mt: 2.5 }}>
+                      <Box sx={{
+                        p: 1.5,
+                        bgcolor: '#4caf50',
+                        color: whiteColor,
+                        borderRadius: '12px 12px 0 0',
+                        display: 'flex',
+                        alignItems: 'center'
+                      }}>
+                        <CheckCircleOutline sx={{ mr: 1, fontSize: 20 }} />
+                        <Typography variant="subtitle1" sx={{ fontWeight: 600, fontSize: "0.95rem" }}>
+                          Successful Registrations ({success.length})
+                        </Typography>
+                      </Box>
+                      <Box sx={{ maxHeight: '200px', overflow: 'auto', bgcolor: '#fff', borderRadius: '0 0 12px 12px', p: 1.5 }}>
+                        {success.map((user, index) => (
+                          <Box
+                            key={index}
+                            sx={{
+                              p: 1.2,
+                              mb: 1,
+                              borderRadius: 2,
+                              bgcolor: alpha('#4caf50', 0.05),
+                              display: 'flex',
+                              alignItems: 'center',
+                              '&:last-child': { mb: 0 }
+                            }}
+                          >
+                            <Chip
+                              label={user.employeeNumber}
+                              size="small"
+                              sx={{ mr: 1.5, bgcolor: primaryColor, color: whiteColor, fontWeight: 600, fontSize: "0.75rem" }}
+                            />
+                            <Typography variant="body2" sx={{ color: blackColor, fontSize: "0.875rem" }}>
+                              {user.name}
+                            </Typography>
+                          </Box>
+                        ))}
+                      </Box>
+                    </Box>
+                  </Fade>
                 )}
-              </CardContent>
-            </Card>
-          </Fade>
-        )}
-      </Container>
-    </Box>
+
+                {/* Error Results */}
+                {errors.length > 0 && (
+                  <Fade in timeout={500}>
+                    <Box sx={{ mt: 2.5 }}>
+                      <Box sx={{
+                        p: 1.5,
+                        bgcolor: '#f44336',
+                        color: whiteColor,
+                        borderRadius: '12px 12px 0 0',
+                        display: 'flex',
+                        alignItems: 'center'
+                      }}>
+                        <ErrorOutline sx={{ mr: 1, fontSize: 20 }} />
+                        <Typography variant="subtitle1" sx={{ fontWeight: 600, fontSize: "0.95rem" }}>
+                          Registration Errors ({errors.length})
+                        </Typography>
+                      </Box>
+                      <Box sx={{ maxHeight: '200px', overflow: 'auto', bgcolor: '#fff', borderRadius: '0 0 12px 12px', p: 1.5 }}>
+                        {errors.slice(0, 10).map((err, index) => (
+                          <Box
+                            key={index}
+                            sx={{
+                              p: 1.2,
+                              mb: 1,
+                              borderRadius: 2,
+                              bgcolor: alpha('#f44336', 0.05),
+                              '&:last-child': { mb: 0 }
+                            }}
+                          >
+                            <Typography variant="body2" sx={{ color: blackColor, fontSize: "0.875rem" }}>
+                              • {err}
+                            </Typography>
+                          </Box>
+                        ))}
+                        {errors.length > 10 && (
+                          <Box sx={{ p: 1.2, textAlign: 'center' }}>
+                            <Typography variant="body2" sx={{ fontStyle: 'italic', color: alpha(blackColor, 0.6), fontSize: "0.85rem" }}>
+                              ...and {errors.length - 10} more errors
+                            </Typography>
+                          </Box>
+                        )}
+                      </Box>
+                    </Box>
+                  </Fade>
+                )}
+              </Paper>
+            </Grow>
+          </Box>
+        </Grid>
+      </Grid>
+    </Container>
   );
 };
 

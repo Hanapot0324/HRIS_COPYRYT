@@ -18,16 +18,132 @@ import {
   Paper,
   Container,
   Box,
-  Dialog, // ADD THIS
-  DialogTitle, // ADD THIS
-  DialogContent, // ADD THIS
-  DialogActions, // ADD THIS
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
   IconButton,
+  Card,
+  CardContent,
+  Grid,
+  InputAdornment,
+  Avatar,
+  Tooltip,
+  Chip,
+  Fade,
+  Alert,
+  useTheme,
+  styled,
+  Divider,
+  CardHeader,
 } from '@mui/material';
+import { alpha } from '@mui/material/styles';
+import {
+  Close,
+  Schedule,
+  UploadFile,
+  FilterList,
+  Person,
+  AccessTime,
+} from '@mui/icons-material';
 
 import LoadingOverlay from '../LoadingOverlay';
 import SuccessfulOverlay from '../SuccessfulOverlay';
-import { Close } from '@mui/icons-material';
+
+// Color scheme
+const primaryColor = '#FEF9E1'; // Cream
+const secondaryColor = '#FFF8E7'; // Light cream
+const accentColor = '#6D2323'; // Burgundy
+const accentDark = '#8B3333'; // Darker burgundy
+const blackColor = '#1a1a1a';
+const whiteColor = '#FFFFFF';
+const grayColor = '#6c757d';
+
+// Styled components
+const GlassCard = styled(Card)(({ theme }) => ({
+  borderRadius: 20,
+  background: 'rgba(254, 249, 225, 0.95)',
+  backdropFilter: 'blur(10px)',
+  boxShadow: '0 8px 40px rgba(109, 35, 35, 0.08)',
+  border: '1px solid rgba(109, 35, 35, 0.1)',
+  overflow: 'hidden',
+  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+  '&:hover': {
+    boxShadow: '0 12px 48px rgba(109, 35, 35, 0.15)',
+    transform: 'translateY(-4px)',
+  },
+}));
+
+const ProfessionalButton = styled(Button)(({ theme, variant, color = 'primary' }) => ({
+  borderRadius: 12,
+  fontWeight: 600,
+  padding: '12px 24px',
+  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+  textTransform: 'none',
+  fontSize: '0.95rem',
+  letterSpacing: '0.025em',
+  boxShadow: variant === 'contained' ? '0 4px 14px rgba(254, 249, 225, 0.25)' : 'none',
+  '&:hover': {
+    transform: 'translateY(-2px)',
+    boxShadow: variant === 'contained' ? '0 6px 20px rgba(254, 249, 225, 0.35)' : 'none',
+  },
+  '&:active': {
+    transform: 'translateY(0)',
+  },
+}));
+
+const ModernTextField = styled(TextField)(({ theme }) => ({
+  '& .MuiOutlinedInput-root': {
+    borderRadius: 12,
+    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+    backgroundColor: 'rgba(255, 255, 255, 0.8)',
+    '&:hover': {
+      transform: 'translateY(-1px)',
+      backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    },
+    '&.Mui-focused': {
+      transform: 'translateY(-1px)',
+      boxShadow: '0 4px 20px rgba(254, 249, 225, 0.25)',
+      backgroundColor: 'rgba(255, 255, 255, 1)',
+    },
+  },
+  '& .MuiInputLabel-root': {
+    fontWeight: 500,
+  },
+}));
+
+const PremiumTableContainer = styled(TableContainer)(({ theme }) => ({
+  borderRadius: 16,
+  overflow: 'auto', // Enable both horizontal and vertical scrolling
+  boxShadow: '0 4px 24px rgba(109, 35, 35, 0.06)',
+  border: '1px solid rgba(109, 35, 35, 0.08)',
+  maxHeight: '600px', // Set max height for vertical scrolling
+  '&::-webkit-scrollbar': {
+    width: '8px',
+    height: '8px',
+  },
+  '&::-webkit-scrollbar-track': {
+    background: 'rgba(254, 249, 225, 0.3)',
+    borderRadius: '4px',
+  },
+  '&::-webkit-scrollbar-thumb': {
+    background: 'rgba(109, 35, 35, 0.4)',
+    borderRadius: '4px',
+    '&:hover': {
+      background: 'rgba(109, 35, 35, 0.6)',
+    },
+  },
+}));
+
+const PremiumTableCell = styled(TableCell)(({ theme, isHeader = false }) => ({
+  fontWeight: isHeader ? 600 : 500,
+  padding: '18px 20px',
+  borderBottom: isHeader ? '2px solid rgba(254, 249, 225, 0.5)' : '1px solid rgba(109, 35, 35, 0.06)',
+  fontSize: '0.95rem',
+  letterSpacing: '0.025em',
+  minWidth: '120px', // Ensure minimum width for cells
+  whiteSpace: 'nowrap', // Prevent text wrapping
+}));
 
 const OfficialTimeForm = () => {
   const [employeeID, setemployeeID] = useState('');
@@ -152,34 +268,44 @@ const OfficialTimeForm = () => {
       onClose={() => setShowPreviewModal(false)}
       maxWidth="xl"
       fullWidth
+      PaperProps={{
+        sx: {
+          borderRadius: '12px',
+          border: '3px solid #6D2323',
+        },
+      }}
     >
       <DialogTitle
         sx={{
-          bgcolor: '#6D2323',
-          color: 'white',
+          backgroundColor: '#6D2323',
+          color: '#FEF9E1',
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
+          padding: '16px 24px',
         }}
       >
-        <Typography variant="h6" fontWeight="bold">
+        <Typography variant="h6" component="div" sx={{ fontWeight: 'bold' }}>
           Uploaded Records Preview
         </Typography>
         <IconButton
           onClick={() => setShowPreviewModal(false)}
-          sx={{ color: 'white' }}
+          sx={{
+            color: '#FEF9E1',
+            '&:hover': {
+              backgroundColor: 'rgba(254, 249, 225, 0.1)',
+            },
+          }}
         >
           <Close />
         </IconButton>
       </DialogTitle>
-      <DialogContent sx={{ mt: 2 }}>
-        <TableContainer
-          component={Paper}
-          sx={{ maxHeight: '500px', overflow: 'auto', boxShadow: 3 }}
-        >
-          <Table stickyHeader>
+        <PremiumTableContainer>
+          <Table 
+            stickyHeader 
+          >
             <TableHead>
-              <TableRow>
+              <TableRow sx={{ bgcolor: 'rgba(254, 249, 225, 0.7)' }}>
                 {[
                   'Employee Number',
                   'Day',
@@ -194,49 +320,63 @@ const OfficialTimeForm = () => {
                   'Over-Time In',
                   'Over-Time Out',
                 ].map((header, i) => (
-                  <TableCell
+                  <PremiumTableCell
                     key={i}
-                    sx={{
-                      backgroundColor: '#6D2323',
-                      color: 'white',
-                      fontWeight: 'bold',
-                      minWidth: '105px',
-                    }}
+                    isHeader
+                    sx={{ color: accentColor }}
                   >
                     {header}
-                  </TableCell>
+                  </PremiumTableCell>
                 ))}
               </TableRow>
             </TableHead>
             <TableBody>
               {previewRecords.map((record, index) => (
-                <TableRow key={index} hover>
-                  <TableCell>{record.employeeID}</TableCell>
-                  <TableCell>{record.day}</TableCell>
-                  <TableCell>{record.officialTimeIN}</TableCell>
-                  <TableCell>{record.officialBreaktimeIN}</TableCell>
-                  <TableCell>{record.officialBreaktimeOUT}</TableCell>
-                  <TableCell>{record.officialTimeOUT}</TableCell>
-                  <TableCell>{record.officialHonorariumTimeIN}</TableCell>
-                  <TableCell>{record.officialHonorariumTimeOUT}</TableCell>
-                  <TableCell>{record.officialServiceCreditTimeIN}</TableCell>
-                  <TableCell>{record.officialServiceCreditTimeOUT}</TableCell>
-                  <TableCell>{record.officialOverTimeIN}</TableCell>
-                  <TableCell>{record.officialOverTimeOUT}</TableCell>
+                <TableRow 
+                  key={index}
+                  sx={{ 
+                    '&:nth-of-type(even)': { bgcolor: 'rgba(254, 249, 225, 0.3)' },
+                    '&:hover': { bgcolor: 'rgba(109, 35, 35, 0.05)' },
+                    transition: 'all 0.2s ease'
+                  }}
+                >
+                  <PremiumTableCell>{record.employeeID}</PremiumTableCell>
+                  <PremiumTableCell>{record.day}</PremiumTableCell>
+                  <PremiumTableCell>{record.officialTimeIN}</PremiumTableCell>
+                  <PremiumTableCell>{record.officialBreaktimeIN}</PremiumTableCell>
+                  <PremiumTableCell>{record.officialBreaktimeOUT}</PremiumTableCell>
+                  <PremiumTableCell>{record.officialTimeOUT}</PremiumTableCell>
+                  <PremiumTableCell>{record.officialHonorariumTimeIN}</PremiumTableCell>
+                  <PremiumTableCell>{record.officialHonorariumTimeOUT}</PremiumTableCell>
+                  <PremiumTableCell>{record.officialServiceCreditTimeIN}</PremiumTableCell>
+                  <PremiumTableCell>{record.officialServiceCreditTimeOUT}</PremiumTableCell>
+                  <PremiumTableCell>{record.officialOverTimeIN}</PremiumTableCell>
+                  <PremiumTableCell>{record.officialOverTimeOUT}</PremiumTableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
-        </TableContainer>
-      </DialogContent>
-      <DialogActions sx={{ p: 2 }}>
-        <Button
-          variant="contained"
+        </PremiumTableContainer>
+      <DialogActions
+        sx={{
+          backgroundColor: '#FEF9E1',
+          padding: '16px 24px',
+          justifyContent: 'center',
+        }}
+      >
+        <ProfessionalButton
           onClick={() => setShowPreviewModal(false)}
-          sx={{ bgcolor: '#6D2323', '&:hover': { bgcolor: '#8B2E2E' } }}
+          variant="contained"
+          sx={{
+            backgroundColor: accentColor,
+            color: primaryColor,
+            '&:hover': {
+              backgroundColor: accentDark,
+            }
+          }}
         >
           Close
-        </Button>
+        </ProfessionalButton>
       </DialogActions>
     </Dialog>
   );
@@ -265,7 +405,7 @@ const OfficialTimeForm = () => {
       );
       setLoading(false);
 
-      // Display the uploaded records in modal if they exist
+      // Display uploaded records in modal if they exist
       if (response.data.records && response.data.records.length > 0) {
         setPreviewRecords(response.data.records);
         setShowPreviewModal(true);
@@ -289,422 +429,520 @@ const OfficialTimeForm = () => {
   };
 
   return (
-    <Container
-      sx={{
-        paddingBottom: '70px',
-        borderRadius: '10px',
-        paddingTop: '20px',
-        minWidth: '1500px', // Set a minimum width
-        width: '100%',
-      }}
-    >
-      <Box
-        sx={{
-          backgroundColor: '#6D2323',
-          color: '#ffffff',
-          padding: '20px',
-          borderRadius: '8px',
-          borderBottomLeftRadius: '0px',
-          borderBottomRightRadius: '0px',
-          mb: 0,
-        }}
-      >
-        <Box sx={{ display: 'flex', alignItems: 'center', color: '#ffffff' }}>
-          <SearchIcon
-            sx={{
-              fontSize: '3rem',
-              marginRight: '16px',
-              marginTop: '5px',
-              marginLeft: '5px',
-            }}
-          />
-          <Box>
-            <Typography
-              variant="h5"
-              fontWeight="bold"
-              sx={{ margin: 0, marginBottom: '2px' }}
-            >
-              Official Time Schedule
-            </Typography>
-            <Typography variant="body2" sx={{ margin: 0, fontSize: '85%' }}>
-              Manage and update official time schedules for employees
-            </Typography>
-          </Box>
-        </Box>
-      </Box>
-
-      <Box
-        display="flex"
-        justifyContent="space-between"
-        alignItems="center"
-        p={3}
-        mb={3}
-        sx={{
-          backgroundColor: '#f9f9f9',
-          borderRadius: '8px',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-        }}
-      >
-        {/* Left Section - Employee Search */}
-        <Box>
-          <Typography
-            variant="subtitle2"
-            fontWeight="bold"
-            sx={{ mb: 1, color: '#6D2323' }}
-          >
-            Employee Number:
-          </Typography>
-          <Box display="flex" gap={2}>
-            <TextField
-              variant="outlined"
-              size="small"
-              value={employeeID}
-              onChange={(e) => {
-                const value = e.target.value;
-                if (value === '' || /^\d+$/.test(value)) {
-                  setemployeeID(value);
-                }
-              }}
-              onKeyPress={(e) => {
-                if (!/[0-9]/.test(e.key)) {
-                  e.preventDefault();
-                }
-              }}
-              sx={{
-                minWidth: '250px',
-                '& .MuiOutlinedInput-root': {
-                  '&:hover fieldset': {
-                    borderColor: '#6D2323',
-                  },
-                  '&.Mui-focused fieldset': {
-                    borderColor: '#6D2323',
-                  },
-                },
-              }}
-            />
-            <Button
-              variant="contained"
-              onClick={handleSearch}
-              startIcon={<SearchIcon />}
-              sx={{
-                bgcolor: '#6D2323',
-                '&:hover': {
-                  bgcolor: '#8B2E2E',
-                  transform: 'translateY(-2px)',
-                  boxShadow: '0 4px 12px rgba(109, 35, 35, 0.3)',
-                },
-                transition: 'all 0.3s ease',
-              }}
-            >
-              Search
-            </Button>
-          </Box>
-        </Box>
-
-        {/* Right Section - Upload File */}
-        <Box>
-          <Typography
-            variant="subtitle2"
-            fontWeight="bold"
-            sx={{ mb: 1, color: '#6D2323', textAlign: 'right' }}
-          >
-            Upload Excel File:
-          </Typography>
-          <Box display="flex" alignItems="center" gap={2}>
-            <input
-              type="file"
-              accept=".xlsx,.xls"
-              id="upload-button"
-              style={{ display: 'none' }}
-              onChange={(e) => setFile(e.target.files[0])}
-            />
-
-            <label htmlFor="upload-button">
-              <Button
-                variant="outlined"
-                component="span"
-                startIcon={
-                  <CloudUploadIcon
+    <>
+      {/* LoadingOverlay - Now outside everything to cover full page */}
+      <LoadingOverlay open={loading} message="Processing..." />
+      
+      <Box sx={{ 
+        py: 4,
+        borderRadius: '14px',
+        width: '100vw', // Full viewport width
+        mx: 'auto', // Center horizontally
+        maxWidth: '100%', // Ensure it doesn't exceed viewport
+        overflow: 'hidden', // Prevent horizontal scroll
+        position: 'relative',
+        left: '50%',
+        transform: 'translateX(-50%)', // Center the element
+      }}>
+        {/* Wider Container */}
+        <Box sx={{ px: 6, mx: 'auto', maxWidth: '1600px' }}>
+          {/* Header */}
+          <Fade in timeout={500}>
+            <Box sx={{ mb: 4 }}>
+              <GlassCard>
+                <Box
+                  sx={{
+                    p: 5,
+                    background: `linear-gradient(135deg, ${primaryColor} 0%, ${secondaryColor} 100%)`,
+                    color: accentColor,
+                    position: 'relative',
+                    overflow: 'hidden',
+                  }}
+                >
+                  {/* Decorative elements */}
+                  <Box
                     sx={{
-                      transition: 'transform 0.3s ease',
+                      position: 'absolute',
+                      top: -50,
+                      right: -50,
+                      width: 200,
+                      height: 200,
+                      background: 'radial-gradient(circle, rgba(109,35,35,0.1) 0%, rgba(109,35,35,0) 70%)',
                     }}
                   />
+                  <Box
+                    sx={{
+                      position: 'absolute',
+                      bottom: -30,
+                      left: '30%',
+                      width: 150,
+                      height: 150,
+                      background: 'radial-gradient(circle, rgba(109,35,35,0.08) 0%, rgba(109,35,35,0) 70%)',
+                    }}
+                  />
+                  
+                  <Box display="flex" alignItems="center" justifyContent="space-between" position="relative" zIndex={1}>
+                    <Box display="flex" alignItems="center">
+                      <Avatar 
+                        sx={{ 
+                          bgcolor: 'rgba(109,35,35,0.15)', 
+                          mr: 4, 
+                          width: 64, 
+                          height: 64,
+                          boxShadow: '0 8px 24px rgba(109,35,35,0.15)'
+                        }}
+                      >
+                        <Schedule sx={{color: accentColor, fontSize: 32 }} />
+                      </Avatar>
+                      <Box>
+                        <Typography variant="h4" component="h1" sx={{ fontWeight: 700, mb: 1, lineHeight: 1.2, color: accentColor }}>
+                          Official Time Schedule
+                        </Typography>
+                        <Typography variant="body1" sx={{ opacity: 0.8, fontWeight: 400, color: accentDark }}>
+                          Manage and update official time schedules for employees
+                        </Typography>
+                      </Box>
+                    </Box>
+                    <Box display="flex" alignItems="center" gap={2}>
+                      <Chip 
+                        label="System Generated" 
+                        size="small" 
+                        sx={{ 
+                          bgcolor: 'rgba(109,35,35,0.15)', 
+                          color: accentColor,
+                          fontWeight: 500,
+                          '& .MuiChip-label': { px: 1 }
+                        }} 
+                      />
+                      <Tooltip title="Refresh Data">
+                        <IconButton 
+                          onClick={handleSearch}
+                          disabled={!employeeID}
+                          sx={{ 
+                            bgcolor: 'rgba(109,35,35,0.1)', 
+                            '&:hover': { bgcolor: 'rgba(109,35,35,0.2)' },
+                            color: accentColor,
+                            width: 48,
+                            height: 48,
+                            '&:disabled': { 
+                              bgcolor: 'rgba(109,35,35,0.05)',
+                              color: 'rgba(109,35,35,0.3)'
+                            }
+                          }}
+                        >
+                          <SearchIcon />
+                        </IconButton>
+                      </Tooltip>
+                    </Box>
+                  </Box>
+                </Box>
+              </GlassCard>
+            </Box>
+          </Fade>
+
+          {/* Controls */}
+          <Fade in timeout={700}>
+            <GlassCard sx={{ mb: 4 }}>
+              <CardHeader
+                title={
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                    <Avatar sx={{ bgcolor: alpha(primaryColor, 0.8), color: accentColor }}>
+                      <FilterList />
+                    </Avatar>
+                    <Box>
+                      <Typography variant="body2" color="text.secondary" sx={{ color: accentDark }}>
+                        Search for employee or upload Excel file with time schedules
+                      </Typography>
+                    </Box>
+                  </Box>
                 }
-                sx={{
-                  color: '#6D2323',
-                  borderColor: '#6D2323',
-                  '&:hover': {
-                    bgcolor: '#f5f5f5',
-                    borderColor: '#6D2323',
-                    transform: 'translateY(-2px)',
-                    boxShadow: '0 4px 12px rgba(109, 35, 35, 0.2)',
-                    '& .MuiSvgIcon-root': {
-                      transform: 'translateY(-3px)',
-                    },
-                  },
-                  transition: 'all 0.3s ease',
+                sx={{ 
+                  bgcolor: alpha(primaryColor, 0.5), 
+                  pb: 2,
+                  borderBottom: '1px solid rgba(109,35,35,0.1)'
                 }}
-              >
-                Choose File
-              </Button>
-            </label>
+              />
+              <CardContent sx={{ p: 4 }}>
+                <Grid container spacing={4}>
+                  <Grid item xs={12} md={6}>
+                    <Typography variant="h6" gutterBottom sx={{ fontWeight: 600, color: accentColor, display: 'flex', alignItems: 'center', mb: 3 }}>
+                      <Person sx={{ mr: 2, fontSize: 24 }} />
+                      Employee Search
+                    </Typography>
+                    <Box display="flex" gap={2} alignItems="flex-end">
+                      <Box sx={{ flexGrow: 1 }}>
+                        <ModernTextField
+                          fullWidth
+                          label="Employee Number"
+                          value={employeeID}
+                          onChange={(e) => {
+                            const value = e.target.value;
+                            if (value === '' || /^\d+$/.test(value)) {
+                              setemployeeID(value);
+                            }
+                          }}
+                          onKeyPress={(e) => {
+                            if (!/[0-9]/.test(e.key)) {
+                              e.preventDefault();
+                            }
+                          }}
+                          InputProps={{
+                            startAdornment: (
+                              <InputAdornment position="start">
+                                <Person sx={{ color: accentColor }} />
+                              </InputAdornment>
+                            ),
+                          }}
+                        />
+                      </Box>
+                      <ProfessionalButton
+                        variant="contained"
+                        onClick={handleSearch}
+                        startIcon={<SearchIcon />}
+                        disabled={!employeeID}
+                        sx={{
+                          bgcolor: accentColor,
+                          color: primaryColor,
+                        }}
+                      >
+                        Search
+                      </ProfessionalButton>
+                    </Box>
+                  </Grid>
+                  <Grid item xs={12} md={6}>
+                    <Typography variant="h6" gutterBottom sx={{ fontWeight: 600, color: accentColor, display: 'flex', alignItems: 'center', mb: 3 }}>
+                      <UploadFile sx={{ mr: 2, fontSize: 24 }} />
+                      File Upload
+                    </Typography>
+                    <Box display="flex" gap={2} alignItems="flex-end">
+                      <Box sx={{ flexGrow: 1 }}>
+                        <input
+                          type="file"
+                          accept=".xlsx,.xls"
+                          id="upload-button"
+                          style={{ display: 'none' }}
+                          onChange={(e) => setFile(e.target.files[0])}
+                        />
+                        <label htmlFor="upload-button">
+                          <ProfessionalButton
+                            variant="outlined"
+                            component="span"
+                            fullWidth
+                            startIcon={<CloudUploadIcon />}
+                            sx={{
+                              borderColor: accentColor,
+                              color: accentColor,
+                              '&:hover': {
+                                backgroundColor: alpha(accentColor, 0.1),
+                              }
+                            }}
+                          >
+                            Choose File
+                          </ProfessionalButton>
+                        </label>
+                        {file && (
+                          <Box sx={{ mt: 2, p: 2, bgcolor: alpha(accentColor, 0.1), borderRadius: 2 }}>
+                            <Typography variant="body2" color={accentColor}>
+                              Selected: {file.name}
+                            </Typography>
+                          </Box>
+                        )}
+                      </Box>
+                      <ProfessionalButton
+                        variant="contained"
+                        onClick={handleUpload}
+                        disabled={!file}
+                        startIcon={<CloudUploadIcon />}
+                        sx={{
+                          bgcolor: accentColor,
+                          color: primaryColor,
+                        }}
+                      >
+                        Upload
+                      </ProfessionalButton>
+                    </Box>
+                  </Grid>
+                </Grid>
+              </CardContent>
+            </GlassCard>
+          </Fade>
 
-            {file && (
-              <Box
-                sx={{
-                  bgcolor: '#f0f0f0',
-                  px: 2,
-                  py: 0.5,
-                  borderRadius: '4px',
-                  maxWidth: '200px',
-                }}
-              >
-                <Typography variant="body2" noWrap>
-                  {file.name}
-                </Typography>
-              </Box>
-            )}
+          {/* Results */}
+          {records.length > 0 && (
+            <Fade in={!loading} timeout={500}>
+              <GlassCard sx={{ mb: 4 }}>
+                <Box sx={{ 
+                  p: 4, 
+                  background: `linear-gradient(135deg, ${primaryColor} 0%, ${secondaryColor} 100%)`, 
+                  color: accentColor,
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center'
+                }}>
+                  <Box>
+                    <Typography variant="body2" sx={{ opacity: 0.8, mb: 1, textTransform: 'uppercase', letterSpacing: '0.1em', color: accentDark }}>
+                      Time Schedule for Employee
+                    </Typography>
+                    <Typography variant="h4" sx={{ fontWeight: 600, mb: 1, color: accentColor }}>
+                      {employeeID}
+                    </Typography>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mt: 2 }}>
+                      <Chip 
+                        icon={<AccessTime />}
+                        label={found ? "Existing Schedule" : "New Schedule"}
+                        size="small"
+                        sx={{ 
+                          bgcolor: 'rgba(109,35,35,0.15)', 
+                          color: accentColor,
+                          fontWeight: 500
+                        }} 
+                      />
+                    </Box>
+                  </Box>
+                  <Avatar 
+                    sx={{ 
+                      bgcolor: 'rgba(109,35,35,0.15)', 
+                      width: 80, 
+                      height: 80,
+                      fontSize: '2rem',
+                      fontWeight: 600,
+                      color: accentColor
+                    }}
+                  >
+                    <Schedule />
+                  </Avatar>
+                </Box>
 
-            <Button
-              variant="contained"
-              onClick={handleUpload}
-              disabled={!file}
-              startIcon={
-                <CloudUploadIcon
-                  sx={{
-                    transition: 'transform 0.3s ease',
-                  }}
-                />
-              }
-              sx={{
-                bgcolor: '#6D2323',
-                '&:hover': {
-                  bgcolor: '#8B2E2E',
-                  transform: 'translateY(-2px)',
-                  boxShadow: '0 4px 12px rgba(109, 35, 35, 0.3)',
-                  '& .MuiSvgIcon-root': {
-                    transform: 'translateY(-3px)',
-                  },
-                },
-                '&:disabled': {
-                  bgcolor: '#ccc',
-                },
-                transition: 'all 0.3s ease',
-              }}
-            >
-              Upload
-            </Button>
-          </Box>
-        </Box>
-      </Box>
-      {records.length > 0 && (
-        <form onSubmit={handleSubmit}>
-          <TableContainer
-            component={Paper}
-            sx={{ maxHeight: '580px', overflow: 'auto', boxShadow: 3 }}
-          >
-            <Table stickyHeader>
-              <TableHead>
-                <TableRow>
-                  {[
-                    'Employee Number',
-                    'Day',
-                    'Time In',
-                    'Break In',
-                    'Break Out',
-                    'Time Out',
-                    'Honorarium Time In',
-                    'Honorarium Time Out',
-                    'Service Credit Time In',
-                    'Service Credit Time Out',
-                    'Over-Time In',
-                    'Over-Time Out',
-                  ].map((header, i) => (
-                    <TableCell
-                      key={i}
-                      sx={{
-                        backgroundColor: '#6D2323',
-                        color: 'white',
-                        fontWeight: 'bold',
-                        minWidth: '105px',
+                <Box component="form" onSubmit={handleSubmit} sx={{ p: 2 }}>
+                  <PremiumTableContainer>
+                    <Table 
+                      stickyHeader 
+                      sx={{ 
+                        minWidth: '1400px', // Set minimum width to ensure horizontal scrolling
                       }}
                     >
-                      {header}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {records.map((record, index) => (
-                  <TableRow key={index} hover>
-                    <TableCell>
-                      <TextField
-                        variant="outlined"
-                        size="small"
-                        value={record.employeeID}
-                        InputProps={{ readOnly: true }}
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <TextField
-                        variant="outlined"
-                        size="small"
-                        value={record.day}
-                        InputProps={{ readOnly: true }}
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <TextField
-                        variant="outlined"
-                        size="small"
-                        value={record.officialTimeIN}
-                        onChange={(e) =>
-                          handleChange(index, 'officialTimeIN', e.target.value)
-                        }
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <TextField
-                        variant="outlined"
-                        size="small"
-                        value={record.officialBreaktimeIN}
-                        onChange={(e) =>
-                          handleChange(
-                            index,
-                            'officialBreaktimeIN',
-                            e.target.value
-                          )
-                        }
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <TextField
-                        variant="outlined"
-                        size="small"
-                        value={record.officialBreaktimeOUT}
-                        onChange={(e) =>
-                          handleChange(
-                            index,
-                            'officialBreaktimeOUT',
-                            e.target.value
-                          )
-                        }
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <TextField
-                        variant="outlined"
-                        size="small"
-                        value={record.officialTimeOUT}
-                        onChange={(e) =>
-                          handleChange(index, 'officialTimeOUT', e.target.value)
-                        }
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <TextField
-                        variant="outlined"
-                        size="small"
-                        value={record.officialHonorariumTimeIN}
-                        onChange={(e) =>
-                          handleChange(
-                            index,
-                            'officialHonorariumTimeIN',
-                            e.target.value
-                          )
-                        }
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <TextField
-                        variant="outlined"
-                        size="small"
-                        value={record.officialHonorariumTimeOUT}
-                        onChange={(e) =>
-                          handleChange(
-                            index,
-                            'officialHonorariumTimeOUT',
-                            e.target.value
-                          )
-                        }
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <TextField
-                        variant="outlined"
-                        size="small"
-                        value={record.officialServiceCreditTimeIN}
-                        onChange={(e) =>
-                          handleChange(
-                            index,
-                            'officialServiceCreditTimeIN',
-                            e.target.value
-                          )
-                        }
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <TextField
-                        variant="outlined"
-                        size="small"
-                        value={record.officialServiceCreditTimeOUT}
-                        onChange={(e) =>
-                          handleChange(
-                            index,
-                            'officialServiceCreditTimeOUT',
-                            e.target.value
-                          )
-                        }
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <TextField
-                        variant="outlined"
-                        size="small"
-                        value={record.officialOverTimeIN}
-                        onChange={(e) =>
-                          handleChange(
-                            index,
-                            'officialOverTimeIN',
-                            e.target.value
-                          )
-                        }
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <TextField
-                        variant="outlined"
-                        size="small"
-                        value={record.officialOverTimeOUT}
-                        onChange={(e) =>
-                          handleChange(
-                            index,
-                            'officialOverTimeOUT',
-                            e.target.value
-                          )
-                        }
-                      />
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
+                      <TableHead>
+                        <TableRow sx={{ bgcolor: 'rgba(254, 249, 225, 0.7)' }}>
+                          {[
+                            'Employee Number',
+                            'Day',
+                            'Time In',
+                            'Break In',
+                            'Break Out',
+                            'Time Out',
+                            'Honorarium Time In',
+                            'Honorarium Time Out',
+                            'Service Credit Time In',
+                            'Service Credit Time Out',
+                            'Over-Time In',
+                            'Over-Time Out',
+                          ].map((header, i) => (
+                            <PremiumTableCell
+                              key={i}
+                              isHeader
+                              sx={{ color: accentColor }}
+                            >
+                              {header}
+                            </PremiumTableCell>
+                          ))}
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        {records.map((record, index) => (
+                          <TableRow 
+                            key={index}
+                            sx={{ 
+                              '&:nth-of-type(even)': { bgcolor: 'rgba(254, 249, 225, 0.3)' },
+                              '&:hover': { bgcolor: 'rgba(109, 35, 35, 0.05)' },
+                              transition: 'all 0.2s ease'
+                            }}
+                          >
+                            <PremiumTableCell>
+                              <ModernTextField
+                                variant="outlined"
+                                size="small"
+                                value={record.employeeID}
+                                InputProps={{ readOnly: true }}
+                              />
+                            </PremiumTableCell>
+                            <PremiumTableCell>
+                              <ModernTextField
+                                variant="outlined"
+                                size="small"
+                                value={record.day}
+                                InputProps={{ readOnly: true }}
+                              />
+                            </PremiumTableCell>
+                            <PremiumTableCell>
+                              <ModernTextField
+                                variant="outlined"
+                                size="small"
+                                value={record.officialTimeIN}
+                                onChange={(e) =>
+                                  handleChange(index, 'officialTimeIN', e.target.value)
+                                }
+                              />
+                            </PremiumTableCell>
+                            <PremiumTableCell>
+                              <ModernTextField
+                                variant="outlined"
+                                size="small"
+                                value={record.officialBreaktimeIN}
+                                onChange={(e) =>
+                                  handleChange(
+                                    index,
+                                    'officialBreaktimeIN',
+                                    e.target.value
+                                  )
+                                }
+                              />
+                            </PremiumTableCell>
+                            <PremiumTableCell>
+                              <ModernTextField
+                                variant="outlined"
+                                size="small"
+                                value={record.officialBreaktimeOUT}
+                                onChange={(e) =>
+                                  handleChange(
+                                    index,
+                                    'officialBreaktimeOUT',
+                                    e.target.value
+                                  )
+                                }
+                              />
+                            </PremiumTableCell>
+                            <PremiumTableCell>
+                              <ModernTextField
+                                variant="outlined"
+                                size="small"
+                                value={record.officialTimeOUT}
+                                onChange={(e) =>
+                                  handleChange(index, 'officialTimeOUT', e.target.value)
+                                }
+                              />
+                            </PremiumTableCell>
+                            <PremiumTableCell>
+                              <ModernTextField
+                                variant="outlined"
+                                size="small"
+                                value={record.officialHonorariumTimeIN}
+                                onChange={(e) =>
+                                  handleChange(
+                                    index,
+                                    'officialHonorariumTimeIN',
+                                    e.target.value
+                                  )
+                                }
+                              />
+                            </PremiumTableCell>
+                            <PremiumTableCell>
+                              <ModernTextField
+                                variant="outlined"
+                                size="small"
+                                value={record.officialHonorariumTimeOUT}
+                                onChange={(e) =>
+                                  handleChange(
+                                    index,
+                                    'officialHonorariumTimeOUT',
+                                    e.target.value
+                                  )
+                                }
+                              />
+                            </PremiumTableCell>
+                            <PremiumTableCell>
+                              <ModernTextField
+                                variant="outlined"
+                                size="small"
+                                value={record.officialServiceCreditTimeIN}
+                                onChange={(e) =>
+                                  handleChange(
+                                    index,
+                                    'officialServiceCreditTimeIN',
+                                    e.target.value
+                                  )
+                                }
+                              />
+                            </PremiumTableCell>
+                            <PremiumTableCell>
+                              <ModernTextField
+                                variant="outlined"
+                                size="small"
+                                value={record.officialServiceCreditTimeOUT}
+                                onChange={(e) =>
+                                  handleChange(
+                                    index,
+                                    'officialServiceCreditTimeOUT',
+                                    e.target.value
+                                  )
+                                }
+                              />
+                            </PremiumTableCell>
+                            <PremiumTableCell>
+                              <ModernTextField
+                                variant="outlined"
+                                size="small"
+                                value={record.officialOverTimeIN}
+                                onChange={(e) =>
+                                  handleChange(
+                                    index,
+                                    'officialOverTimeIN',
+                                    e.target.value
+                                  )
+                                }
+                              />
+                            </PremiumTableCell>
+                            <PremiumTableCell>
+                              <ModernTextField
+                                variant="outlined"
+                                size="small"
+                                value={record.officialOverTimeOUT}
+                                onChange={(e) =>
+                                  handleChange(
+                                    index,
+                                    'officialOverTimeOUT',
+                                    e.target.value
+                                  )
+                                }
+                              />
+                            </PremiumTableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </PremiumTableContainer>
 
-          <Button
-            type="submit"
-            variant="contained"
-            sx={{ mt: 2, bgcolor: '#6D2323', float: 'right' }}
-            startIcon={<SaveIcon />}
-          >
-            {found ? 'Update' : 'Save'}
-          </Button>
-        </form>
-      )}
-      <LoadingOverlay open={loading} message="Processing..." />
-      <SuccessfulOverlay open={successOpen} action={successAction} />
-      <PreviewModal />
-    </Container>
+                  <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end' }}>
+                    <ProfessionalButton
+                      type="submit"
+                      variant="contained"
+                      startIcon={<SaveIcon />}
+                      sx={{
+                        py: 2,
+                        px: 6,
+                        bgcolor: accentColor,
+                        color: primaryColor,
+                        fontSize: '1rem',
+                        '&:hover': {
+                          bgcolor: accentDark,
+                        }
+                      }}
+                    >
+                      {found ? 'Update' : 'Save'}
+                    </ProfessionalButton>
+                  </Box>
+                </Box>
+              </GlassCard>
+            </Fade>
+          )}
+
+          {/* Modal */}
+          <PreviewModal />
+          
+          {/* Success Overlay */}
+          <SuccessfulOverlay open={successOpen} action={successAction} />
+        </Box>
+      </Box>
+    </>
   );
 };
 
