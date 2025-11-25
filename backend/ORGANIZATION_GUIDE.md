@@ -1,6 +1,7 @@
 # Backend Organization Guide
 
 ## Overview
+
 The backend has been partially organized. The goal is to move all route handlers from `index.js` into organized route files.
 
 ## Current Structure
@@ -8,7 +9,7 @@ The backend has been partially organized. The goal is to move all route handlers
 ```
 backend/
 ├── index.js                    # Main entry point (CLEAN - only imports and mounts routes)
-├── index.old.js                # Backup of original file (4841 lines)
+├── index.old.js                # Backup of  original file (4841 lines)
 ├── middleware/
 │   ├── auth.js                 # Authentication middleware
 │   └── upload.js               # File upload configuration
@@ -28,17 +29,21 @@ backend/
 ## ✅ Completed Organization
 
 ### Middleware
+
 - ✅ `middleware/auth.js` - Authentication and audit logging
 - ✅ `middleware/upload.js` - File upload configurations
 
 ### Config
+
 - ✅ `config/email.js` - Email transporter
 
 ### Utils
+
 - ✅ `utils/verificationCodes.js` - Verification code storage
 - ✅ `utils/excelDate.js` - Excel date conversion
 
 ### Routes
+
 - ✅ `routes/auth.js` - Login, 2FA routes
 - ✅ `routes/password.js` - Password management routes
 
@@ -47,12 +52,14 @@ backend/
 The following routes are still in `index.old.js` and need to be moved to organized route files:
 
 ### Users (`routes/users.js`)
+
 - `POST /register`
 - `POST /excel-register`
 - `GET /users`
 - `GET /users/:employeeNumber`
 
 ### Pages (`routes/pages.js`)
+
 - `GET /pages`
 - `POST /pages`
 - `PUT /pages/:id`
@@ -62,6 +69,7 @@ The following routes are still in `index.old.js` and need to be moved to organiz
 - `PUT /page_access/:employeeNumber/:pageId`
 
 ### Learning & Development (`routes/learning.js`)
+
 - `GET /learning_and_development_table`
 - `GET /learning_and_development_table/by-person/:person_id`
 - `POST /learning_and_development_table`
@@ -70,29 +78,34 @@ The following routes are still in `index.old.js` and need to be moved to organiz
 - `POST /upload_learning_and_development_table`
 
 ### Official Time (`routes/officialtime.js`)
+
 - `GET /officialtimetable/:employeeID`
 - `POST /officialtimetable`
 - `POST /upload-excel-faculty-official-time`
 
 ### Remittance (`routes/remittance.js`)
+
 - `GET /employee-remittance`
 - `POST /employee-remittance`
 - `PUT /employee-remittance/:id`
 - `DELETE /employee-remittance/:id`
 
 ### Item Table (`routes/item.js`)
+
 - `GET /api/item-table`
 - `POST /api/item-table`
 - `PUT /api/item-table/:id`
 - `DELETE /api/item-table/:id`
 
 ### Salary Grade (`routes/salary.js`)
+
 - `GET /api/salary-grade-status`
 - `POST /api/salary-grade-status`
 - `PUT /api/salary-grade-status/:id`
 - `DELETE /api/salary-grade-status/:id`
 
 ### Department (`routes/department.js`)
+
 - `GET /api/department-table`
 - `GET /api/department-table/:id`
 - `POST /api/department-table`
@@ -105,6 +118,7 @@ The following routes are still in `index.old.js` and need to be moved to organiz
 - `DELETE /api/department-assignment/:id`
 
 ### Leave (`routes/leave.js`)
+
 - `GET /leave`
 - `POST /leave`
 - `PUT /leave/:id`
@@ -115,36 +129,43 @@ The following routes are still in `index.old.js` and need to be moved to organiz
 - `DELETE /leave_assignment/:id`
 
 ### Holiday (`routes/holiday.js`)
+
 - `GET /holiday`
 - `POST /holiday`
 - `PUT /holiday/:id`
 - `DELETE /holiday/:id`
 
 ### PhilHealth (`routes/philhealth.js`)
+
 - `POST /api/philhealth`
 - `GET /api/philhealth`
 - `PUT /api/philhealth/:id`
 - `DELETE /api/philhealth/:id`
 
 ### Profile (`routes/profile.js`)
+
 - `POST /upload-profile-picture/:employeeNumber`
 
 ### Announcements (`routes/announcements.js`)
+
 - `GET /api/announcements`
 - `POST /api/announcements`
 - `PUT /api/announcements/:id`
 - `DELETE /api/announcements/:id`
 
 ### Audit (`routes/audit.js`)
+
 - `GET /audit-logs`
 
 ### Tasks (`routes/tasks.js`)
+
 - `GET /tasks`
 - `POST /tasks`
 - `PUT /tasks/:id/toggle`
 - `DELETE /tasks/:id`
 
 ### Dashboard (`routes/dashboard.js`)
+
 - `GET /api/dashboard/stats`
 - `GET /api/dashboard/attendance-overview`
 - `GET /api/dashboard/department-distribution`
@@ -156,16 +177,19 @@ The following routes are still in `index.old.js` and need to be moved to organiz
 - `GET /api/dashboard/employee-stats/:employeeNumber`
 
 ### Notes (`routes/notes.js`)
+
 - `GET /api/notes/:employeeNumber`
 - `POST /api/notes`
 - `DELETE /api/notes/:id`
 
 ### Events (`routes/events.js`)
+
 - `GET /api/events/:employeeNumber`
 - `POST /api/events`
 - `DELETE /api/events/:id`
 
 ### Settings (`routes/settings.js`)
+
 - `GET /api/system-settings`
 - `GET /api/system-settings/:key`
 - `PUT /api/system-settings`
@@ -180,21 +204,23 @@ The following routes are still in `index.old.js` and need to be moved to organiz
 1. **Create a new route file** in `routes/` directory (e.g., `routes/users.js`)
 
 2. **Copy route definitions** from `index.old.js` to the new file:
+
    ```javascript
    const express = require('express');
    const router = express.Router();
    const db = require('../db');
    const { authenticateToken } = require('../middleware/auth');
-   
+
    // Route definitions here
    router.post('/register', async (req, res) => {
      // ... route handler
    });
-   
+
    module.exports = router;
    ```
 
 3. **Import and mount** in `index.js`:
+
    ```javascript
    const userRoutes = require('./routes/users');
    // ...
@@ -214,5 +240,3 @@ The following routes are still in `index.old.js` and need to be moved to organiz
 - All route definitions are still in `index.old.js` for reference
 - As routes are organized, update `index.js` to import them
 - Keep route paths consistent with existing frontend expectations
-
-

@@ -178,3 +178,5 @@ For each component:
 - ✅ No need to modify individual components for color changes
 
 
+
+
